@@ -4,92 +4,60 @@
             <thead>
                 <tr>
                     <th scope="col">
-                        <InputCheckbox></InputCheckbox>
+                        <InputCheckbox @changeChecked="handleCheckAll" :checked="isCheckedAll">
+                        </InputCheckbox>
                     </th>
-                    <th title="Số thứ tự" scope="col">STT</th>
+                    <th scope="col">
+                        <TheToolTip tooltip="Số thứ tự">
+                            STT
+                        </TheToolTip>
+                    </th>
                     <th scope="col">Mã tài sản</th>
                     <th scope="col">Tên tài sản</th>
                     <th scope="col">Loại tài sản</th>
                     <th scope="col">Bộ phận sử dụng</th>
                     <th scope="col">Số lượng</th>
                     <th scope="col">Nguyên giá</th>
-                    <th title="Hao mòn/ khấu hao lũy kế" scope="col">HM/KH lũy kế</th>
+                    <th scope="col">
+                        <TheToolTip tooltip="Hao mòn/khấu hao lũy kế">
+                            HM/KH lũy kế
+                        </TheToolTip>
+                    </th>
                     <th scope="col">Giá trị còn lại</th>
                     <th scope="col">Chức năng</th>
                 </tr>
             </thead>
             <tbody class="table__body">
-                <tr>
+                <tr @dblclick="handleEdit(tr)" v-for="(tr, index) in tbody" :key="tr.td2">
                     <td scope="row">
-                        <InputCheckbox></InputCheckbox>
+                        <InputCheckbox @changeChecked="(checked) => handleCheck(checked, index)" :checked="tr.isChecked">
+                        </InputCheckbox>
                     </td>
-                    <td>1</td>
-                    <td>MXT88618</td>
-                    <td>Máy tính sách tay Fujitsu</td>
-                    <td scope="row">Máy vi tính sách tay</td>
-                    <td>Phòng Hành chính Kế toán</td>
-                    <td>1</td>
-                    <td>10.000.000</td>
-                    <td>1.125.000</td>
-                    <td>8.775.000</td>
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ tr.td2 }}</td>
+                    <td>{{ tr.td3 }}</td>
+                    <td>{{ tr.td4 }}</td>
+                    <td>{{ tr.td5 }}</td>
+                    <td>{{ tr.td6 }}</td>
+                    <td>{{ convertCurrency(tr.td7) }}</td>
+                    <td>{{ convertCurrency(tr.td8) }}</td>
+                    <td>{{ convertCurrency(tr.td9) }}</td>
                     <td>
                         <div class="table__function">
-                            <button class="table__function__button table__function__edit">
-                                <div class="icon-pen-edit"></div>
-                            </button>
-                            <button class="table__function__button table__function__detail">
-                                <div class="icon-file-detail"></div>
-                            </button>
+                            <TheToolTip tooltip="Sửa">
+                                <button @click="handleEdit(tr)" class="table__function__button table__function__edit">
+                                    <div class="icon-pen-edit"></div>
+                                </button>
+                            </TheToolTip>
+                            <TheToolTip tooltip="Nhân bản">
+                                <button @click="handleDuplicate(tr)"
+                                    class="table__function__button table__function__detail">
+                                    <div class="icon-file-detail"></div>
+                                </button>
+                            </TheToolTip>
                         </div>
                     </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <InputCheckbox></InputCheckbox>
-                    </td>
-                    <td>2</td>
-                    <td>MXT88618</td>
-                    <td>Máy tính sách tay Fujitsu</td>
-                    <td scope="row">Máy vi tính sách tay</td>
-                    <td>Phòng Hành chính Kế toán</td>
-                    <td>1</td>
-                    <td>10.000.000</td>
-                    <td>1.125.000</td>
-                    <td>8.775.000</td>
-                    <td>
-                        <div class="table__function">
-                            <button class="table__function__button table__function__edit">
-                                <div class="icon-pen-edit"></div>
-                            </button>
-                            <button class="table__function__button table__function__detail">
-                                <div class="icon-file-detail"></div>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <InputCheckbox></InputCheckbox>
-                    </td>
-                    <td>3</td>
-                    <td>MXT88618</td>
-                    <td>Máy tính sách tay Fujitsu</td>
-                    <td scope="row">Máy vi tính sách tay</td>
-                    <td>Phòng Hành chính Kế toán</td>
-                    <td>1</td>
-                    <td>10.000.000</td>
-                    <td>1.125.000</td>
-                    <td>8.775.000</td>
-                    <td>
-                        <div class="table__function">
-                            <button class="table__function__button table__function__edit">
-                                <div class="icon-pen-edit"></div>
-                            </button>
-                            <button class="table__function__button table__function__detail">
-                                <div class="icon-file-detail"></div>
-                            </button>
-                        </div>
-                    </td>
+
                 </tr>
             </tbody>
             <tbody class="table__footer">
@@ -114,18 +82,193 @@
                 </tr>
             </tbody>
         </table>
+        <ThePopup :isShow="isShowRemove" :isHasClose="false">
+            <MyDialog :text="dialogText" @click1="handleRemove" @click2="isShowRemove = false" quantity="2" button1="Xóa"
+                button2="Không">
+            </MyDialog>
+        </ThePopup>
+        <ThePopup :isShow="isShowForm" @close="isShowForm = false">
+            <TheForm :trChoose="trChoose" :typeForm="typeForm" @clickClose="isShowForm = false"></TheForm>
+        </ThePopup>
     </div>
 </template>
 
 <script>
+import MyDialog from '@/components/MyDialog.vue'
 import InputCheckbox from '../components/InputCheckbox.vue'
 import MyPaginate from '../components/MyPaginate.vue'
 import MySelect from '../components/MySelect.vue'
+import ThePopup from './ThePopup.vue'
+import TheToolTip from './TheToolTip.vue'
+import TheForm from './TheForm.vue'
 export default {
+    methods: {
+
+        /**
+         * @param {Interget} value 
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Hàm chuyển giá trị number thành tiền tệ, gọi hàm global function 
+         */
+        convertCurrency(value) {
+            return this.toCurrency(value)
+        },
+
+        /**
+         * @param {Boolean} checked 
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Hàm xử lý sự kiện khi người dùng click vào checkbox ở thead 
+         */
+        handleCheckAll(checked) {
+            this.isCheckedAll = checked
+            // tất cả checkbox ở tr có cùng giá trị với checkbox ở thead
+            this.tbody.forEach(tr => tr.isChecked = checked)
+        },
+
+        /**
+         * @param {Boolean} checked 
+         * @param {Interger} index 
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Hàm xử lý sự kiện khi người dùng click vào checkbox ở tr
+         */
+        handleCheck(checked, index) {
+            // gán giá trị isChecked tương ứng
+            this.tbody[index].isChecked = checked
+            let countChecked = 0
+            // kiểm tra xem tất cả các ô đã được checked chưa, nếu rồi thì gán isCheckedAll là true (để checked ở thead là true)
+            this.tbody.forEach(tr => countChecked += tr.isChecked ? 1 : 0)
+            this.isCheckedAll = countChecked == this.tbody.length
+        },
+
+        /**
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: Hàm xử lý sự kiện khi người dùng click button remove tài sản
+        */
+        handleRemove() {
+            // xóa tất cả các dòng có checked là true
+            this.tbody = this.tbody.filter(tr => !tr.isChecked)
+            this.isCheckedAll = false
+            this.isShowRemove = false
+        },
+
+        /**
+        * author: Nguyen Quoc Huy
+        * @param {Object} tr
+        * created at: 30/04/2023
+        * description: Hàm xử lý sự kiện khi người dùng click vào button sửa tài sản
+        */
+        handleEdit(tr) {
+            // mở form edit
+            this.isShowForm = true;
+            this.typeForm = 'edit';
+            // gán giá trị dữ liệu sửa bằng giá trị ở dòng người dùng click 
+            this.trChoose = tr
+        },
+
+        /**
+       * author: Nguyen Quoc Huy
+       * @param {Object} tr
+       * created at: 30/04/2023
+       * description: Hàm xử lý sự kiện khi người dùng click vào button nhân bản
+       */
+        handleDuplicate(tr) {
+            // mở form duplicate
+            this.isShowForm = true;
+            this.typeForm = 'duplicate';
+            // gán giá trị dữ liệu nhân bản bằng giá trị ở dòng người dùng click 
+            this.trChoose = tr
+        }
+    },
     components: {
         InputCheckbox,
         MyPaginate,
-        MySelect
+        MySelect,
+        MyDialog,
+        ThePopup,
+        TheToolTip,
+        TheForm
+    },
+
+    /**
+     * author: Nguyen Quoc Huy
+     * created at: 30/04/2023
+     * description: Hàm lắng nghe các global event khi component được mounted
+     */
+    mounted() {
+        // lắng nghe sự kiện multidelte từ header
+        this.emitter.on("multiDelete", () => {
+            const checkedTrs = this.tbody.filter(tr => tr.isChecked)
+            // nếu chưa có checkbox nào được chọn thì kết thúc hàm
+            if (!checkedTrs.length)
+                return
+            // tạo thông báo khi bản xóa 1 bản
+            else if (checkedTrs.length == 1)
+                this.dialogText = `Bạn có muốn xóa tài sản <strong>${checkedTrs[0].td2} - ${checkedTrs[0].td3}</strong>?`
+            // tạo thông báo khi xóa nhiều bản
+            else {
+                this.dialogText = `<strong>${checkedTrs.length < 10 ? '0' + checkedTrs.length : checkedTrs.length}</strong> tài sản đã được chọn. Bạn có muốn xóa các tài sản này khỏi danh sách?`
+            }
+            this.isShowRemove = true
+        });
+    },
+    data() {
+        return {
+            trChoose: null,
+            typeForm: 'edit',
+            isShowForm: false,
+            dialogText: '',
+            isShowRemove: false,
+            isCheckedAll: false,
+            tbody: [
+                {
+                    isChecked: false,
+                    td2: 'MXT88612',
+                    td3: 'Máy tính xách tay Lenovo',
+                    td4: 'Máy vi tính sách tay',
+                    td5: 'Phòng Hành chính kế toán',
+                    td6: '1',
+                    td7: 'alsdfjaskljf',
+                    td8: '1000000',
+                    td9: '8775000'
+                },
+                {
+                    isChecked: false,
+                    td2: 'MXT88618',
+                    td3: 'Máy tính xách tay Fujitsu',
+                    td4: 'Máy vi tính sách tay',
+                    td5: 'Phòng Hành chính kế toán',
+                    td6: '1',
+                    td7: '8000000',
+                    td8: '1125000',
+                    td9: '8775000'
+                },
+                {
+                    isChecked: false,
+                    td2: 'MXT88618',
+                    td3: 'Máy tính xách tay Fujitsu',
+                    td4: 'Máy vi tính sách tay',
+                    td5: 'Phòng Hành chính kế toán',
+                    td6: '1',
+                    td7: '10000000',
+                    td8: '1125000',
+                    td9: '8775000'
+                },
+                {
+                    isChecked: false,
+                    td2: 'MXT88618',
+                    td3: 'Máy tính xách tay Fujitsu',
+                    td4: 'Máy vi tính sách tay',
+                    td5: 'Phòng Hành chính kế toán',
+                    td6: '1',
+                    td7: '10000000',
+                    td8: '1125000',
+                    td9: '8775000'
+                },
+            ]
+        }
     }
 }
 </script>

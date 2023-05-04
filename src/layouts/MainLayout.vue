@@ -46,7 +46,7 @@ export default {
 }
 
 .body {
-    height: calc(100vh - 116px);
+    height: calc(100vh - 126px);
     padding: 0 16px;
     background-color: #f4f7ff;
     max-width: 100%;

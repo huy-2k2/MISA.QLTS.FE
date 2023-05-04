@@ -1,6 +1,6 @@
 <template>
     <div class="input_checkbox">
-        <input :id="uuid" type="checkbox">
+        <input @change="$emit('changeChecked', $event.target.checked)" :checked="checked" :id="uuid" type="checkbox">
         <label :for="uuid">
             <div class="input_checkbox__icon">
                 <div class="icon-checkbox"></div>
@@ -17,6 +17,12 @@ export default {
             uuid: uuid.v1()
         }
     },
+    props: {
+        checked: {
+            type: Boolean,
+            default: false
+        }
+    }
 
 }
 </script>

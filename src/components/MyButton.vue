@@ -1,5 +1,5 @@
 <template>
-    <button :type="type" class="button" :class="{ ['button--sub']: isSub }" fdprocessedid="yiwhza">
+    <button @click="$emit('clickButton')" :type="type" class="button" :class="{ ['button--sub']: isSub }">
         <div class="button__icon">
             <div :class="icon"></div>
         </div>
@@ -15,7 +15,7 @@ export default {
         icon: String,
         type: {
             type: String,
-            default: 'button'
+            default: ''
         },
         isSub: {
             type: Boolean,
@@ -40,7 +40,6 @@ export default {
     background-color: #1aa4c8;
     border-radius: 3px;
     border: none;
-    outline: none;
 }
 
 .button.button--sub {

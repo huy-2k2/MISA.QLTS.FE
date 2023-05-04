@@ -5,8 +5,11 @@
             <span v-if="required" class="label__required">*</span>
         </label>
         <div class="number_form__textfield">
-            <input @blur="$emit('blur')" ref="input" @input="handleChange" :disabled="disable" class="number_form__input"
-                :value="currrency ? valueCurrenCy : value" type="text">
+            <label :for="uuid" class="number_form__input">
+                <input :disabled="disable" @blur="$emit('blur')" @input="handleChange" :value="value" :id="uuid"
+                    type="text">
+                <span class="number_form__value">{{ currrency ? valueCurrenCy : value }}</span>
+            </label>
             <div v-if="icon" class="number_form__control">
                 <span @click="increase" class="number_form__button">
                     <div class="icon-up"></div>
@@ -21,35 +24,98 @@
 </template>
 
 <script>
+import { uuid } from 'vue-uuid';
 export default {
+    data() {
+        return {
+            uuid: uuid.v1(),
+        }
+    },
     computed: {
+        /**
+      * author: Nguyen Quoc Huy
+      * created at: 30/04/2023
+      * description: Computed chuyển đổi value của input về dạng tiền tệ vnđ, sử dụng global function toCurrency
+      */
         valueCurrenCy() {
-            if (Number.parseInt(this.value)) {
-                return Number.parseInt(this.value).toLocaleString('vi-VN')
-            }
-            return this.value
+            return this.toCurrency(this.value)
         }
     },
     methods: {
+        /**
+         * @param {Float} num 
+         * @returns {number}
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Hàm nhận giá trị số thực và trả về số làm tròn 2 chữ số sau dấu phẩy
+         */
+        rounded(num) {
+            return Number.parseFloat(num).toFixed(this.step == 1 ? 0 : 2)
+        },
+
+        /**
+         * 
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Hàm sử lý sự kiện khi người dùng ấn nút giảm, giá trị input giảm đi 1 nếu chưa đạt giá trị min
+         */
         decrease() {
-            if (this.value - 1 >= this.min) {
-                this.$emit('change', { name: this.name, value: Number.parseFloat(this.value.toString().replace(',', '.')) - 1 })
-            }
+            let temp = this.value
+            if (!this.value.trim())
+                temp = 0
+            if (temp - 1 >= this.min)
+                this.$emit('change', { name: this.name, value: this.rounded(Number.parseFloat(temp) - 1).toString() })
         },
+
+        /**
+        * 
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: Hàm sử lý sự kiện khi người dùng ấn nút giảm, giá trị input tăng lên 1
+        */
         increase() {
-            this.$emit('change', { name: this.name, value: Number.parseFloat(this.value.toString().replace(',', '.')) + 1 })
+            let temp = this.value
+            if (!this.value.trim())
+                temp = 0
+
+            this.$emit('change', { name: this.name, value: this.rounded(Number.parseFloat(temp) + 1).toString() })
         },
+
+        /**
+       * 
+       * author: Nguyen Quoc Huy
+       * created at: 30/04/2023
+       * @param {Event}
+       * description: hàm sử lý sự kiện khi người dùng thay đổi giá trị input, emit giá trị của input lên component cha
+       */
         handleChange(event) {
-            let regex = this.float ? /[^0-9,]/g : /\D/g
-            if (event.target.value)
-                this.$refs.input.value = event.target.value.slice(0, event.target.value.length - 1) + event.target.value[event.target.value.length - 1].replace(regex, '')
-            this.$emit('change', { name: this.name, value: event.target.value.replace(regex, '') })
-        }
+            // trong trường hợp input là số nguyên thì bỏ hết các kí tự khác ngoài số
+            if (this.step == 1) {
+                const regex = /\D/g;
+                event.target.value = event.target.value.replace(regex, "")
+            }
+            // trong trường hợp input là số thực
+            else {
+                // xóa hết các kí tự ngoài số và dấu .
+                const regex = /[^\d.]/g
+                let value = event.target.value.replace(regex, '')
+                // kiểm tra nếu đã tồn tại dấu . thì không ấn được . nữa
+                if (value && value.substring(0, value.length - 1).indexOf('.') != -1 && value[value.length - 1] == '.')
+                    value = value.substring(0, value.length - 1)
+                event.target.value = value
+            }
+            this.$emit('change', { name: this.name, value: event.target.value })
+        },
+
     },
+
     props: {
         label: String,
         value: [String, Number],
-        min: String,
+        min: {
+            type: [Number, String],
+            default: '0'
+        },
         error: {
             type: String,
             default: ""
@@ -66,10 +132,6 @@ export default {
             type: Boolean,
             default: true
         },
-        float: {
-            type: Boolean,
-            default: false
-        },
         disable: {
             type: Boolean,
             default: false
@@ -77,12 +139,27 @@ export default {
         currrency: {
             type: Boolean,
             default: false
+        },
+        step: {
+            type: [Number, String],
+            default: '1'
         }
     }
 }
 </script >
 
 <style scoped>
+.number_form__value {
+    position: absolute;
+    inset: 0;
+    right: 20px;
+    font-size: 13px;
+    font-family: mMisa Font;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
 .number_form__textfield {
     height: 36px;
     outline: none;
@@ -101,16 +178,31 @@ export default {
 }
 
 .number_form__input {
-    border: none;
-    outline: none;
-    text-align: right;
     height: 100%;
     width: 100%;
     padding-right: 20px;
-    background-color: #fff;
+    position: relative;
 }
 
-.number_form .number_form__input:disabled {
+.number_form__input input {
+    width: 100%;
+    height: 100%;
+    text-align: right;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    color: transparent;
+    caret-color: black;
+
+}
+
+.number_form__input input::-webkit-inner-spin-button,
+.number_form__input input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.number_form .number_form__input:has(input:disabled) {
     background-color: #efefef4d;
 }
 
@@ -118,7 +210,7 @@ export default {
     display: flex;
     flex-direction: column;
     row-gap: 6px;
-    padding-right: 6px;
+    padding-right: 12px;
 }
 
 .number_form__button {

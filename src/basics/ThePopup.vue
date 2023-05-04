@@ -1,7 +1,7 @@
 <template>
     <div v-if="isShow" class="popup">
         <div class="popup__content">
-            <div class="popup__close">
+            <div v-if="isHasClose" class="popup__close">
                 <div @click="$emit('close')" class="icon-close"></div>
             </div>
             <slot></slot>
@@ -12,8 +12,12 @@
 <script>
 export default {
     props: {
-        isShow: Boolean
-    }
+        isShow: Boolean,
+        isHasClose: {
+            type: Boolean,
+            default: true
+        }
+    },
 }
 </script>
 

@@ -1,14 +1,32 @@
 <template>
-  <MainPage></MainPage>
+  <div>
+    <MainPage></MainPage>
+    <ToastMessage :text="toastMessageContent" :isShow="isShowToastMessage"></ToastMessage>
+  </div>
 </template>
 
 <script>
+import ToastMessage from './components/ToastMessage.vue';
 import MainPage from './pages/MainPage.vue'
 
 export default {
   name: 'App',
   components: {
-    MainPage
+    MainPage,
+    ToastMessage
+  },
+  data() {
+    return {
+      isShowToastMessage: false,
+      toastMessageContent: ''
+    }
+  },
+  mounted() {
+    this.emitter.on("setToastMessage", text => {
+      this.toastMessageContent = text;
+      this.isShowToastMessage = true
+      setTimeout(() => this.isShowToastMessage = false, 3000)
+    });
   }
 }
 </script>

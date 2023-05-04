@@ -1,6 +1,6 @@
 <template>
     <div class="custom_select">
-        <div @click="isShow = !isShow" class="custom_select__head">
+        <div ref="selectHead" @click="isShow = !isShow" class="custom_select__head">
             <div class="custom_select__icon">
                 <div :class="icon"></div>
             </div>
@@ -9,7 +9,7 @@
                 <div class="icon-down"></div>
             </div>
         </div>
-        <div v-if="isShow" class="custom_select__options">
+        <div ref="selectOptions" v-if="isShow" class="custom_select__options">
             <div @click="handleChoseItem(item)" v-for="item in options" :key="item" class="custom_select__item">
                 <div class="custom_select__checked" v-if="text == item">
                     <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
@@ -33,10 +33,40 @@ export default {
         return {
             text: this.label,
             options: ["Sản phẩm A", "Sản phẩm B", "Sản phẩm C"],
-            isShow: false
+            isShow: false,
+            windowClickEvent: null
         }
     },
+    /**
+     * author: Nguyen Quoc Huy
+     * created at: 30/04/2023
+     * description: Thêm sự kiện người dùng click vào màn hình để ẩn options của select
+     */
+    mounted() {
+        this.windowClickEvent = (event) => {
+            if (!this.$refs.selectHead.contains(event.target) && !this.$refs.selectOptions?.contains(event.target)) {
+                this.isShow = false
+            }
+        }
+        window.addEventListener('click', this.windowClickEvent)
+    },
+
+    /**
+    * author: Nguyen Quoc Huy
+    * created at: 30/04/2023
+    * description: Xóa sự kiện click vào màn hình khi component unmount
+    */
+    beforeUnmount() {
+        window.removeEventListener('click', this.windowClickEvent)
+    },
+
     methods: {
+        /**
+         * @param {Object} item 
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Hàm xử lý sự kiện khi người dùng chọn item, set giá trị cho biến item và ẩn options
+         */
         handleChoseItem(item) {
             this.text = item
             this.isShow = false

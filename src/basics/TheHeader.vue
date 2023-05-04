@@ -28,19 +28,29 @@
         <div class="header__bottom">
             <TextField icon="icon-search" placeholder="Tìm kiếm tài sản"></TextField>
             <div class="header__bottom__select">
-                <CustomSelect label="Loại tài sản" icon="icon-header-filter"></CustomSelect>
+                <MyCombobox fieldText="email" fieldValue="id" url="https://jsonplaceholder.typicode.com/users" label=""
+                    :isInHeader="true" icon="icon-header-filter" @select="setValue" :value="departmentCode"
+                    name="legacyType" placeholder="Loại tài sản">
+                </MyCombobox>
             </div>
             <div class="header__bottom__select">
-                <CustomSelect label="Bộ phận sử dụng" icon="icon-header-filter"></CustomSelect>
+                <MyCombobox fieldText="email" fieldValue="id" url="https://jsonplaceholder.typicode.com/users" label=""
+                    :isInHeader="true" icon="icon-header-filter" @select="setValue" :value="departmentCode"
+                    name="departmentCode" placeholder="Bộ phận sử dụng">
+                </MyCombobox>
             </div>
             <div class="header__bottom__right">
                 <MyButton @click="isShowPopup = true" text="Thêm tài sản" icon="icon-small-plus--white"></MyButton>
-                <ButtonIcon title="Xuất khẩu" icon="icon-excel"></ButtonIcon>
-                <ButtonIcon title="Xóa" icon="icon-bin"></ButtonIcon>
+                <TheToolTip tooltip="Xuất khẩu">
+                    <ButtonIcon icon="icon-excel"></ButtonIcon>
+                </TheToolTip>
+                <TheToolTip tooltip="Xóa">
+                    <ButtonIcon @click="emitter.emit('multiDelete')" icon="icon-bin"></ButtonIcon>
+                </TheToolTip>
             </div>
         </div>
         <ThePopup :isShow="isShowPopup" @close="isShowPopup = false">
-            <TheForm></TheForm>
+            <TheForm @clickClose="isShowPopup = false"></TheForm>
         </ThePopup>
     </div>
 </template>
@@ -50,22 +60,31 @@ import InputNumber from '../components/InputNumber.vue'
 import TextField from '../components/TextField.vue'
 import MyButton from '../components/MyButton.vue'
 import ButtonIcon from '../components/ButtonIcon.vue'
-import CustomSelect from '../components/CustomSelect.vue'
 import ThePopup from './ThePopup.vue'
 import TheForm from './TheForm.vue'
+import TheToolTip from './TheToolTip.vue'
+import MyCombobox from '@/components/MyCombobox.vue'
 export default {
     components: {
         InputNumber,
         TextField,
         MyButton,
         ButtonIcon,
-        CustomSelect,
         ThePopup,
-        TheForm
+        TheForm,
+        TheToolTip,
+        MyCombobox
     },
     data() {
         return {
-            isShowPopup: false
+            isShowPopup: false,
+            departmentCode: null,
+            legacyType: null
+        }
+    },
+    methods: {
+        setValue({ name, value }) {
+            this[name] = value
         }
     }
 }
@@ -138,6 +157,6 @@ export default {
 }
 
 .header__bottom__select {
-    min-width: 240px;
+    min-width: 280px;
 }
 </style>
