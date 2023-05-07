@@ -42,6 +42,11 @@ export default {
     border: none;
 }
 
+.button:focus {
+    border: 2px solid #333 !important;
+    outline: none;
+}
+
 .button.button--sub {
     color: #000;
     background-color: #fff;

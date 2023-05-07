@@ -45,7 +45,6 @@
                 <div ref="price" class="form__body__item form__body__item--1">
                     <NumberForm @blur="validatePrice" :error="errors.price" :currrency="true" @change="setValue"
                         :icon="false" name="price" label="Nguyên giá" :value="form.price" min="0"></NumberForm>
-
                 </div>
                 <div ref="useDuration" class="form__body__item form__body__item--1">
                     <NumberForm @blur="validateUseDuration" :error="errors.useDuration" @change="setValue" :icon="false"
@@ -79,7 +78,9 @@
         </div>
         <div class="form__bottom">
             <MyButton type="button" @click="handleCancel" :isSub="true" text="Hủy"></MyButton>
-            <MyButton type="submit" text="Lưu"></MyButton>
+            <div ref="submitButton">
+                <MyButton type="submit" text="Lưu"></MyButton>
+            </div>
         </div>
         <ThePopup :isShow="isShowCancel" :isHasClose="false">
             <MyDialog text="Bạn có muốn hủy bỏ khai báo tài sản này?" @click1="$emit('clickClose')"
@@ -104,6 +105,10 @@
                 button1="Lưu" button2="Không lưu" button3="Hủy bỏ">
             </MyDialog>
         </ThePopup>
+        <ThePopup :isShow="isShowError" :isHasClose="false">
+            <MyDialog :text="errorNotifi" :isHasClose="false" @click1="handleCloseError" quantity="1" button1="Đóng">
+            </MyDialog>
+        </ThePopup>
     </form>
 </template>
 
@@ -123,6 +128,7 @@ export default {
     },
     data() {
         return {
+            isShowError: false,
             isChanged: false,
             isShowStore: false,
             isShowCancel: false,
@@ -142,10 +148,15 @@ export default {
                 buyDate: this.toCurrentDate(),
                 useDate: this.toCurrentDate()
             },
-            errors: {}
+            errors: {},
+            eventKeyDown: null
         }
     },
-
+    computed: {
+        errorNotifi() {
+            return Object.values(this.errors).map(error => error ? `<p>${error}.</p>` : '').join('')
+        }
+    },
     /**
      * author: Nguyen Quoc Huy
      * created at: 30/04/2023
@@ -170,6 +181,19 @@ export default {
     */
     mounted() {
         this.$refs.legacyCode.querySelector('input').focus()
+        this.eventKeyDown = (event) => {
+            if (event.key == 'Tab') {
+                if (this.$refs.submitButton.querySelector('button:focus')) {
+                    this.$refs.legacyCode.querySelector('input').focus()
+                    event.preventDefault();
+
+                }
+            }
+        }
+        window.addEventListener('keydown', this.eventKeyDown)
+    },
+    unmounted() {
+        window.removeEventListener('keydown', this.eventKeyDown)
     },
     methods: {
         /**
@@ -201,6 +225,21 @@ export default {
                 this.form.legacyTypeName = value ? value : ''
             this.form[name] = value
             this.isChanged = true
+        },
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 07/05/2023
+         * description: khi đóng dialog thông báo lỗi validate thì sẽ focus vào ô nhập dữ liệu bị sai đầu tiên
+         */
+        handleCloseError() {
+            this.isShowError = false
+            for (const property in this.errors) {
+                if (this.errors[property]) {
+                    this.$refs[property].querySelector('input').focus()
+                    break
+                }
+            }
         },
 
         /**
@@ -257,11 +296,10 @@ export default {
             this.validateLooseRateYear()
             this.validateBuyDate()
             this.validateUseDate()
-            console.log(this.form);
             // kiểm tra xem có error nào không, nếu có thì kết thúc hàm
             for (const property in this.errors) {
                 if (this.errors[property]) {
-                    this.$refs[property].querySelector('input').focus()
+                    this.isShowError = true
                     return
                 }
             }

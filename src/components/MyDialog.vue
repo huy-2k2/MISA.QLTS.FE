@@ -6,7 +6,7 @@
             </div>
             <div class="dialog__title" v-html="text"></div>
         </div>
-        <div class="dialog__control">
+        <div ref="dialogButtons" class="dialog__control">
             <MyButton @clickButton="$emit('click2')" v-if="quantity >= 2" :isSub="true" :text="button2"></MyButton>
             <MyButton @clickButton="$emit('click3')" v-if="quantity >= 3" :isSub="true" :text="button3"></MyButton>
             <MyButton @clickButton="$emit('click1')" :text="button1"></MyButton>
@@ -18,6 +18,11 @@
 import MyButton from './MyButton.vue'
 export default {
     components: { MyButton },
+    data() {
+        return {
+            handleKeyDown: null
+        }
+    },
     props: {
         text: {
             type: String,
@@ -38,6 +43,22 @@ export default {
         },
     },
     methods: {
+    },
+    mounted() {
+        const buttons = [...this.$refs.dialogButtons.querySelectorAll('button')]
+        buttons[0].focus()
+        this.handleKeyDown = (event) => {
+            if (event.key == 'Tab') {
+                let index = buttons.findIndex(button => button == this.$refs.dialogButtons.querySelector('button:focus'))
+                index = (index + 1) % buttons.length
+                buttons[index].focus()
+                event.preventDefault();
+            }
+        }
+        window.addEventListener('keydown', this.handleKeyDown)
+    },
+    unmounted() {
+        window.removeEventListener('keydown', this.handleKeyDown)
     }
 
 }

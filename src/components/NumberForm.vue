@@ -193,7 +193,6 @@ export default {
     background-color: transparent;
     color: transparent;
     caret-color: black;
-
 }
 
 .number_form__input input::-webkit-inner-spin-button,
