@@ -27,8 +27,8 @@
                     <th scope="col">Chức năng</th>
                 </tr>
             </thead>
-            <tbody class="table__body">
-                <tr @dblclick="handleEdit(tr)" v-for="(tr, index) in tbody" :key="tr.td2">
+            <tbody ref="tbody" class="table__body">
+                <tr @dblclick="handleEdit(tr, index, $event)" v-for="(tr, index) in tbody" :key="tr.td2">
                     <td scope="row">
                         <InputCheckbox @changeChecked="(checked) => handleCheck(checked, index)" :checked="tr.isChecked">
                         </InputCheckbox>
@@ -124,6 +124,8 @@ export default {
             this.isCheckedAll = checked
             // tất cả checkbox ở tr có cùng giá trị với checkbox ở thead
             this.tbody.forEach(tr => tr.isChecked = checked)
+            // emit sự kiện thay đổi trạng thái của remove button cho header
+            this.emitter.emit('disableBtnRemove', !checked)
         },
 
         /**
@@ -140,6 +142,8 @@ export default {
             // kiểm tra xem tất cả các ô đã được checked chưa, nếu rồi thì gán isCheckedAll là true (để checked ở thead là true)
             this.tbody.forEach(tr => countChecked += tr.isChecked ? 1 : 0)
             this.isCheckedAll = countChecked == this.tbody.length
+            // emit sự kiện thay đổi trạng thái button remove cho header
+            this.emitter.emit('disableBtnRemove', countChecked == 0)
         },
 
         /**
@@ -160,8 +164,12 @@ export default {
         * created at: 30/04/2023
         * description: Hàm xử lý sự kiện khi người dùng click vào button sửa tài sản
         */
-        handleEdit(tr) {
-            // mở form edit
+        handleEdit(tr, index, event) {
+            // nếu dbclick vào input checkbox thì không mở form edit
+            if (index != undefined && event != undefined) {
+                if (this.$refs.tbody.querySelectorAll('td:first-child')[index].contains(event.target))
+                    return
+            }
             this.isShowForm = true;
             this.typeForm = 'edit';
             // gán giá trị dữ liệu sửa bằng giá trị ở dòng người dùng click 
@@ -230,7 +238,7 @@ export default {
                     td4: 'Máy vi tính sách tay',
                     td5: 'Phòng Hành chính kế toán',
                     td6: '1',
-                    td7: 'alsdfjaskljf',
+                    td7: '1000000',
                     td8: '1000000',
                     td9: '8775000'
                 },
@@ -404,7 +412,7 @@ export default {
 
 .table thead {
     position: sticky;
-    background-color: #fff;
+    background-color: #eeeeee59;
     top: 0;
 }
 

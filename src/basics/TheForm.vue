@@ -2,7 +2,9 @@
     <form @submit.prevent="handleSubmit" class="form">
         <div class="form__top">
             <div class="form__head">
-                <h3 class="form__title">Thêm tài sản</h3>
+                <h3 class="form__title">{{ typeForm == 'edit' ? 'Sửa tài sản' : typeForm == 'duplicate' ? 'Nhân bản tài sản'
+                    :
+                    'Thêm tài sản' }}</h3>
             </div>
             <div class="form__body">
                 <div ref="legacyCode" class="form__body__item form__body__item--1">
@@ -17,9 +19,9 @@
                 </div>
                 <div ref="departmentCode" class="form__body__item form__body__item--1">
                     <MyCombobox fieldText="email" fieldValue="id" url="https://jsonplaceholder.typicode.com/users"
-                        @blurcombobox="validateDepartmentCode" :error="errors.departmentCode" @select="setValue"
-                        :value="form.departmentCode" name="departmentCode" label="Mã bộ phận sử dụng"
-                        placeholder="Chọn mã bộ phận sử dụng"></MyCombobox>
+                        :isInHeader="true" @blurcombobox="validateDepartmentCode" :error="errors.departmentCode"
+                        @selectCombobox="setValue" :value="form.departmentCode" name="departmentCode"
+                        label="Mã bộ phận sử dụng" placeholder="Chọn mã bộ phận sử dụng"></MyCombobox>
                 </div>
                 <div class="form__body__item form__body__item--2">
                     <TextfieldForm :value="form.departmentName" :disable="true" label="Tên bộ phận sử dụng"
@@ -28,9 +30,9 @@
                 </div>
                 <div ref="legacyTypeCode" class="form__body__item form__body__item--1">
                     <MyCombobox fieldText="name" fieldValue="id" url="https://jsonplaceholder.typicode.com/users"
-                        @blurcombobox="validateLegacyTypeCode" :error="errors.legacyTypeCode" @select="setValue"
-                        :value="form.legacyTypeCode" name="legacyTypeCode" label="Mã loại tài sản"
-                        placeholder="Chọn mã loại tài sản"></MyCombobox>
+                        :isInHeader="true" @blurcombobox="validateLegacyTypeCode" :error="errors.legacyTypeCode"
+                        @selectCombobox="setValue" :value="form.legacyTypeCode" name="legacyTypeCode"
+                        label="Mã loại tài sản" placeholder="Chọn mã loại tài sản"></MyCombobox>
                 </div>
                 <div class="form__body__item form__body__item--2">
                     <TextfieldForm :value="form.legacyTypeName" :disable="true" :required="false" label="Tên loại tài sản"
@@ -43,21 +45,22 @@
                     </NumberForm>
                 </div>
                 <div ref="price" class="form__body__item form__body__item--1">
-                    <NumberForm @blur="validatePrice" :error="errors.price" :currrency="true" @change="setValue"
+                    <NumberForm @blur="handleBlurPrice" :error="errors.price" :currrency="true" @change="setValue"
                         :icon="false" name="price" label="Nguyên giá" :value="form.price" min="0"></NumberForm>
                 </div>
                 <div ref="useDuration" class="form__body__item form__body__item--1">
-                    <NumberForm @blur="validateUseDuration" :error="errors.useDuration" @change="setValue" :icon="false"
+                    <NumberForm @blur="handleBlurUseDuration" :error="errors.useDuration" @change="setValue" :icon="false"
                         name="useDuration" label="Số năm sử dụng" :value="form.useDuration" min="0">
                     </NumberForm>
                 </div>
                 <div ref="looseRate" class="form__body__item form__body__item--1">
-                    <NumberForm @blur="validateLooseRate" step="0.01" :error="errors.looseRate" @change="setValue"
+                    <NumberForm @blur="handleBlurLooseRate" step="0.01" :error="errors.looseRate" @change="setValue"
                         label="Tỷ lệ hao mòn (%)" name="looseRate" :value="form.looseRate" min="0"></NumberForm>
                 </div>
                 <div ref="looseRateYear" class="form__body__item form__body__item--1">
-                    <NumberForm @blur="validateLooseRateYear" :error="errors.looseRateYear" @change="setValue" :icon="false"
-                        name="looseRateYear" label="Giá trị hao mòn năm" :value="form.looseRateYear" min="0">
+                    <NumberForm @blur="validateLooseRateYear" :error="errors.looseRateYear" :currrency="true"
+                        @change="setValue" :icon="false" name="looseRateYear" label="Giá trị hao mòn năm"
+                        :value="form.looseRateYear" min="0">
                     </NumberForm>
                 </div>
                 <div ref="currentYear" class="form__body__item form__body__item--1">
@@ -66,8 +69,8 @@
                     </NumberForm>
                 </div>
                 <div ref="buyDate" class="form__body__item form__body__item--1">
-                    <InputDate @blurdate="validateBuyDate" @select="setValue" :error="errors.buyDate" :value="form.buyDate"
-                        name="buyDate" label="Ngày mua"></InputDate>
+                    <InputDate @blurdate="handleBlurBuyDate" @select="setValue" :error="errors.buyDate"
+                        :value="form.buyDate" name="buyDate" label="Ngày mua"></InputDate>
                 </div>
                 <div ref="useDate" class="form__body__item form__body__item--1">
                     <InputDate @blurdate="validateUseDate" @select="setValue" :error="errors.useDate" :value="form.useDate"
@@ -84,24 +87,24 @@
         </div>
         <ThePopup :isShow="isShowCancel" :isHasClose="false">
             <MyDialog text="Bạn có muốn hủy bỏ khai báo tài sản này?" @click1="$emit('clickClose')"
-                @click2="isShowCancel = false" quantity="2" button1="Hủy bỏ" button2="Không">
+                @click2="handleCloseCancel" quantity="2" button1="Hủy bỏ" button2="Không">
             </MyDialog>
         </ThePopup>
         <ThePopup :isShow="isShowStore && !typeForm" :isHasClose="false">
             <MyDialog text="Thông tin thay đổi sẽ không được cập nhật nếu bạn không lưu. Bạn có muốn lưu các thay đổi này?"
-                @click1="handleStore" @click3="$emit('clickClose')" @click2="isShowStore = false" quantity="3" button1="Lưu"
+                @click1="handleStore" @click3="$emit('clickClose')" @click2="handleCloseStore" quantity="3" button1="Lưu"
                 button2="Không lưu" button3="Hủy bỏ">
             </MyDialog>
         </ThePopup>
         <ThePopup :isShow="isShowStore && typeForm == 'edit'" :isHasClose="false">
             <MyDialog text="Thông tin thay đổi sẽ không được cập nhật nếu bạn không lưu. Bạn có muốn lưu các thay đổi này?"
-                @click1="handleEdit" @click3="$emit('clickClose')" @click2="isShowStore = false" quantity="3" button1="Lưu"
+                @click1="handleEdit" @click3="$emit('clickClose')" @click2="handleCloseStore" quantity="3" button1="Lưu"
                 button2="Không lưu" button3="Hủy bỏ">
             </MyDialog>
         </ThePopup>
         <ThePopup :isShow="isShowStore && typeForm == 'duplicate'" :isHasClose="false">
             <MyDialog text="Thông tin thay đổi sẽ không được cập nhật nếu bạn không lưu. Bạn có muốn lưu các thay đổi này?"
-                @click1="handleDuplicate" @click3="$emit('clickClose')" @click2="isShowStore = false" quantity="3"
+                @click1="handleDuplicate" @click3="$emit('clickClose')" @click2="handleCloseStore" quantity="3"
                 button1="Lưu" button2="Không lưu" button3="Hủy bỏ">
             </MyDialog>
         </ThePopup>
@@ -140,9 +143,9 @@ export default {
                 legacyTypeCode: '',
                 legacyTypeName: '',
                 quantity: '1',
-                price: '1000',
-                useDuration: '1',
-                looseRate: '6.67',
+                price: '0',
+                useDuration: '',
+                looseRate: '',
                 looseRateYear: '0',
                 currentYear: new Date().getFullYear(),
                 buyDate: this.toCurrentDate(),
@@ -155,6 +158,9 @@ export default {
     computed: {
         errorNotifi() {
             return Object.values(this.errors).map(error => error ? `<p>${error}.</p>` : '').join('')
+        },
+        looseRateYearValue() {
+            return Number.parseInt(this.form.looseRate / 100 * this.form.price)
         }
     },
     /**
@@ -169,20 +175,19 @@ export default {
             this.form.legacyName = this.trChoose.td3
             this.form.quantity = this.trChoose.td6
             this.form.price = this.trChoose.td7
-            this.form.departmentCode = this.form.departmentName = 1
-            this.form.legacyTypeCode = this.form.legacyTypeName = 2
         }
     },
 
     /**
     * author: Nguyen Quoc Huy
     * created at: 30/04/2023
-    * description: Focus vào input đầu tiên khi mở form
+    * description: Focus vào input đầu tiên khi mở form, và xử lý sự kiện taborder cho  form
     */
     mounted() {
         this.$refs.legacyCode.querySelector('input').focus()
         this.eventKeyDown = (event) => {
             if (event.key == 'Tab') {
+                // nếu như button cuối cùng đang được focus mà ấn tab thì sẽ focus quay trở về input đầu tiên
                 if (this.$refs.submitButton.querySelector('button:focus')) {
                     this.$refs.legacyCode.querySelector('input').focus()
                     event.preventDefault();
@@ -196,6 +201,49 @@ export default {
         window.removeEventListener('keydown', this.eventKeyDown)
     },
     methods: {
+        /**
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: khi blur nguyên giá thì valiate lại giá trị hao mòn năm
+        */
+        handleBlurPrice() {
+            this.validatePrice()
+            if (this.form.looseRateYear.toString().length)
+                this.validateLooseRateYear()
+        },
+
+        /**
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: khi blur tỷ lệ hao mòn thì valiate lại giá trị hao mòn năm
+        */
+        handleBlurLooseRate() {
+            this.validateLooseRate()
+            if (this.form.looseRateYear)
+                this.validateLooseRateYear()
+        },
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: khi blur ngày mua thì valiate lại ngày sử dụng
+         */
+        handleBlurBuyDate() {
+            this.validateBuyDate()
+            if (this.form.useDate)
+                this.validateUseDate()
+        },
+
+        /**
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: khi blur số năm sử dụng thì validate luôn tỉ lệ hao mòn
+        */
+        handleBlurUseDuration() {
+            this.validateUseDuration()
+            if (this.form.looseRate.toString().length)
+                this.validateLooseRate()
+        },
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
@@ -216,17 +264,43 @@ export default {
          * created at: 30/04/2023
          * description: hàm set value cho các giá trị input của form
          */
-        setValue({ name, value }) {
-            // nếu input được set là departmentcode thì tìm và gán giá trị tương ứng cho input legacytypename
-            if (name == 'departmentCode')
-                this.form.departmentName = value ? value : ''
-            // nếu input được set là legacytypecode thì tìm và gán giá trị tương ứng cho input legacytypename
-            else if (name == 'legacyTypeCode')
-                this.form.legacyTypeName = value ? value : ''
+        setValue({ name, value, text }) {
             this.form[name] = value
             this.isChanged = true
+            // nếu input được set là departmentcode thì tìm và gán giá trị tương ứng cho input legacytypename
+            if (name == 'departmentCode')
+                this.form.departmentName = text ? text : ''
+            // nếu input được set là legacytypecode thì tìm và gán giá trị tương ứng cho input legacytypename
+            else if (name == 'legacyTypeCode')
+                this.form.legacyTypeName = text ? text : ''
+            // nếu input là nguyên giá học tỷ lệ hao mòn thì tính lại giá trị hao mòn năms
+            else if (name == 'price' || name == 'looseRate') {
+                if (this.form.looseRate && this.form.price) {
+                    this.form.looseRateYear = this.looseRateYearValue
+                }
+            }
+
         },
 
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 07/05/2023
+         * description: khi đóng dialog xác nhận hủy form thì focus vào ô input đầu tiên
+         */
+        handleCloseCancel() {
+            this.isShowCancel = false
+            this.$refs.legacyCode.querySelector('input').focus()
+        },
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 07/05/2023
+         * description: khi đóng dialog xác nhận lưu form thì focus vào ô input đầu tiên
+         */
+        handleCloseStore() {
+            this.isShowStore = false
+            this.$refs.legacyCode.querySelector('input').focus()
+        },
         /**
          * author: Nguyen Quoc Huy
          * created at: 07/05/2023
@@ -284,6 +358,7 @@ export default {
        * description: xử lý sự kiện khi người dùng ấn nút lưu
        */
         handleSubmit() {
+            this.errors = {}
             // validate lại tất cả các input, thứ tự validate sẽ ảnh hướng đến input đầu tiên được focus khi gặp lỗi
             this.validateLegacyCode()
             this.validateLegacyName()
@@ -296,6 +371,7 @@ export default {
             this.validateLooseRateYear()
             this.validateBuyDate()
             this.validateUseDate()
+            console.log(this.form);
             // kiểm tra xem có error nào không, nếu có thì kết thúc hàm
             for (const property in this.errors) {
                 if (this.errors[property]) {
@@ -313,11 +389,15 @@ export default {
         * description: hàm validate trường legacyCode
         */
         validateLegacyCode() {
+            let length = { min: 6, max: 16 }
             // gán lại cho error là rỗng
             this.errors.legacyCode = ''
             // kiểm tra legacycode khác rỗng
             if (!this.validateRequired(this.form.legacyCode))
                 this.errors.legacyCode = 'Cần nhập mã tài sản'
+            // kiểm tra legacycode có length hợp lệ
+            else if (!this.validateLength(this.form.legacyCode, length.min, length.max))
+                this.errors.legacyCode = `Cần nhập mã tài sản từ ${length.min} đến ${length.max} kí tự`
         },
 
         /**
@@ -326,11 +406,15 @@ export default {
          * description: hàm validate trường legacyTypeName
          */
         validateLegacyName() {
+            let length = { min: 6, max: 255 }
             // gán lại error là rỗng
             this.errors.legacyName = ''
             // kiểm tra  legacytypename khác rỗng
             if (!this.validateRequired(this.form.legacyName))
                 this.errors.legacyName = 'Cần nhập tên tài sản'
+            // kiểm tra legacyname có length hợp lệ
+            else if (!this.validateLength(this.form.legacyName, length.min, length.max))
+                this.errors.legacyName = `Cần nhập tên tài sản từ ${length.min} đến ${length.max} kí tự`
         },
 
         /**
@@ -400,8 +484,8 @@ export default {
             if (!this.validateRequired(this.form.quantity))
                 this.errors.quantity = 'Cần nhập số lượng'
             // kiểm tra quantity phải là số nguyên
-            else if (!Number.isInteger(Number.parseFloat(this.form.quantity)))
-                this.errors.quantity = 'Cần nhập số nguyên'
+            else if (!this.validateInterger(this.form.quantity))
+                this.errors.quantity = 'Cần nhập số lượng là số nguyên'
         },
 
         /**
@@ -416,8 +500,8 @@ export default {
             if (!this.validateRequired(this.form.price))
                 this.errors.price = 'Cần nhập nguyên giá'
             // kiểm tra price là số nguyên
-            else if (!Number.isInteger(Number.parseInt(this.form.price)))
-                this.errors.price = 'Cần nhập số nguyên'
+            else if (!this.validateInterger(this.form.price))
+                this.errors.price = 'Cần nhập nguyên giá là số nguyên'
         },
 
         /**
@@ -432,8 +516,11 @@ export default {
             if (!this.validateRequired(this.form.useDuration))
                 this.errors.useDuration = 'Cần nhập số năm sử dụng'
             // kiểm tra useDuration là số nguyên
-            else if (!Number.isInteger(Number.parseFloat(this.form.useDuration)))
-                this.errors.useDuration = 'Cần nhập số nguyên'
+            else if (!this.validateInterger(this.form.useDuration))
+                this.errors.useDuration = 'Cần nhập số năm sử dụng là số nguyên'
+            else if (this.form.useDuration <= 0)
+                this.errors.useDuration = 'Số năm sử dụng phải lớn hơn 0'
+
         },
 
         /**
@@ -448,8 +535,13 @@ export default {
             if (!this.validateRequired(this.form.looseRate))
                 this.errors.looseRate = 'Cần nhập tỷ lệ hao mòn'
             // kiểm tra useDuration là số thực
-            else if (Number.parseFloat(this.form.looseRate))
-                this.errors.looseRate = ''
+            else if (!this.validateRealNumber(this.form.looseRate))
+                this.errors.looseRate = 'Cần nhập tỷ lệ hao mòn là số thực'
+            // kiểm tra Tỷ lệ hao mòn phải bằng 1/Số năm sử dụng
+            else if (this.form.useDuration > 0) {
+                if (this.toRounded(1 / this.form.useDuration * 100) != this.toRounded(this.form.looseRate))
+                    this.errors.looseRate = 'Tỷ lệ hao mòn phải bằng 1/Số năm sử dụng'
+            }
         },
 
         /**
@@ -463,6 +555,16 @@ export default {
             // kiểm tra LooseRateYear khác rỗng
             if (!this.validateRequired(this.form.looseRateYear))
                 this.errors.looseRateYear = 'Cần nhập giá trị hao mòn năm'
+            // kiểm tra giá trị hao mòn năm phải bằng tỷ lệ hao mòn* Nguyên giá
+            if (this.form.looseRate && this.form.price) {
+                if (this.looseRateYearValue != this.form.looseRateYear) {
+                    this.errors.looseRateYear = 'Giá trị hao mòn năm phải bằng tỷ lệ hao mòn* Nguyên giá'
+                }
+            }
+            //kiểm tra hao mòn năm phải nhỏ hơn hoạc bằng nguyên giá
+            if (Number.parseInt(this.form.looseRateYear) > Number.parseInt(this.form.price)) {
+                this.errors.looseRateYear = 'Hao mòn năm phải nhỏ hơn hoạc bằng nguyên giá'
+            }
         },
 
 
@@ -476,7 +578,37 @@ export default {
             if (typeof value == 'string' && !value.trim() || value == null || value == undefined)
                 return false
             return true
+        },
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: kiểm tra một số có phải là số nguyên hay không
+         */
+        validateInterger(value) {
+            return Number.isInteger(Number.parseFloat(value))
+        },
+
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 07/05/2023
+         * description: kiểm tra một số có phải là số thực hay không
+         */
+        validateRealNumber(value) {
+            return !Number.isNaN(Number.parseFloat(value))
+        },
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: kiểm tra một số có phải là số nguyên hay không
+         */
+        validateLength(value, min, max) {
+            value = value.toString()
+            return value.length >= min && value.length <= max
         }
+
     },
     components: { TextfieldForm, NumberForm, InputDate, MyCombobox, ThePopup, MyDialog, MyButton }
 }

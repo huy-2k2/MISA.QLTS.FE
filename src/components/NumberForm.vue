@@ -1,23 +1,22 @@
 <template>
-    <div class="number_form field__validate" types="required number">
+    <div :class="{ isError: error }" class="number_form field__validate" types="required number">
         <label class="label" for="">
             <span class="field__validate__label">{{ label }}</span>
             <span v-if="required" class="label__required">*</span>
         </label>
         <div class="number_form__textfield">
             <label :for="uuid" class="number_form__input">
-                <input :disabled="disable" @blur="$emit('blur')" @input="handleChange" :value="value" :id="uuid"
-                    type="text">
+                <input :disabled="disable" @blur="handleBlur" @input="handleChange" :value="value" :id="uuid" type="text">
                 <span class="number_form__value">{{ currrency ? valueCurrenCy : value }}</span>
             </label>
-            <div v-if="icon" class="number_form__control">
+            <label :for="uuid" v-if="icon" class="number_form__control">
                 <span @click="increase" class="number_form__button">
                     <div class="icon-up"></div>
                 </span>
                 <span @click="decrease" class="number_form__button">
                     <div class="icon-down"></div>
                 </span>
-            </div>
+            </label>
         </div>
         <span class="field__validate__error">{{ error }}</span>
     </div>
@@ -33,15 +32,32 @@ export default {
     },
     computed: {
         /**
-      * author: Nguyen Quoc Huy
-      * created at: 30/04/2023
-      * description: Computed chuyển đổi value của input về dạng tiền tệ vnđ, sử dụng global function toCurrency
-      */
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Computed chuyển đổi value của input về dạng tiền tệ vnđ, sử dụng global function toCurrency
+         */
         valueCurrenCy() {
-            return this.toCurrency(this.value)
+            const result = this.toCurrency(this.value)
+            return result
         }
     },
     methods: {
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: khi blur mà value có dạng 9. thì chuyển về 9
+         */
+        handleBlur(event) {
+            this.$emit('blur')
+            if (this.step != 1) {
+                let value = event.target.value
+                if (value[value.length - 1] == '.') {
+                    value = value.substring(0, value.length - 1)
+                    event.target.value = value
+                    this.handleChange(event)
+                }
+            }
+        },
         /**
          * @param {Float} num 
          * @returns {number}
@@ -50,7 +66,7 @@ export default {
          * description: Hàm nhận giá trị số thực và trả về số làm tròn 2 chữ số sau dấu phẩy
          */
         rounded(num) {
-            return Number.parseFloat(num).toFixed(this.step == 1 ? 0 : 2)
+            return this.step == 1 ? num : this.toRounded(num)
         },
 
         /**
@@ -60,11 +76,9 @@ export default {
          * description: Hàm sử lý sự kiện khi người dùng ấn nút giảm, giá trị input giảm đi 1 nếu chưa đạt giá trị min
          */
         decrease() {
-            let temp = this.value
-            if (!this.value.trim())
-                temp = 0
+            let temp = this.value || 0
             if (temp - 1 >= this.min)
-                this.$emit('change', { name: this.name, value: this.rounded(Number.parseFloat(temp) - 1).toString() })
+                this.$emit('change', { name: this.name, value: this.rounded(Number.parseFloat(temp) - 1) })
         },
 
         /**
@@ -74,11 +88,8 @@ export default {
         * description: Hàm sử lý sự kiện khi người dùng ấn nút giảm, giá trị input tăng lên 1
         */
         increase() {
-            let temp = this.value
-            if (!this.value.trim())
-                temp = 0
-
-            this.$emit('change', { name: this.name, value: this.rounded(Number.parseFloat(temp) + 1).toString() })
+            let temp = this.value || 0
+            this.$emit('change', { name: this.name, value: this.rounded(Number.parseFloat(temp) + 1) })
         },
 
         /**
@@ -99,12 +110,27 @@ export default {
                 // xóa hết các kí tự ngoài số và dấu .
                 const regex = /[^\d.]/g
                 let value = event.target.value.replace(regex, '')
+                // nếu chỉ value là '.' thì gán value = ''
+                if (value.length == 1 && value[value.length - 1] == '.')
+                    value = ''
                 // kiểm tra nếu đã tồn tại dấu . thì không ấn được . nữa
                 if (value && value.substring(0, value.length - 1).indexOf('.') != -1 && value[value.length - 1] == '.')
                     value = value.substring(0, value.length - 1)
                 event.target.value = value
             }
-            this.$emit('change', { name: this.name, value: event.target.value })
+            let value = event.target.value
+            // nếu input là số thực thì chỉ lấy 2 số thập phân sau dấu .
+            if (this.step != 1) {
+                const valueArray = event.target.value.split('.')
+                let [, decimal] = valueArray
+                if (decimal?.length > 2) {
+                    decimal = decimal.substring(0, 2)
+                    value = valueArray[0] + '.' + decimal
+                    event.target.value = value
+                }
+
+            }
+            this.$emit('change', { name: this.name, value })
         },
 
     },
@@ -173,8 +199,8 @@ export default {
     position: relative;
 }
 
-.number_form[data-error] .number_form__textfield {
-    border-color: rgba(255, 0, 0, 0.673);
+.number_form.isError .number_form__textfield {
+    border-color: rgb(227, 42, 42);
 }
 
 .number_form__input {
@@ -210,6 +236,7 @@ export default {
     flex-direction: column;
     row-gap: 6px;
     padding-right: 12px;
+    user-select: none;
 }
 
 .number_form__button {

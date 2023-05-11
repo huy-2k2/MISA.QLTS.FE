@@ -72,6 +72,7 @@ body {
   font-size: 13px;
   font-family: mMisa Font;
   margin-bottom: 8px;
+  user-select: none;
 }
 
 .label__required {

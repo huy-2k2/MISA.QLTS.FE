@@ -1,5 +1,5 @@
 <template>
-    <div class="input_date field__validate" types="required date">
+    <div :class="{ isError: error }" class="input_date field__validate" types="required date">
         <label class="label" for="">
             <span class="field__validate__label">{{ label }}</span>
             <span class="label__required">*</span>
@@ -51,8 +51,8 @@ export default {
     position: relative;
 }
 
-.input_date[data-error] .input_date__textfield {
-    border-color: rgba(255, 0, 0, 0.673);
+.input_date.isError .input_date__textfield {
+    border-color: rgb(227, 42, 42);
 }
 
 .input_date__input {

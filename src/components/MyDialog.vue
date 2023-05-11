@@ -44,6 +44,12 @@ export default {
     },
     methods: {
     },
+
+    /**
+    * author: Nguyen Quoc Huy
+    * created at: 07/05/2023
+    * description: Xử lý taborder, ban đầu focus vào button đầu tiên, khi tab đến button cuối cùng thì focus lại vào button ban đầu
+    */
     mounted() {
         const buttons = [...this.$refs.dialogButtons.querySelectorAll('button')]
         buttons[0].focus()
@@ -57,6 +63,7 @@ export default {
         }
         window.addEventListener('keydown', this.handleKeyDown)
     },
+
     unmounted() {
         window.removeEventListener('keydown', this.handleKeyDown)
     }

@@ -21,7 +21,8 @@ export default {
             type: Boolean,
             default: false
         }
-    }
+    },
+
 }
 </script>
 
@@ -53,6 +54,6 @@ export default {
 }
 
 .button:hover {
-    opacity: 0.8;
+    opacity: 0.6;
 }
 </style>

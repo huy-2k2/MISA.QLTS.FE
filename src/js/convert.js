@@ -14,7 +14,7 @@ function toCurrency(num) {
         else 
             return Number.parseInt(num).toLocaleString('vi-VN')
     }
-    if(num.length) {
+    if(num.toString().length) {
         try {
             return getCurrency(num)
         } catch(error) {
@@ -37,4 +37,18 @@ function toCurrentDate() {
     return new Date().toISOString().substring(0, 10)
 }
 
-export {toCurrency, toCurrentDate}
+
+ /**
+ * 
+ * @param {Float} num
+ * @param {Number} decimal
+ * @return {Float}
+ * author: Nguyen Quoc Huy
+ * created at: 30/04/2023
+ * description: Hàm làm tròn
+ */
+function toRounded(num, decimal = 2) {
+    return Number.parseFloat(num).toFixed(decimal)
+}
+
+export {toCurrency, toCurrentDate, toRounded}

@@ -29,14 +29,14 @@
             <TextField icon="icon-search" placeholder="Tìm kiếm tài sản"></TextField>
             <div class="header__bottom__select">
                 <MyCombobox fieldText="email" fieldValue="id" url="https://jsonplaceholder.typicode.com/users" label=""
-                    :isInHeader="true" icon="icon-header-filter" @select="setValue" :value="departmentCode"
-                    name="legacyType" placeholder="Loại tài sản">
+                    :isBoldPlaceHolder="true" :isInHeader="true" icon="icon-header-filter" @selectCombobox="setValue"
+                    :value="departmentCode" name="legacyType" placeholder="Loại tài sản">
                 </MyCombobox>
             </div>
             <div class="header__bottom__select">
                 <MyCombobox fieldText="email" fieldValue="id" url="https://jsonplaceholder.typicode.com/users" label=""
-                    :isInHeader="true" icon="icon-header-filter" @select="setValue" :value="departmentCode"
-                    name="departmentCode" placeholder="Bộ phận sử dụng">
+                    :isBoldPlaceHolder="true" :isInHeader="true" icon="icon-header-filter" @selectCombobox="setValue"
+                    :value="departmentCode" name="departmentCode" placeholder="Bộ phận sử dụng">
                 </MyCombobox>
             </div>
             <div class="header__bottom__right">
@@ -45,7 +45,8 @@
                     <ButtonIcon icon="icon-excel"></ButtonIcon>
                 </TheToolTip>
                 <TheToolTip tooltip="Xóa">
-                    <ButtonIcon @click="emitter.emit('multiDelete')" icon="icon-bin"></ButtonIcon>
+                    <ButtonIcon :isDisable="isDiableRemove" @click="emitter.emit('multiDelete')" icon="icon-bin">
+                    </ButtonIcon>
                 </TheToolTip>
             </div>
         </div>
@@ -77,15 +78,35 @@ export default {
     },
     data() {
         return {
+            isDiableRemove: true,
             isShowPopup: false,
             departmentCode: null,
             legacyType: null
         }
     },
     methods: {
+        /**
+         * author: Nguyen Quoc Huy
+         * @param {Object}
+         * created at: 30/04/2023
+         * description: Hàm set value cho các input của header, gồm có input search, 2 combobox
+         */
         setValue({ name, value }) {
             this[name] = value
         }
+    },
+    /**
+     * author: Nguyen Quoc Huy
+     * created at: 30/04/2023
+     * description: Lắng nghe sự kiện thay đổi trạng thái remove button từ component TheTable
+     */
+    mounted() {
+        this.emitter.on('disableBtnRemove', (isDisable) => {
+            this.isDiableRemove = isDisable
+        })
+    },
+    unmounted() {
+
     }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-    <button :title="title" class="button-icon">
+    <button :disabled="isDisable" :title="title" class="button-icon">
         <div class="button">
             <div :class="icon"></div>
         </div>
@@ -13,7 +13,11 @@ export default {
             type: String,
             default: ''
         },
-        icon: String
+        icon: String,
+        isDisable: {
+            type: Boolean,
+            default: false
+        }
     }
 }
 </script>
@@ -30,6 +34,11 @@ export default {
     place-content: center;
     border: none;
     cursor: pointer;
+}
+
+.button-icon:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .button-icon.disable {

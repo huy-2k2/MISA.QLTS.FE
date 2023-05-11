@@ -1,5 +1,5 @@
 <template>
-    <div class="combobox" :class="{ isInHeader }">
+    <div class="combobox" :class="{ isInHeader, isError: error }">
         <label v-if="label" :for="uuid" class="label">
             <span>{{ label }}</span>
             <span v-if="required" class="label__required">*</span>
@@ -8,15 +8,15 @@
             <div v-if="icon" class="combobox__head__icon">
                 <div class="icon-header-filter"></div>
             </div>
-            <input :id="uuid" @focus="isShow = true" @keyup="handleControll" @keydown="handleTabOut"
-                @input="handleFilterOptions" v-model="item.text" class="combobox__input" type="text"
-                :placeholder="placeholder">
+            <input :id="uuid" @focus="handleFocus" @keyup="handleControll" @keydown="handleTabOut"
+                @input="handleFilterOptions" v-model="item.value" :class="{ isBoldPlaceHolder }" class="combobox__input"
+                type="text" :placeholder="placeholder">
             <div class="combobox__icon">
                 <div class="icon-down"></div>
             </div>
         </div>
 
-        <div ref="comboboxOptions" v-show="isShow" :class="{ isLoading, error }" class="combobox__options custom-scrollbar">
+        <div ref="comboboxOptions" v-show="isShow" :class="{ isLoading }" class="combobox__options custom-scrollbar">
             <MyLoading v-show="isLoading"></MyLoading>
             <div v-show="!isInHeader" @click="handleSetItem(option)" v-for="option in filterOptions" :key="option.value"
                 class="combobox__item" :class="{ active: option.value == item.value }">
@@ -68,6 +68,9 @@ export default {
         }
     },
     methods: {
+        handleFocus() {
+            this.isShow = true
+        },
         /**
         * @param {Event} event 
         * author: Nguyen Quoc Huy
@@ -113,7 +116,7 @@ export default {
          * description: Hàm xử lý sự kiện khi người dùng chọn một option, emit giá trị được chọn cho componentcha, emit validate, set lại giá trị isShow
          */
         handleSetItem(item, isShow = false) {
-            this.$emit('select', { name: this.name, value: item.value })
+            this.$emit('selectCombobox', { name: this.name, value: item.value, text: item.text })
             this.item = { ...item }
             this.$emit('blurcombobox')
             this.isShow = isShow
@@ -132,8 +135,9 @@ export default {
             // trường hợp người dùng xóa hết value thẻ input rồi blur, thì emit giá trị null cho component cha
             else {
                 this.item = { value: null, text: null }
-                if (this.value)
-                    this.$emit('select', { name: this.name, value: '' })
+                if (this.value) {
+                    this.$emit('selectCombobox', { name: this.name, value: '', text: '' })
+                }
             }
             // emit validate và ẩn options
             this.$emit('blurcombobox')
@@ -148,8 +152,9 @@ export default {
          * description: hàm xử lý sự kiện người dùng tab ra khỏi thẻ input, gọi hàm xử lý blur phía trên
          */
         handleTabOut(event) {
-            if (event.code == 'Tab')
+            if (event.code == 'Tab') {
                 this.handleBlur()
+            }
         }
     },
 
@@ -183,7 +188,7 @@ export default {
      */
     mounted() {
         this.eventWindowClick = (e) => {
-            if (this.isShow && !this.$refs.comboboxHead.contains(e.target) && !this.$refs.comboboxOptions.contains(e.target)) {
+            if (this.isShow && document.contains(e.target) && !this.$refs.comboboxHead.contains(e.target) && !this.$refs.comboboxOptions.contains(e.target)) {
                 this.handleBlur()
             }
         }
@@ -235,12 +240,16 @@ export default {
         isInHeader: {
             type: Boolean,
             default: false
+        },
+        isBoldPlaceHolder: {
+            type: Boolean,
+            default: false
         }
     },
 }
 </script>
 
-<style>
+<style scoped>
 .combobox__table {
     width: 100%;
     border-spacing: 0;
@@ -325,7 +334,7 @@ export default {
     z-index: 100;
 }
 
-.combobox__options.error {
+.combobox.isError .combobox__options {
     top: calc(100% - 18px);
 }
 
@@ -359,7 +368,11 @@ export default {
     background-color: #fff;
 }
 
-.combobox__head:has(.combobox__input:focus) {
+.combobox.combobox.isError .combobox__head {
+    border-color: rgb(227, 42, 42);
+}
+
+.combobox .combobox__head:has(.combobox__input:focus) {
     border-color: rgba(26, 164, 200, 1);
 }
 
@@ -377,7 +390,7 @@ export default {
     color: #666;
 }
 
-.combobox.isInHeader .combobox__input::placeholder {
+.combobox__input.isBoldPlaceHolder::placeholder {
     font-style: normal;
     color: #000;
 }
