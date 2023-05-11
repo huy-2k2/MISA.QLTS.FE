@@ -53,7 +53,7 @@ export default {
     data() {
         return {
             // lưu value của thẻ input, và value của item người dùng chọn
-            item: { text: null, value: null },
+            item: { value: null },
             // tạo id duy nhất cho thẻ input là label
             uuid: uuid.v1(),
             // ẩn hiện options của combobox
@@ -105,7 +105,10 @@ export default {
          * description: Hàm xử lý lọc dữ liệu khi người dùng gõ tìm kiếm ở thẻ input, dữ liệu lọc lưu vào biến filterOptions
         */
         handleFilterOptions() {
-            this.filterOptions = this.options.filter(item => item.text.toLowerCase().includes(this.item.text.toLowerCase()))
+            this.filterOptions = this.options.filter(item => {
+                const value = this.item.value.toLowerCase()
+                return item.text.toLowerCase().includes(value) || item.value.toString().toLowerCase().includes(value)
+            })
         },
 
         /**
@@ -116,7 +119,7 @@ export default {
          * description: Hàm xử lý sự kiện khi người dùng chọn một option, emit giá trị được chọn cho componentcha, emit validate, set lại giá trị isShow
          */
         handleSetItem(item, isShow = false) {
-            this.$emit('selectCombobox', { name: this.name, value: item.value, text: item.text })
+            this.$emit('update:modelValue', item.value)
             this.item = { ...item }
             this.$emit('blurcombobox')
             this.isShow = isShow
@@ -129,14 +132,17 @@ export default {
         */
         handleBlur() {
             // set lại value cho thẻ input, trong trường hợp người dùng nhấn thêm vào ô input, value thẻ input được set lại là giá trị của item được chọn trước đó
-            if (this.item.text && this.item.value) {
+            if (this.item.value) {
                 this.item = { ...this.options.find(item => item.value == this.item.value) }
+                if (!this.item.value)
+                    this.$emit('update:modelValue', '')
+
             }
             // trường hợp người dùng xóa hết value thẻ input rồi blur, thì emit giá trị null cho component cha
             else {
                 this.item = { value: null, text: null }
                 if (this.value) {
-                    this.$emit('selectCombobox', { name: this.name, value: '', text: '' })
+                    this.$emit('update:modelValue', '')
                 }
             }
             // emit validate và ẩn options
@@ -154,6 +160,13 @@ export default {
         handleTabOut(event) {
             if (event.code == 'Tab') {
                 this.handleBlur()
+            }
+        }
+    },
+    computed: {
+        value: {
+            get() {
+                return this.modelValue
             }
         }
     },
@@ -214,12 +227,8 @@ export default {
         },
         label: String,
         placeholder: String,
-        value: {
-            default: null
-        },
-        name: {
-            type: String,
-            default: ''
+        modelValue: {
+
         },
         error: {
             type: String,

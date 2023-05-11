@@ -1,6 +1,7 @@
 <template>
-    <div class="table-wrapper custom-scrollbar">
-        <table class="table">
+    <div :class="{ isLoading }" class="table-wrapper custom-scrollbar">
+        <MyLoading v-if="isLoading"></MyLoading>
+        <table v-else class="table">
             <thead>
                 <tr>
                     <th scope="col">
@@ -101,6 +102,7 @@ import MySelect from '../components/MySelect.vue'
 import ThePopup from './ThePopup.vue'
 import TheToolTip from './TheToolTip.vue'
 import TheForm from './TheForm.vue'
+import MyLoading from '@/components/MyLoading.vue'
 export default {
     methods: {
 
@@ -197,7 +199,14 @@ export default {
         MyDialog,
         ThePopup,
         TheToolTip,
-        TheForm
+        TheForm,
+        MyLoading
+    },
+
+    beforeMount() {
+        setTimeout(() => {
+            this.isLoading = false
+        }, 1000)
     },
 
     /**
@@ -224,6 +233,7 @@ export default {
     },
     data() {
         return {
+            isLoading: true,
             trChoose: null,
             typeForm: 'edit',
             isShowForm: false,
@@ -287,6 +297,19 @@ export default {
     box-shadow: 0 3px 10px rgba(0, 0, 0, .16);
     border-radius: var(--radius-border);
     position: relative;
+    max-height: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+.table-wrapper.isLoading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
 }
 
 .table {
@@ -400,14 +423,6 @@ export default {
     font-size: 13px;
     font-weight: 700;
     font-family: bMisa Font;
-}
-
-.table-wrapper {
-    position: relative;
-    max-height: 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    overflow-y: auto;
 }
 
 .table thead {

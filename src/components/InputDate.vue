@@ -6,7 +6,7 @@
         </label>
         <div class="input_date__textfield">
             <div class="input_date__value"></div>
-            <input @input="handleSelect($event)" :value="value" class="input_date__input" type="date">
+            <input v-model="value" class="input_date__input" type="date">
         </div>
         <span class="field__validate__error">{{ error }}</span>
     </div>
@@ -20,23 +20,23 @@ export default {
             type: Boolean,
             default: false
         },
-        value: {
-            type: String,
-            default: ''
-        },
-        name: {
-            type: String,
-            default: ''
+        modelValue: {
+
         },
         error: {
             type: String,
             default: ''
         }
     },
-    methods: {
-        handleSelect(event) {
-            this.$emit('select', { name: this.name, value: event.target.value })
-            this.$emit('blurdate')
+    computed: {
+        value: {
+            get() {
+                return this.modelValue
+            },
+            set(value) {
+                this.$emit('update:modelValue', value)
+                this.$emit('blurdate')
+            }
         }
     }
 }

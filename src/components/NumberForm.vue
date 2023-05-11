@@ -6,7 +6,8 @@
         </label>
         <div class="number_form__textfield">
             <label :for="uuid" class="number_form__input">
-                <input :disabled="disable" @blur="handleBlur" @input="handleChange" :value="value" :id="uuid" type="text">
+                <input ref="input" :disabled="disable" @blur="handleBlur" @input="handleChange" :value="value" :id="uuid"
+                    type="text">
                 <span class="number_form__value">{{ currrency ? valueCurrenCy : value }}</span>
             </label>
             <label :for="uuid" v-if="icon" class="number_form__control">
@@ -39,6 +40,12 @@ export default {
         valueCurrenCy() {
             const result = this.toCurrency(this.value)
             return result
+        },
+
+        value: {
+            get() {
+                return this.modelValue
+            },
         }
     },
     methods: {
@@ -54,7 +61,7 @@ export default {
                 if (value[value.length - 1] == '.') {
                     value = value.substring(0, value.length - 1)
                     event.target.value = value
-                    this.handleChange(event)
+                    this.handleChange(event.target.value)
                 }
             }
         },
@@ -130,14 +137,16 @@ export default {
                 }
 
             }
-            this.$emit('change', { name: this.name, value })
+            this.$emit('update:modelValue', value)
         },
 
     },
 
     props: {
         label: String,
-        value: [String, Number],
+        modelValue: {
+
+        },
         min: {
             type: [Number, String],
             default: '0'
@@ -145,10 +154,6 @@ export default {
         error: {
             type: String,
             default: ""
-        },
-        name: {
-            type: String,
-            default: ''
         },
         icon: {
             type: Boolean,

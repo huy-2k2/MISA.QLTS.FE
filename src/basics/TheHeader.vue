@@ -29,14 +29,14 @@
             <TextField icon="icon-search" placeholder="Tìm kiếm tài sản"></TextField>
             <div class="header__bottom__select">
                 <MyCombobox fieldText="email" fieldValue="id" url="https://jsonplaceholder.typicode.com/users" label=""
-                    :isBoldPlaceHolder="true" :isInHeader="true" icon="icon-header-filter" @selectCombobox="setValue"
-                    :value="departmentCode" name="legacyType" placeholder="Loại tài sản">
+                    :isBoldPlaceHolder="true" :isInHeader="true" icon="icon-header-filter" v-model="assetTypeCode"
+                    placeholder="Loại tài sản">
                 </MyCombobox>
             </div>
             <div class="header__bottom__select">
                 <MyCombobox fieldText="email" fieldValue="id" url="https://jsonplaceholder.typicode.com/users" label=""
-                    :isBoldPlaceHolder="true" :isInHeader="true" icon="icon-header-filter" @selectCombobox="setValue"
-                    :value="departmentCode" name="departmentCode" placeholder="Bộ phận sử dụng">
+                    :isBoldPlaceHolder="true" :isInHeader="true" icon="icon-header-filter" v-model="departmentCode"
+                    placeholder="Bộ phận sử dụng">
                 </MyCombobox>
             </div>
             <div class="header__bottom__right">
@@ -81,7 +81,7 @@ export default {
             isDiableRemove: true,
             isShowPopup: false,
             departmentCode: null,
-            legacyType: null
+            assetTypeCode: null
         }
     },
     methods: {

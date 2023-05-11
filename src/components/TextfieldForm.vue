@@ -4,8 +4,8 @@
             <span class="field__validate__label">{{ label }}</span>
             <span v-if="required" class="label__required">*</span>
         </label>
-        <input @blur="$emit('blur')" @input="$emit('input', { name: name, value: $event.target.value })" :disabled="disable"
-            :placeholder="placeholder" :value="value" class="textfield_form__input" type="text" :id="uuid">
+        <input @blur="$emit('blur')" :disabled="disable" :placeholder="placeholder" v-model="value"
+            class="textfield_form__input" type="text" :id="uuid">
         <span class="field__validate__error">{{ error }}</span>
     </div>
 </template>
@@ -18,14 +18,19 @@ export default {
             uuid: uuid.v1()
         }
     },
-    props: {
+    computed: {
         value: {
-            type: [String, Number],
-            default: ""
-        },
-        name: {
-            type: String,
-            default: ""
+            get() {
+                return this.modelValue
+            },
+            set(value) {
+                this.$emit('update:modelValue', value)
+            }
+        }
+    },
+    props: {
+        modelValue: {
+
         },
         error: {
             type: String,
