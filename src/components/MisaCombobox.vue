@@ -1,5 +1,5 @@
 <template>
-    <div class="combobox" :class="{ isInHeader, isError: error }">
+    <div class="combobox" :class="{ isError: error }">
         <label v-if="label" :for="uuid" class="label">
             <span>{{ label }}</span>
             <span v-if="required" class="label__required">*</span>
@@ -8,37 +8,41 @@
             <div v-if="icon" class="combobox__head__icon">
                 <div class="icon-header-filter"></div>
             </div>
-            <input :id="uuid" @focus="handleFocus" @keyup="handleControll" @keydown="handleTabOut"
+            <input :id="uuid" @focus="this.isShow = true" @keyup="handleControll" @keydown="handleTabOut"
                 @input="handleFilterOptions" v-model="item.value" :class="{ isBoldPlaceHolder }" class="combobox__input"
                 type="text" :placeholder="placeholder">
             <div class="combobox__icon">
                 <div class="icon-down"></div>
             </div>
         </div>
-
-        <div ref="comboboxOptions" v-show="isShow" :class="{ isLoading }" class="combobox__options custom-scrollbar">
-            <MyLoading v-show="isLoading"></MyLoading>
-            <div v-show="!isInHeader" @click="handleSetItem(option)" v-for="option in filterOptions" :key="option.value"
-                class="combobox__item" :class="{ active: option.value == item.value }">
-                <span class="combobox__item__text">{{ option.text }}</span>
-                <span class="combobox__item__icon" v-show="option.value == item.value">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
-                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="32" d="M416 128L192 384l-96-96" />
-                    </svg>
-                </span>
+        <div class="combobox__options__wrapper">
+            <div ref="comboboxOptions" v-show="isShow" :class="{ isLoading }" class="combobox__options custom-scrollbar">
+                <MyLoading v-show="isLoading"></MyLoading>
+                <div v-show="typeCombobox == $enum.typeCombobox.listOption" @click="handleSetItem(option)"
+                    v-for="(option) in  filterOptions " :key="option.value" class="combobox__item"
+                    :class="{ active: option.value == item.value }">
+                    <span class="combobox__item__text">{{ option.text }}</span>
+                    <span class="combobox__item__icon" v-show="option.value == item.value">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="32" d="M416 128L192 384l-96-96" />
+                        </svg>
+                    </span>
+                </div>
+                <div v-show="typeCombobox == $enum.typeCombobox.tableOption && !isLoading" class="combobox__table">
+                    <table>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Tên</th>
+                        </tr>
+                        <tr :class="{ active: option.value == item.value }" @click="handleSetItem(option)"
+                            v-for="( option ) in  filterOptions " :key="option.value">
+                            <td>{{ option.value }}</td>
+                            <td>{{ option.text }}</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
-            <table class="combobox__table" v-show="isInHeader">
-                <tr>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                </tr>
-                <tr :class="{ active: option.value == item.value }" @click="handleSetItem(option)"
-                    v-for="option in filterOptions" :key="option.value">
-                    <td>{{ option.value }}</td>
-                    <td>{{ option.text }}</td>
-                </tr>
-            </table>
         </div>
         <span class="field__validate__error">{{ error }}</span>
     </div>
@@ -46,8 +50,7 @@
 
 <script>
 import { uuid } from 'vue-uuid'
-import axios from 'axios'
-import MyLoading from './MyLoading.vue'
+import MyLoading from './MisaLoading.vue'
 export default {
     components: { MyLoading },
     data() {
@@ -64,13 +67,9 @@ export default {
             // options khi đã được lọc qua tìm kiếm
             filterOptions: [],
             // ẩn hiện loading khi lấy dữ liệu từ api
-            isLoading: true,
         }
     },
     methods: {
-        handleFocus() {
-            this.isShow = true
-        },
         /**
         * @param {Event} event 
         * author: Nguyen Quoc Huy
@@ -161,6 +160,25 @@ export default {
             if (event.code == 'Tab') {
                 this.handleBlur()
             }
+        },
+
+        /**
+        * author: Nguyen Quoc Huy
+        * @param {Event}
+        * created at: 30/04/2023
+        * description: Hàm chuyển đổi data từ prop của component cha về dữ liệu dạng {text, value}
+        */
+        convertDataToOptions() {
+            this.options = this.data.map(option => {
+                // key của text và key của value được lấy từ prop, vì dữ liệu của component cha truyền xuống có thể chưa qua xử lý
+                const { [this.fieldText]: text, [this.fieldValue]: value } = option
+                return { text, value }
+            })
+            this.filterOptions = this.options
+            // trường hợp component cha truyền một giá trị mặc định
+            if (this.value) {
+                this.item = { ...this.options.find(item => item.value == this.value) }
+            }
         }
     },
     computed: {
@@ -174,24 +192,12 @@ export default {
     /**
     * author: Nguyen Quoc Huy
     * created at: 30/04/2023
-    * description: hàm khởi tạo giá trị cho combobox
+    * description: theo dõi sự kiện gọi api của app thành công thì lọc giá trị của data cho phù hợp với các trường của options
     */
-    beforeMount() {
-        //gọi api để lấy dữ liệu options và đặt cho các biến options, filterOptions
-        axios.get(this.url)
-            .then(({ data }) => {
-                this.options = data.map(option => {
-                    const { [this.fieldText]: text, [this.fieldValue]: value } = option
-                    return { text, value }
-                })
-                this.filterOptions = this.options
-                this.isLoading = false
-                if (this.value) {
-                    this.item = { ...this.options.find(item => item.value == this.value) }
-                }
-            }).catch(({ message }) => {
-                console.log(message)
-            })
+    watch: {
+        data() {
+            this.convertDataToOptions()
+        }
     },
 
     /**
@@ -206,6 +212,9 @@ export default {
             }
         }
         window.addEventListener('click', this.eventWindowClick)
+        // convert data sang options 
+        this.convertDataToOptions()
+
     },
 
     /**
@@ -234,9 +243,11 @@ export default {
             type: String,
             default: ''
         },
-        url: {
-            type: String,
-            default: ''
+        data: {
+            type: Array,
+        },
+        isLoading: {
+            type: Boolean,
         },
         fieldText: {
             type: String,
@@ -246,9 +257,8 @@ export default {
             type: String,
             default: ''
         },
-        isInHeader: {
-            type: Boolean,
-            default: false
+        typeCombobox: {
+            type: String,
         },
         isBoldPlaceHolder: {
             type: Boolean,
@@ -260,6 +270,11 @@ export default {
 
 <style scoped>
 .combobox__table {
+    min-width: 350px;
+    padding: 4px;
+}
+
+.combobox__table table {
     width: 100%;
     border-spacing: 0;
 }
@@ -320,27 +335,35 @@ export default {
     align-items: center;
 }
 
+.combobox tr:first-child {
+    background-color: rgba(67, 195, 227, 0.668);
+}
+
 .combobox__item:hover,
 .combobox__table tr:hover:not(:first-child) {
-    background-color: rgba(26, 164, 200, .2);
+    background-color: rgba(120, 215, 239, 0.164);
 }
 
 .combobox__item.active,
 .combobox__table tr.active {
-    color: rgba(26, 164, 200, 1);
+    background-color: rgba(120, 215, 239, 0.455) !important;
 }
 
 .combobox__options {
     background-color: #fff;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.178);
-    border-radius: var(--radius-border);
-    max-height: 250px;
     overflow-y: auto;
+    max-height: 250px;
+}
+
+.combobox__options__wrapper {
+    border-radius: var(--radius-border);
+    overflow: hidden;
     position: absolute;
     top: 100%;
     left: 0;
     min-width: 100%;
     z-index: 100;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.178);
 }
 
 .combobox.isError .combobox__options {

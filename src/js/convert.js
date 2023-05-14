@@ -7,23 +7,10 @@
  * description: Hàm chuyển một số về dạng đơn vị tiền vnđ 
  */
 function toCurrency(num) {
-    // hàm trả về exception nếu num không thể chuyển về số nguyên, nếu không trả về string đã được định dạng vnđ
-    function getCurrency(num) {
-        if(isNaN(Number.parseInt(num)))
-            throw new Error(`không thể chuyển ${num} về số nguyên`)
-        else 
-            return Number.parseInt(num).toLocaleString('vi-VN')
-    }
-    if(num.toString().length) {
-        try {
-            return getCurrency(num)
-        } catch(error) {
-            // có lỗi thì log ra message và trả về chuỗi rỗng
-            console.log(error.message);
-            return num
-        }
-    }
-    return ""
+    if(isNaN(Number.parseFloat(num)) || !num.toString().length)
+        return ''
+    else 
+        return Number.parseFloat(num).toLocaleString('vi-VN')
 }
 
  /**

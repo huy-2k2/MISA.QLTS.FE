@@ -1,12 +1,12 @@
 <template>
     <div :class="{ isLoading }" class="table-wrapper custom-scrollbar">
-        <MyLoading v-if="isLoading"></MyLoading>
+        <MisaLoading v-if="isLoading"></MisaLoading>
         <table v-else class="table">
             <thead>
                 <tr>
                     <th scope="col">
-                        <InputCheckbox @changeChecked="handleCheckAll" :checked="isCheckedAll">
-                        </InputCheckbox>
+                        <MisaInputCheckbox @changeChecked="handleCheckAll" :checked="isCheckedAll">
+                        </MisaInputCheckbox>
                     </th>
                     <th scope="col">
                         <TheToolTip tooltip="Số thứ tự">
@@ -31,8 +31,9 @@
             <tbody ref="tbody" class="table__body">
                 <tr @dblclick="handleEdit(tr, index, $event)" v-for="(tr, index) in tbody" :key="tr.td2">
                     <td scope="row">
-                        <InputCheckbox @changeChecked="(checked) => handleCheck(checked, index)" :checked="tr.isChecked">
-                        </InputCheckbox>
+                        <MisaInputCheckbox @changeChecked="(checked) => handleCheck(checked, index)"
+                            :checked="tr.isChecked">
+                        </MisaInputCheckbox>
                     </td>
                     <td>{{ index + 1 }}</td>
                     <td>{{ tr.td2 }}</td>
@@ -66,8 +67,8 @@
                     <td class="table__footer__td">
                         <div class="table__footer__left">
                             <p class="table__footer__total">Tổng số: <strong>200</strong> bản ghi</p>
-                            <MySelect></MySelect>
-                            <MyPaginate></MyPaginate>
+                            <MisaSelect></MisaSelect>
+                            <MisaPaginate></MisaPaginate>
                         </div>
                     </td>
                     <td></td>
@@ -84,25 +85,25 @@
             </tbody>
         </table>
         <ThePopup :isShow="isShowRemove" :isHasClose="false">
-            <MyDialog :text="dialogText" @click1="handleRemove" @click2="isShowRemove = false" quantity="2" button1="Xóa"
+            <MisaDialog :text="dialogText" @click1="handleRemove" @click2="isShowRemove = false" quantity="2" button1="Xóa"
                 button2="Không">
-            </MyDialog>
+            </MisaDialog>
         </ThePopup>
         <ThePopup :isShow="isShowForm" @close="isShowForm = false">
-            <TheForm :trChoose="trChoose" :typeForm="typeForm" @clickClose="isShowForm = false"></TheForm>
+            <TheForm :assetId="assetId" :typeForm="typeForm" @clickClose="isShowForm = false"></TheForm>
         </ThePopup>
     </div>
 </template>
 
 <script>
-import MyDialog from '@/components/MyDialog.vue'
-import InputCheckbox from '../components/InputCheckbox.vue'
-import MyPaginate from '../components/MyPaginate.vue'
-import MySelect from '../components/MySelect.vue'
+import MisaDialog from '@/components/MisaDialog.vue'
+import MisaInputCheckbox from '../components/MisaInputCheckbox.vue'
+import MisaPaginate from '../components/MisaPaginate.vue'
+import MisaSelect from '../components/MisaSelect.vue'
 import ThePopup from './ThePopup.vue'
 import TheToolTip from './TheToolTip.vue'
 import TheForm from './TheForm.vue'
-import MyLoading from '@/components/MyLoading.vue'
+import MisaLoading from '@/components/MisaLoading.vue'
 export default {
     methods: {
 
@@ -173,9 +174,9 @@ export default {
                     return
             }
             this.isShowForm = true;
-            this.typeForm = 'edit';
+            this.typeForm = this.$enum.typeForm.edit;
             // gán giá trị dữ liệu sửa bằng giá trị ở dòng người dùng click 
-            this.trChoose = tr
+            this.assetId = tr
         },
 
         /**
@@ -187,20 +188,21 @@ export default {
         handleDuplicate(tr) {
             // mở form duplicate
             this.isShowForm = true;
-            this.typeForm = 'duplicate';
+            this.typeForm = this.$enum.typeForm.duplicate;
             // gán giá trị dữ liệu nhân bản bằng giá trị ở dòng người dùng click 
-            this.trChoose = tr
+            this.assetId = tr
+
         }
     },
     components: {
-        InputCheckbox,
-        MyPaginate,
-        MySelect,
-        MyDialog,
+        MisaInputCheckbox,
+        MisaPaginate,
+        MisaSelect,
+        MisaDialog,
         ThePopup,
         TheToolTip,
         TheForm,
-        MyLoading
+        MisaLoading
     },
 
     beforeMount() {
@@ -234,8 +236,8 @@ export default {
     data() {
         return {
             isLoading: true,
-            trChoose: null,
-            typeForm: 'edit',
+            assetId: null,
+            typeForm: null,
             isShowForm: false,
             dialogText: '',
             isShowRemove: false,

@@ -1,33 +1,57 @@
 <template>
   <div>
-    <MainPage></MainPage>
+    <router-view></router-view>
     <ToastMessage :text="toastMessageContent" :isShow="isShowToastMessage"></ToastMessage>
+    <ThePopup :isHasClose="false" :isShow="isShowDialog">
+      <MisaDialog :text="dialogMessage" @click1="isShowDialog = false" quantity="1" button1="Đóng">
+      </MisaDialog>
+    </ThePopup>
   </div>
 </template>
 
 <script>
-import ToastMessage from './components/ToastMessage.vue';
-import MainPage from './pages/MainPage.vue'
-
+import ToastMessage from './components/MisaToastMessage.vue';
+import { RouterView } from 'vue-router';
+import ThePopup from './basics/ThePopup.vue';
+import MisaDialog from './components/MisaDialog.vue';
 export default {
   name: 'App',
   components: {
-    MainPage,
-    ToastMessage
+    ToastMessage,
+    RouterView,
+    ThePopup,
+    MisaDialog
   },
   data() {
     return {
       isShowToastMessage: false,
+      isShowDialog: false,
+      dialogMessage: '',
       toastMessageContent: ''
     }
   },
+
+  /**
+   * author: Nguyen Quoc Huy
+   * created at: 30/04/2023
+   * description: lắng nghe các sự kiện toạn cục, và set một vài biến toàn cục
+   */
   mounted() {
+    // lắng nghe sự kiện hiện toast messaage
     this.emitter.on("setToastMessage", text => {
       this.toastMessageContent = text;
       this.isShowToastMessage = true
       setTimeout(() => this.isShowToastMessage = false, 3000)
     });
-  }
+
+    // lắng nghe sự kiện hiện dialog thông báo lỗi call api
+    this.emitter.on("setDialogMessage", text => {
+      this.dialogMessage = text;
+      this.isShowDialog = true
+    });
+    // set biến store language là vietnam
+    this.$store.dispatch('setLanguage', this.$enum.languages.vietnam)
+  },
 }
 </script>
 

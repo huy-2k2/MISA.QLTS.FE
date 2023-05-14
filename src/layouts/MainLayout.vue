@@ -4,22 +4,17 @@
             <TheMenu></TheMenu>
         </div>
         <div class="app__right">
-            <TheHeader></TheHeader>
-            <div class="body">
-                <slot></slot>
-            </div>
+            <slot></slot>
         </div>
     </div>
 </template>
 
 <script>
 import TheMenu from '../basics/TheMenu.vue'
-import TheHeader from '../basics/TheHeader.vue';
 
 export default {
     components: {
         TheMenu,
-        TheHeader
     }
 }
 </script>

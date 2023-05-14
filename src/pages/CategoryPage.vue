@@ -1,17 +1,15 @@
 <template>
     <MainLayout>
-        <TheTable></TheTable>
+        Danh mục
     </MainLayout>
 </template>
 
 <script>
 import MainLayout from '../layouts/MainLayout.vue'
-import TheTable from '../basics/TheTable.vue'
 
 export default {
     components: {
         MainLayout,
-        TheTable
     }
 }
 </script>

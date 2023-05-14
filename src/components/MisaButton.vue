@@ -44,7 +44,7 @@ export default {
 }
 
 .button:focus {
-    border: 2px solid #333 !important;
+    border: 2px solid #61dbf985 !important;
     outline: none;
 }
 

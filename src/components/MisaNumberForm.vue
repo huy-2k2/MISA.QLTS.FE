@@ -6,8 +6,8 @@
         </label>
         <div class="number_form__textfield">
             <label :for="uuid" class="number_form__input">
-                <input ref="input" :disabled="disable" @blur="handleBlur" @input="handleChange" :value="value" :id="uuid"
-                    type="text">
+                <input @keydown.up.prevent="increase" @keydown.down.prevent="decrease" ref="input" :disabled="disable"
+                    @blur="$emit('blur')" v-model="value" :id="uuid" type="text">
                 <span class="number_form__value">{{ currrency ? valueCurrenCy : value }}</span>
             </label>
             <label :for="uuid" v-if="icon" class="number_form__control">
@@ -38,33 +38,25 @@ export default {
          * description: Computed chuyển đổi value của input về dạng tiền tệ vnđ, sử dụng global function toCurrency
          */
         valueCurrenCy() {
-            const result = this.toCurrency(this.value)
-            return result
+            const parts = this.value.toString().split('.')
+            // trường hợp người dùng nhập số nguyên
+            if (parts.length == 1)
+                return this.toCurrency(parts[0])
+            // trường hợp nhập số thập phân
+            else
+                return this.toCurrency(parts[0]) + ',' + parts[1]
         },
 
         value: {
             get() {
                 return this.modelValue
             },
+            set(value) {
+                this.handleChange(value)
+            }
         }
     },
     methods: {
-        /**
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
-         * description: khi blur mà value có dạng 9. thì chuyển về 9
-         */
-        handleBlur(event) {
-            this.$emit('blur')
-            if (this.step != 1) {
-                let value = event.target.value
-                if (value[value.length - 1] == '.') {
-                    value = value.substring(0, value.length - 1)
-                    event.target.value = value
-                    this.handleChange(event.target.value)
-                }
-            }
-        },
         /**
          * @param {Float} num 
          * @returns {number}
@@ -73,7 +65,7 @@ export default {
          * description: Hàm nhận giá trị số thực và trả về số làm tròn 2 chữ số sau dấu phẩy
          */
         rounded(num) {
-            return this.step == 1 ? num : this.toRounded(num)
+            return !this.float ? num : this.toRounded(num)
         },
 
         /**
@@ -85,7 +77,7 @@ export default {
         decrease() {
             let temp = this.value || 0
             if (temp - 1 >= this.min)
-                this.$emit('change', { name: this.name, value: this.rounded(Number.parseFloat(temp) - 1) })
+                this.$emit('update:modelValue', this.rounded(Number.parseFloat(temp) - 1))
         },
 
         /**
@@ -96,7 +88,7 @@ export default {
         */
         increase() {
             let temp = this.value || 0
-            this.$emit('change', { name: this.name, value: this.rounded(Number.parseFloat(temp) + 1) })
+            this.$emit('update:modelValue', this.rounded(Number.parseFloat(temp) + 1))
         },
 
         /**
@@ -106,37 +98,39 @@ export default {
        * @param {Event}
        * description: hàm sử lý sự kiện khi người dùng thay đổi giá trị input, emit giá trị của input lên component cha
        */
-        handleChange(event) {
+        handleChange(value) {
+            // tối đa chỉ có 1 số 0 ở đầu 
+            const regex = /^0+/
+            value = value.replace(regex, '0')
             // trong trường hợp input là số nguyên thì bỏ hết các kí tự khác ngoài số
-            if (this.step == 1) {
+            if (!this.float) {
                 const regex = /\D/g;
-                event.target.value = event.target.value.replace(regex, "")
+                value = value.replace(regex, '')
             }
             // trong trường hợp input là số thực
             else {
                 // xóa hết các kí tự ngoài số và dấu .
                 const regex = /[^\d.]/g
-                let value = event.target.value.replace(regex, '')
+                value = value.replace(regex, '')
                 // nếu chỉ value là '.' thì gán value = ''
                 if (value.length == 1 && value[value.length - 1] == '.')
                     value = ''
                 // kiểm tra nếu đã tồn tại dấu . thì không ấn được . nữa
                 if (value && value.substring(0, value.length - 1).indexOf('.') != -1 && value[value.length - 1] == '.')
                     value = value.substring(0, value.length - 1)
-                event.target.value = value
+                // event.target.value = value
             }
-            let value = event.target.value
             // nếu input là số thực thì chỉ lấy 2 số thập phân sau dấu .
-            if (this.step != 1) {
-                const valueArray = event.target.value.split('.')
+            if (this.float) {
+                const valueArray = value.split('.')
                 let [, decimal] = valueArray
                 if (decimal?.length > 2) {
                     decimal = decimal.substring(0, 2)
                     value = valueArray[0] + '.' + decimal
-                    event.target.value = value
                 }
-
             }
+            // emit sự kiện set value cho compoment cha
+            this.$refs.input.value = value
             this.$emit('update:modelValue', value)
         },
 
@@ -171,9 +165,9 @@ export default {
             type: Boolean,
             default: false
         },
-        step: {
-            type: [Number, String],
-            default: '1'
+        float: {
+            type: Boolean,
+            default: false
         }
     }
 }

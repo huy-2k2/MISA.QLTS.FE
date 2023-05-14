@@ -14,7 +14,10 @@ export default {
             type: String,
             default: ''
         },
-        isShow: Boolean
+        isShow: Boolean,
+        type: {
+            type: String,
+        }
     }
 }
 </script>

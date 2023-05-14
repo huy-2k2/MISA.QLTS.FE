@@ -1,131 +1,121 @@
 <template>
-    <form @submit.prevent="handleSubmit" class="form">
+    <div class="form">
         <div class="form__top">
             <div class="form__head">
-                <h3 class="form__title">{{ typeForm == 'edit' ? 'Sửa tài sản' : typeForm == 'duplicate' ? 'Nhân bản tài sản'
-                    :
-                    'Thêm tài sản' }}</h3>
+                <h3 class="form__title">{{ formTitle }}</h3>
             </div>
             <div class="form__body">
                 <div ref="assetCode" class="form__body__item form__body__item--1">
-                    <TextfieldForm @blur="validateassetCode" :error="errors.assetCode" v-model="form.assetCode"
+                    <MisaTextfieldForm @blur="validateassetCode" :error="errors.assetCode" v-model="form.assetCode"
                         label="Mã tài sản" placeholder="Nhập mã tài sản">
-                    </TextfieldForm>
+                    </MisaTextfieldForm>
                 </div>
                 <div ref="assetName" class="form__body__item form__body__item--2">
-                    <TextfieldForm @blur="validateassetName" :error="errors.assetName" v-model="form.assetName"
+                    <MisaTextfieldForm @blur="validateassetName" :error="errors.assetName" v-model="form.assetName"
                         label="Tên tài sản" placeholder="Nhập tên tài sản">
-                    </TextfieldForm>
+                    </MisaTextfieldForm>
                 </div>
                 <div ref="departmentCode" class="form__body__item form__body__item--1">
-                    <MyCombobox fieldText="email" fieldValue="id" url="https://jsonplaceholder.typicode.com/users"
-                        :isInHeader="true" @blurcombobox="validateDepartmentCode" :error="errors.departmentCode"
-                        v-model="form.departmentCode" label="Mã bộ phận sử dụng" placeholder="Chọn mã bộ phận sử dụng">
-                    </MyCombobox>
+                    <MisaCombobox fieldText="email" fieldValue="id" :isLoading="$store.state.departments.isLoading"
+                        :data="$store.state.departments.data" :typeCombobox="$enum.typeCombobox.tableOption"
+                        @blurcombobox="validateDepartmentCode" :error="errors.departmentCode" v-model="form.departmentCode"
+                        label="Mã bộ phận sử dụng" placeholder="Chọn mã bộ phận sử dụng">
+                    </MisaCombobox>
                 </div>
                 <div class="form__body__item form__body__item--2">
-                    <TextfieldForm v-model="form.departmentName" :disable="true" label="Tên bộ phận sử dụng"
+                    <MisaTextfieldForm v-model="form.departmentName" :disable="true" label="Tên bộ phận sử dụng"
                         :required="false" placeholder="Nhập tên bộ phận sử dụng">
-                    </TextfieldForm>
+                    </MisaTextfieldForm>
                 </div>
                 <div ref="assetTypeCode" class="form__body__item form__body__item--1">
-                    <MyCombobox fieldText="name" fieldValue="id" url="https://jsonplaceholder.typicode.com/users"
-                        :isInHeader="true" @blurcombobox="validateassetTypeCode" :error="errors.assetTypeCode"
-                        v-model="form.assetTypeCode" label="Mã loại tài sản" placeholder="Chọn mã loại tài sản">
-                    </MyCombobox>
+                    <MisaCombobox fieldText="name" fieldValue="id" :isLoading="$store.state.assetTypes.isLoading"
+                        :data="$store.state.assetTypes.data" :typeCombobox="$enum.typeCombobox.tableOption"
+                        @blurcombobox="validateassetTypeCode" :error="errors.assetTypeCode" v-model="form.assetTypeCode"
+                        label="Mã loại tài sản" placeholder="Chọn mã loại tài sản">
+                    </MisaCombobox>
                 </div>
                 <div class="form__body__item form__body__item--2">
-                    <TextfieldForm v-model="form.assetTypeName" :disable="true" :required="false" label="Tên loại tài sản"
-                        placeholder="Nhập tên loại tài sản">
-                    </TextfieldForm>
+                    <MisaTextfieldForm v-model="form.assetTypeName" :disable="true" :required="false"
+                        label="Tên loại tài sản" placeholder="Nhập tên loại tài sản">
+                    </MisaTextfieldForm>
                 </div>
                 <div ref="quantity" class="form__body__item form__body__item--1">
-                    <NumberForm @blur="validateQuantity" :error="errors.quantity" label="Số lượng" v-model="form.quantity"
-                        min="1">
-                    </NumberForm>
+                    <MisaNumberForm @blur="validateQuantity" :error="errors.quantity" label="Số lượng"
+                        v-model="form.quantity" min="1">
+                    </MisaNumberForm>
                 </div>
                 <div ref="price" class="form__body__item form__body__item--1">
-                    <NumberForm @blur="handleBlurPrice" :error="errors.price" :currrency="true" :icon="false"
-                        label="Nguyên giá" v-model="form.price" min="0"></NumberForm>
+                    <MisaNumberForm @blur="handleBlurPrice" :error="errors.price" :currrency="true" :icon="false"
+                        label="Nguyên giá" :float="true" v-model="form.price" min="0"></MisaNumberForm>
                 </div>
                 <div ref="useDuration" class="form__body__item form__body__item--1">
-                    <NumberForm @blur="handleBlurUseDuration" :error="errors.useDuration" :icon="false"
+                    <MisaNumberForm @blur="handleBlurUseDuration" :error="errors.useDuration" :icon="false"
                         label="Số năm sử dụng" v-model="form.useDuration" min="0">
-                    </NumberForm>
+                    </MisaNumberForm>
                 </div>
                 <div ref="loseRate" class="form__body__item form__body__item--1">
-                    <NumberForm @blur="handleBlurloseRate" step="0.01" :error="errors.loseRate" label="Tỷ lệ hao mòn (%)"
-                        v-model="form.loseRate" min="0"></NumberForm>
+                    <MisaNumberForm @blur="handleBlurloseRate" :float="true" :error="errors.loseRate"
+                        label="Tỷ lệ hao mòn (%)" v-model="form.loseRate" min="0"></MisaNumberForm>
                 </div>
                 <div ref="loseRateYear" class="form__body__item form__body__item--1">
-                    <NumberForm @blur="validateloseRateYear" :error="errors.loseRateYear" :currrency="true" :icon="false"
-                        label="Giá trị hao mòn năm" v-model="form.loseRateYear" min="0">
-                    </NumberForm>
+                    <MisaNumberForm @blur="validateloseRateYear" :error="errors.loseRateYear" :currrency="true"
+                        :icon="false" label="Giá trị hao mòn năm" :float="true" v-model="form.loseRateYear" min="0">
+                    </MisaNumberForm>
                 </div>
                 <div ref="currentYear" class="form__body__item form__body__item--1">
-                    <NumberForm :icon="false" :disable="true" label="Năm theo dõi" :required="false">
-                    </NumberForm>
+                    <MisaNumberForm :icon="false" :disable="true" label="Năm theo dõi" v-model="form.currentYear"
+                        :required="false">
+                    </MisaNumberForm>
                 </div>
                 <div ref="buyDate" class="form__body__item form__body__item--1">
-                    <InputDate @blurdate="handleBlurBuyDate" :error="errors.buyDate" v-model="form.buyDate"
-                        label="Ngày mua"></InputDate>
+                    <MisaInputDate @blurdate="handleBlurBuyDate" :error="errors.buyDate" v-model="form.buyDate"
+                        label="Ngày mua"></MisaInputDate>
                 </div>
                 <div ref="useDate" class="form__body__item form__body__item--1">
-                    <InputDate @blurdate="validateUseDate" v-model="form.useDate" :error="errors.useDate"
+                    <MisaInputDate @blurdate="validateUseDate" v-model="form.useDate" :error="errors.useDate"
                         label="Ngày bắt đầu sử dụng">
-                    </InputDate>
+                    </MisaInputDate>
                 </div>
             </div>
         </div>
         <div class="form__bottom">
-            <MyButton type="button" @click="handleCancel" :isSub="true" text="Hủy"></MyButton>
+            <MisaButton type="button" @click="handleCancel" :isSub="true" text="Hủy"></MisaButton>
             <div ref="submitButton">
-                <MyButton type="submit" text="Lưu"></MyButton>
+                <MisaButton @click="handleSubmit" text="Lưu"></MisaButton>
             </div>
         </div>
         <ThePopup :isShow="isShowCancel" :isHasClose="false">
-            <MyDialog text="Bạn có muốn hủy bỏ khai báo tài sản này?" @click1="$emit('clickClose')"
+            <MisaDialog text="Bạn có muốn hủy bỏ khai báo tài sản này?" @click1="$emit('clickClose')"
                 @click2="handleCloseCancel" quantity="2" button1="Hủy bỏ" button2="Không">
-            </MyDialog>
+            </MisaDialog>
         </ThePopup>
-        <ThePopup :isShow="isShowStore && !typeForm" :isHasClose="false">
-            <MyDialog text="Thông tin thay đổi sẽ không được cập nhật nếu bạn không lưu. Bạn có muốn lưu các thay đổi này?"
-                @click1="handleStore" @click3="$emit('clickClose')" @click2="handleCloseStore" quantity="3" button1="Lưu"
+        <ThePopup :isShow="isShowStore" :isHasClose="false">
+            <MisaDialog
+                text="Thông tin thay đổi sẽ không được cập nhật nếu bạn không lưu. Bạn có muốn lưu các thay đổi này?"
+                @click1="handleSubmit" @click3="$emit('clickClose')" @click2="handleCloseStore" quantity="3" button1="Lưu"
                 button2="Không lưu" button3="Hủy bỏ">
-            </MyDialog>
-        </ThePopup>
-        <ThePopup :isShow="isShowStore && typeForm == 'edit'" :isHasClose="false">
-            <MyDialog text="Thông tin thay đổi sẽ không được cập nhật nếu bạn không lưu. Bạn có muốn lưu các thay đổi này?"
-                @click1="handleEdit" @click3="$emit('clickClose')" @click2="handleCloseStore" quantity="3" button1="Lưu"
-                button2="Không lưu" button3="Hủy bỏ">
-            </MyDialog>
-        </ThePopup>
-        <ThePopup :isShow="isShowStore && typeForm == 'duplicate'" :isHasClose="false">
-            <MyDialog text="Thông tin thay đổi sẽ không được cập nhật nếu bạn không lưu. Bạn có muốn lưu các thay đổi này?"
-                @click1="handleDuplicate" @click3="$emit('clickClose')" @click2="handleCloseStore" quantity="3"
-                button1="Lưu" button2="Không lưu" button3="Hủy bỏ">
-            </MyDialog>
+            </MisaDialog>
         </ThePopup>
         <ThePopup :isShow="isShowError" :isHasClose="false">
-            <MyDialog :text="errorNotifi" :isHasClose="false" @click1="handleCloseError" quantity="1" button1="Đóng">
-            </MyDialog>
+            <MisaDialog :text="errorNotifi" :isHasClose="false" @click1="handleCloseError" quantity="1" button1="Đóng">
+            </MisaDialog>
         </ThePopup>
-    </form>
+    </div>
 </template>
 
 <script>
-import NumberForm from '@/components/NumberForm.vue';
-import TextfieldForm from '@/components/TextfieldForm.vue';
-import InputDate from '@/components/InputDate.vue';
-import MyButton from '@/components/MyButton.vue';
-import MyCombobox from '@/components/MyCombobox.vue';
+import MisaNumberForm from '@/components/MisaNumberForm.vue';
+import MisaTextfieldForm from '@/components/MisaTextfieldForm.vue';
+import MisaInputDate from '@/components/MisaInputDate.vue';
+import MisaButton from '@/components/MisaButton.vue';
+import MisaCombobox from '@/components/MisaCombobox.vue';
 import ThePopup from './ThePopup.vue';
-import MyDialog from '@/components/MyDialog.vue';
+import MisaDialog from '@/components/MisaDialog.vue';
 
 export default {
     props: {
         typeForm: String,
-        trChoose: Object
+        assetId: String
     },
     data() {
         return {
@@ -136,8 +126,8 @@ export default {
             form: {
                 assetCode: 'TS00001',
                 quantity: '1',
-                price: '0',
-                loseRateYear: '0',
+                price: '',
+                loseRateYear: '',
                 currentYear: new Date().getFullYear(),
                 buyDate: this.toCurrentDate(),
                 useDate: this.toCurrentDate()
@@ -147,26 +137,71 @@ export default {
         }
     },
     computed: {
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Tạo error validate cho dialog khi người dùng ấn submit
+         */
         errorNotifi() {
             return Object.values(this.errors).map(error => error ? `<p>${error}.</p>` : '').join('')
         },
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Hàm tính giá trị hao mòn năm từ tỷ lệ hao mòn và nguyên giá
+         */
         loseRateYearValue() {
-            return Number.parseInt(this.form.loseRate / 100 * this.form.price)
+            // kiểm tra xem người dùng đã nhập nguyên giá và tỷ lệ hao mòn chưa
+            if (this.form.loseRate && this.form.price) {
+                // kiểm tra xem giá trị hao mòn năm có phải là số nguyên không
+                if (Number.isInteger(Number.parseFloat(this.toRounded(this.form.loseRate / 100 * this.form.price)))) {
+                    return Number.parseInt(this.form.loseRate / 100 * this.form.price)
+                }
+                // Nếu hao mòn năm không là số nguyên thì làm tròn 2 số sau phần thập phân
+                else {
+                    return this.toRounded(this.form.loseRate / 100 * this.form.price)
+                }
+            }
+            else
+                return ''
+        },
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Hàm lấy tiêu đề của form dựa vào prop typeForm
+         */
+        formTitle() {
+            return this.typeForm == this.$enum.typeForm.edit ? 'Sửa tài sản' : this.typeForm == this.$enum.typeForm.duplicate ? 'Nhân bản tài sản' : 'Thêm tài sản'
+        },
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Hàm lấy tỷ lệ hao mòn từ form để sử dụng watch, (watch thuộc tính)
+         */
+        loseRate() {
+            return this.form.loseRate
+        },
+
+        /**
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: Hàm lấy nguyên giá từ form để sử dụng watch, (watch thuộc tính)
+        */
+        price() {
+            return this.form.price
         }
     },
+
     /**
      * author: Nguyen Quoc Huy
      * created at: 30/04/2023
      * description: Hàm khỏi tạo giá trị cho dữ liệu form trong trường hợp form là form eidt hoạc form nhân bản
      */
     beforeMount() {
-        // kiểm tra xem component cha có truyền dữ liệu để khởi tạo cho giá trị input của form hay không
-        if (this.trChoose) {
-            this.form.assetCode = this.trChoose.td2
-            this.form.assetName = this.trChoose.td3
-            this.form.quantity = this.trChoose.td6
-            this.form.price = this.trChoose.td7
-        }
+        // gọi api để lấy dữ liệu về tài sản được chọn
     },
 
     /**
@@ -178,11 +213,26 @@ export default {
         this.$refs.assetCode.querySelector('input').focus()
         this.eventKeyDown = (event) => {
             if (event.key == 'Tab') {
-                // nếu như button cuối cùng đang được focus mà ấn tab thì sẽ focus quay trở về input đầu tiên
-                if (this.$refs.submitButton.querySelector('button:focus')) {
-                    this.$refs.assetCode.querySelector('input').focus()
-                    event.preventDefault();
-
+                // nếu ấn đang ở input đầu tiên mà ấn shift tab thì đến thằng button cuối cùng
+                if (event.shiftKey) {
+                    if (this.$refs.assetCode.querySelector('input:focus')) {
+                        this.$refs.submitButton.querySelector('button').focus();
+                        // this.$refs.submitButton.querySelectorAll('button')[1].focus();
+                        event.preventDefault()
+                    }
+                    // nếu như button cuối cùng đang được focus mà ấn tab thì sẽ focus quay trở về input đầu tiên
+                } else {
+                    if (this.$refs.submitButton.querySelector('button:focus')) {
+                        this.$refs.assetCode.querySelector('input').focus()
+                        event.preventDefault();
+                    }
+                }
+            }
+            // kiểm tra nếu người dùng ấn ctrl s thì submimt form
+            else if (event.key == 's') {
+                if (event.ctrlKey) {
+                    this.handleSubmit()
+                    event.preventDefault()
                 }
             }
         }
@@ -241,12 +291,11 @@ export default {
          * description: xử lý sự kiện khi người dùng ấn nút hủy
          */
         handleCancel() {
-            // kiểm tra xem người dùng đã thay nhập vào input nào chưa
-            if (this.isChanged)
-                this.isShowCancel = true
+            // kiểm tra xem người dùng đã thay nhập vào input nào chưa và kiểu form là edit
+            if (this.isChanged && this.typeForm == this.$enum.typeForm.edit)
+                this.isShowStore = true
             else
-                // emit sự kiện đóng form cho component cha
-                this.$emit('clickClose')
+                this.isShowCancel = true
         },
 
         /**
@@ -299,7 +348,7 @@ export default {
             // emit sự kiện đóng form cho component cha
             this.$emit('clickClose')
             // hiện thông báo
-            this.emitter.emit("setToastMessage", 'Lưu dữ liệu thành công');
+            this.emitter.emit("setToastMessage", this.toastMessages.addAssetSuccess[this.$store.state.language]);
         },
 
         /**
@@ -311,7 +360,7 @@ export default {
             // emit sự kiện đóng form cho component cha
             this.$emit('clickClose')
             // hiện thông báo
-            this.emitter.emit("setToastMessage", 'Thay đổi dữ liệu thành công');
+            this.emitter.emit("setToastMessage", this.toastMessages.eidtAssetSuccess[this.$store.state.language]);
         },
 
         /**
@@ -323,7 +372,7 @@ export default {
             // emit sự kiện đóng form cho component cha
             this.$emit('clickClose')
             // hiện thông báo
-            this.emitter.emit("setToastMessage", 'Nhân bản dữ liệu thành công');
+            this.emitter.emit("setToastMessage", this.toastMessages.duplicateAssetSuccess[this.$store.state.language]);
         },
 
         /**
@@ -332,6 +381,7 @@ export default {
        * description: xử lý sự kiện khi người dùng ấn nút lưu
        */
         handleSubmit() {
+            this.isShowStore = false
             this.errors = {}
             // validate lại tất cả các input, thứ tự validate sẽ ảnh hướng đến input đầu tiên được focus khi gặp lỗi
             this.validateassetCode()
@@ -353,8 +403,16 @@ export default {
                     return
                 }
             }
-            // nếu không có lỗi, hiện dialog xác nhận lưu
-            this.isShowStore = true
+            // thực hiện sửa nếu form là edit
+            if (this.typeForm == this.$enum.typeForm.edit) {
+                this.handleEdit()
+            }
+            // thực hiện nhân bản nếu form là duplicate
+            else if (this.typeForm == this.$enum.typeForm.duplicate)
+                this.handleDuplicate()
+            // thự hiện lưu
+            else
+                this.handleStore()
         },
 
         /**
@@ -474,8 +532,8 @@ export default {
             if (!this.validateRequired(this.form.price))
                 this.errors.price = 'Cần nhập nguyên giá'
             // kiểm tra price là số nguyên
-            else if (!this.validateInterger(this.form.price))
-                this.errors.price = 'Cần nhập nguyên giá là số nguyên'
+            // else if (!this.validateInterger(this.form.price))
+            //     this.errors.price = 'Cần nhập nguyên giá là số nguyên'
         },
 
         /**
@@ -527,17 +585,21 @@ export default {
             // gán lại error là rỗng
             this.errors.loseRateYear = ''
             // kiểm tra loseRateYear khác rỗng
-            if (!this.validateRequired(this.form.loseRateYear))
+            if (!this.validateRequired(this.form.loseRateYear)) {
                 this.errors.loseRateYear = 'Cần nhập giá trị hao mòn năm'
+                return
+            }
             // kiểm tra giá trị hao mòn năm phải bằng tỷ lệ hao mòn* Nguyên giá
             if (this.form.loseRate && this.form.price) {
                 if (this.loseRateYearValue != this.form.loseRateYear) {
                     this.errors.loseRateYear = 'Giá trị hao mòn năm phải bằng tỷ lệ hao mòn* Nguyên giá'
+                    return
                 }
             }
             //kiểm tra hao mòn năm phải nhỏ hơn hoạc bằng nguyên giá
             if (Number.parseInt(this.form.loseRateYear) > Number.parseInt(this.form.price)) {
                 this.errors.loseRateYear = 'Hao mòn năm phải nhỏ hơn hoạc bằng nguyên giá'
+                return
             }
         },
 
@@ -585,14 +647,45 @@ export default {
 
     },
     watch: {
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: Lắng nghe sự thay đổi của form để sử lý các sự kiện như tự chọn tên bộ phận sử dụng, tên loại tài sản...
+         */
         form: {
             handler() {
+                // đánh dấu form đã được thay đổi
                 this.isChanged = true
+                // nếu departmentCode thay đổi thì tự động điền cho departmentName
+                if (this.form.departmentCode) {
+                    this.form.departmentName = this.$store.state.departments.data.find(department => department.id == this.form.departmentCode).email
+                }
+                // nếu assetTypeCode thay đổi thì tự động điền cho assetTypeName
+                if (this.form.assetTypeCode)
+                    this.form.assetTypeName = this.$store.state.assetTypes.data.find(assettype => assettype.id == this.form.assetTypeCode).name
             },
             deep: true
+        },
+
+        /**
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: tính giá trị của hao mòn năm khi tỷ lệ hao mòn thay đổi
+        */
+        loseRate() {
+            this.form.loseRateYear = this.loseRateYearValue
+        },
+
+        /**
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: tính giá trị của hao mòn năm khi nguyên giá thay đổi
+        */
+        price() {
+            this.form.loseRateYear = this.loseRateYearValue
         }
     },
-    components: { TextfieldForm, NumberForm, InputDate, MyCombobox, ThePopup, MyDialog, MyButton }
+    components: { MisaTextfieldForm, MisaNumberForm, MisaInputDate, MisaCombobox, ThePopup, MisaDialog, MisaButton }
 }
 </script>
 

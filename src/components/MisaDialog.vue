@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import MyButton from './MyButton.vue'
+import MyButton from './MisaButton.vue'
 export default {
     components: { MyButton },
     data() {
@@ -75,7 +75,7 @@ export default {
 .dialog {
     background-color: #fff;
     border-radius: var(--radius-border);
-    padding: 40px 20px 20px 30px;
+    padding: 30px 20px;
     box-shadow: 0 4px 8px 0px rgba(0, 0, 0, 0.155);
     max-width: 600px;
     min-width: 400px;

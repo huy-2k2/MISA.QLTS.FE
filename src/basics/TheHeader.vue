@@ -7,7 +7,7 @@
                     Sở tài chính
                 </li>
                 <li class="header__top__item">
-                    <InputNumber></InputNumber>
+                    <MisaInputNumber></MisaInputNumber>
                 </li>
                 <li class="header__top__item">
                     <div class="icon-header-bell"></div>
@@ -26,27 +26,29 @@
             </ul>
         </div>
         <div class="header__bottom">
-            <TextField icon="icon-search" placeholder="Tìm kiếm tài sản"></TextField>
+            <MisaTextField icon="icon-search" placeholder="Tìm kiếm tài sản"></MisaTextField>
             <div class="header__bottom__select">
-                <MyCombobox fieldText="email" fieldValue="id" url="https://jsonplaceholder.typicode.com/users" label=""
-                    :isBoldPlaceHolder="true" :isInHeader="true" icon="icon-header-filter" v-model="assetTypeCode"
+                <MisaCombobox fieldText="email" fieldValue="id" :isLoading="$store.state.assetTypes.isLoading"
+                    :data="$store.state.assetTypes.data" label="" :isBoldPlaceHolder="true"
+                    :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter" v-model="assetTypeCode"
                     placeholder="Loại tài sản">
-                </MyCombobox>
+                </MisaCombobox>
             </div>
             <div class="header__bottom__select">
-                <MyCombobox fieldText="email" fieldValue="id" url="https://jsonplaceholder.typicode.com/users" label=""
-                    :isBoldPlaceHolder="true" :isInHeader="true" icon="icon-header-filter" v-model="departmentCode"
+                <MisaCombobox fieldText="email" fieldValue="id" label="" :isLoading="$store.state.departments.isLoading"
+                    :data="$store.state.departments.data" :isBoldPlaceHolder="true"
+                    :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter" v-model="departmentCode"
                     placeholder="Bộ phận sử dụng">
-                </MyCombobox>
+                </MisaCombobox>
             </div>
             <div class="header__bottom__right">
-                <MyButton @click="isShowPopup = true" text="Thêm tài sản" icon="icon-small-plus--white"></MyButton>
+                <MisaButton @click="isShowPopup = true" text="Thêm tài sản" icon="icon-small-plus--white"></MisaButton>
                 <TheToolTip tooltip="Xuất khẩu">
-                    <ButtonIcon icon="icon-excel"></ButtonIcon>
+                    <MisaButtonIcon icon="icon-excel"></MisaButtonIcon>
                 </TheToolTip>
                 <TheToolTip tooltip="Xóa">
-                    <ButtonIcon :isDisable="isDiableRemove" @click="emitter.emit('multiDelete')" icon="icon-bin">
-                    </ButtonIcon>
+                    <MisaButtonIcon :isDisable="isDiableRemove" @click="emitter.emit('multiDelete')" icon="icon-bin">
+                    </MisaButtonIcon>
                 </TheToolTip>
             </div>
         </div>
@@ -57,24 +59,24 @@
 </template>
 
 <script>
-import InputNumber from '../components/InputNumber.vue'
-import TextField from '../components/TextField.vue'
-import MyButton from '../components/MyButton.vue'
-import ButtonIcon from '../components/ButtonIcon.vue'
+import MisaInputNumber from '../components/MisaInputNumber.vue'
+import MisaTextField from '../components/MisaTextField.vue'
+import MisaButton from '../components/MisaButton.vue'
+import MisaButtonIcon from '../components/MisaButtonIcon.vue'
 import ThePopup from './ThePopup.vue'
 import TheForm from './TheForm.vue'
 import TheToolTip from './TheToolTip.vue'
-import MyCombobox from '@/components/MyCombobox.vue'
+import MisaCombobox from '@/components/MisaCombobox.vue'
 export default {
     components: {
-        InputNumber,
-        TextField,
-        MyButton,
-        ButtonIcon,
+        MisaInputNumber,
+        MisaTextField,
+        MisaButton,
+        MisaButtonIcon,
         ThePopup,
         TheForm,
         TheToolTip,
-        MyCombobox
+        MisaCombobox
     },
     data() {
         return {
