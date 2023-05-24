@@ -16,10 +16,11 @@
                     </MisaTextfieldForm>
                 </div>
                 <div ref="departmentCode" class="form__body__item form__body__item--1">
-                    <MisaCombobox fieldText="email" fieldValue="id" :isLoading="$store.state.departments.isLoading"
-                        :data="$store.state.departments.data" :typeCombobox="$enum.typeCombobox.tableOption"
-                        @blurcombobox="validateDepartmentCode" :error="errors.departmentCode" v-model="form.departmentCode"
-                        label="Mã bộ phận sử dụng" placeholder="Chọn mã bộ phận sử dụng">
+                    <MisaCombobox fieldText="departmentName" fieldValue="departmentCode"
+                        :isLoading="$store.state.departments.isLoading" :data="$store.state.departments.data"
+                        :typeCombobox="$enum.typeCombobox.tableOption" @blurcombobox="validateDepartmentCode"
+                        :error="errors.departmentCode" v-model="form.departmentCode" label="Mã bộ phận sử dụng"
+                        placeholder="Chọn mã bộ phận sử dụng">
                     </MisaCombobox>
                 </div>
                 <div class="form__body__item form__body__item--2">
@@ -28,10 +29,11 @@
                     </MisaTextfieldForm>
                 </div>
                 <div ref="assetTypeCode" class="form__body__item form__body__item--1">
-                    <MisaCombobox fieldText="name" fieldValue="id" :isLoading="$store.state.assetTypes.isLoading"
-                        :data="$store.state.assetTypes.data" :typeCombobox="$enum.typeCombobox.tableOption"
-                        @blurcombobox="validateassetTypeCode" :error="errors.assetTypeCode" v-model="form.assetTypeCode"
-                        label="Mã loại tài sản" placeholder="Chọn mã loại tài sản">
+                    <MisaCombobox fieldText="assetTypeName" fieldValue="assetTypeCode"
+                        :isLoading="$store.state.assetTypes.isLoading" :data="$store.state.assetTypes.data"
+                        :typeCombobox="$enum.typeCombobox.tableOption" @blurcombobox="validateassetTypeCode"
+                        :error="errors.assetTypeCode" v-model="form.assetTypeCode" label="Mã loại tài sản"
+                        placeholder="Chọn mã loại tài sản">
                     </MisaCombobox>
                 </div>
                 <div class="form__body__item form__body__item--2">
@@ -63,7 +65,7 @@
                     </MisaNumberForm>
                 </div>
                 <div ref="currentYear" class="form__body__item form__body__item--1">
-                    <MisaNumberForm :icon="false" :disable="true" label="Năm theo dõi" v-model="form.currentYear"
+                    <MisaNumberForm :icon="false" :disable="true" label="Năm theo dõi" v-model="form.trackYear"
                         :required="false">
                     </MisaNumberForm>
                 </div>
@@ -111,6 +113,8 @@ import MisaButton from '@/components/MisaButton.vue';
 import MisaCombobox from '@/components/MisaCombobox.vue';
 import ThePopup from './ThePopup.vue';
 import MisaDialog from '@/components/MisaDialog.vue';
+import { BASE_API_URL } from '@/config';
+import axios from 'axios';
 
 export default {
     props: {
@@ -128,7 +132,7 @@ export default {
                 quantity: '1',
                 price: '',
                 loseRateYear: '',
-                currentYear: new Date().getFullYear(),
+                trackYear: new Date().getFullYear(),
                 buyDate: this.toCurrentDate(),
                 useDate: this.toCurrentDate()
             },
@@ -202,6 +206,24 @@ export default {
      */
     beforeMount() {
         // gọi api để lấy dữ liệu về tài sản được chọn
+        if (this.assetId) {
+            axios.get(`${BASE_API_URL}assets/${this.assetId}`)
+                .then(({ data }) => {
+                    const department = this.$store.getters.departmentById(data.departmentId)
+                    const assetType = this.$store.getters.assetTypeById(data.assetTypeId)
+                    this.form.assetCode = data.assetCode
+                    this.form.assetName = data.assetName
+                    this.form.departmentCode = department.departmentCode
+                    this.form.assetTypeCode = assetType.assetTypeCode
+                    this.form.quantity = data.quantity
+                    this.form.price = data.price
+                    this.form.useDuration = data.useDuration
+                    this.form.loseRate = data.loseRate
+                    this.form.trackYear = data.trackYear
+                    this.form.buyDate = data.buyDate.substring(0, 10)
+                    this.form.useDate = data.useDate.substring(0, 10)
+                })
+        }
     },
 
     /**
@@ -357,10 +379,27 @@ export default {
          * description: xử lý việc sửa dữ liệu, gọi api. hiện thông báo tương ứng ...
          */
         handleEdit() {
-            // emit sự kiện đóng form cho component cha
-            this.$emit('clickClose')
-            // hiện thông báo
-            this.emitter.emit("setToastMessage", this.toastMessages.eidtAssetSuccess[this.$store.state.language]);
+            axios.put(`${BASE_API_URL}assets/${this.assetId}`, {
+                assetCode: this.form.assetCode,
+                departmentId: this.$store.getters.departmentByCode(this.form.departmentCode).departmentId,
+                assetTypeId: this.$store.getters.assetTypeByCode(this.form.assetTypeCode).assetTypeId,
+                assetName: this.form.assetName,
+                quantity: this.form.quantity,
+                price: this.form.price,
+                useDuration: this.form.useDuration,
+                trackYear: this.form.trackYear,
+                buyDate: this.form.buyDate,
+                useDate: this.form.useDate,
+                loseRate: this.form.loseRate,
+                loseRateYear: this.form.loseRateYear
+            }).then(({ data }) => {
+                console.log(data);
+                // emit sự kiện đóng form cho component cha
+                this.$emit('clickClose')
+                // hiện thông báo
+                this.emitter.emit("setToastMessage", this.toastMessages.editAssetSuccess[this.$store.state.language]);
+
+            })
         },
 
         /**
@@ -552,7 +591,6 @@ export default {
                 this.errors.useDuration = 'Cần nhập số năm sử dụng là số nguyên'
             else if (this.form.useDuration <= 0)
                 this.errors.useDuration = 'Số năm sử dụng phải lớn hơn 0'
-
         },
 
         /**
@@ -658,11 +696,11 @@ export default {
                 this.isChanged = true
                 // nếu departmentCode thay đổi thì tự động điền cho departmentName
                 if (this.form.departmentCode) {
-                    this.form.departmentName = this.$store.state.departments.data.find(department => department.id == this.form.departmentCode).email
+                    this.form.departmentName = this.$store.state.departments.data.find(department => department.departmentCode == this.form.departmentCode).departmentName
                 }
                 // nếu assetTypeCode thay đổi thì tự động điền cho assetTypeName
                 if (this.form.assetTypeCode)
-                    this.form.assetTypeName = this.$store.state.assetTypes.data.find(assettype => assettype.id == this.form.assetTypeCode).name
+                    this.form.assetTypeName = this.$store.state.assetTypes.data.find(assettype => assettype.assetTypeCode == this.form.assetTypeCode).assetTypeName
             },
             deep: true
         },

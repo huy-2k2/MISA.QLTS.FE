@@ -36,14 +36,14 @@
                         </MisaInputCheckbox>
                     </td>
                     <td>{{ index + 1 }}</td>
-                    <td>{{ tr.td2 }}</td>
-                    <td>{{ tr.td3 }}</td>
-                    <td>{{ tr.td4 }}</td>
-                    <td>{{ tr.td5 }}</td>
-                    <td>{{ tr.td6 }}</td>
-                    <td>{{ convertCurrency(tr.td7) }}</td>
-                    <td>{{ convertCurrency(tr.td8) }}</td>
-                    <td>{{ convertCurrency(tr.td9) }}</td>
+                    <td>{{ tr.assetCode }}</td>
+                    <td>{{ tr.assetName }}</td>
+                    <td>{{ $store.getters.assetTypeById(tr.assetTypeId).assetTypeName }}</td>
+                    <td>{{ $store.getters.departmentById(tr.departmentId).departmentName }}</td>
+                    <td>{{ tr.quantity }}</td>
+                    <td>{{ convertCurrency(tr.price) }}</td>
+                    <td>{{ convertCurrency(tr.accumulatedLose) }}</td>
+                    <td>{{ convertCurrency(tr.price - tr.accumulatedLose) }}</td>
                     <td>
                         <div class="table__function">
                             <TheToolTip tooltip="Sửa">
@@ -66,7 +66,8 @@
                 <tr>
                     <td class="table__footer__td">
                         <div class="table__footer__left">
-                            <p class="table__footer__total">Tổng số: <strong>200</strong> bản ghi</p>
+                            <p class="table__footer__total">Tổng số: <strong>{{ $store.state.totalAsset }}</strong>
+                                bản ghi</p>
                             <MisaSelect></MisaSelect>
                             <MisaPaginate></MisaPaginate>
                         </div>
@@ -76,10 +77,10 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td class="table__footer__conclusion">13</td>
-                    <td class="table__footer__conclusion">249.000.00</td>
-                    <td class="table__footer__conclusion">45.000.000</td>
-                    <td class="table__footer__conclusion">123.000.000</td>
+                    <td class="table__footer__conclusion">{{ totalQuantity }}</td>
+                    <td class="table__footer__conclusion">{{ toCurrency(totalPrice) }}</td>
+                    <td class="table__footer__conclusion">{{ toCurrency(totalAccumulatedLose) }}</td>
+                    <td class="table__footer__conclusion">{{ toCurrency(totalPrice - totalAccumulatedLose) }}</td>
                     <td></td>
                 </tr>
             </tbody>
@@ -176,7 +177,7 @@ export default {
             this.isShowForm = true;
             this.typeForm = this.$enum.typeForm.edit;
             // gán giá trị dữ liệu sửa bằng giá trị ở dòng người dùng click 
-            this.assetId = tr
+            this.assetId = tr.assetId
         },
 
         /**
@@ -191,7 +192,11 @@ export default {
             this.typeForm = this.$enum.typeForm.duplicate;
             // gán giá trị dữ liệu nhân bản bằng giá trị ở dòng người dùng click 
             this.assetId = tr
-
+        },
+        accumulatedLose(asset) {
+            const startUseYear = new Date(asset.useDate).getFullYear();
+            const currentYear = new Date().getFullYear();
+            return (currentYear - startUseYear) * asset.loseRateYear
         }
     },
     components: {
@@ -203,12 +208,6 @@ export default {
         TheToolTip,
         TheForm,
         MisaLoading
-    },
-
-    beforeMount() {
-        setTimeout(() => {
-            this.isLoading = false
-        }, 1000)
     },
 
     /**
@@ -233,62 +232,40 @@ export default {
             this.isShowRemove = true
         });
     },
+
     data() {
         return {
-            isLoading: true,
             assetId: null,
             typeForm: null,
             isShowForm: false,
             dialogText: '',
             isShowRemove: false,
             isCheckedAll: false,
-            tbody: [
-                {
-                    isChecked: false,
-                    td2: 'MXT88612',
-                    td3: 'Máy tính xách tay Lenovo',
-                    td4: 'Máy vi tính sách tay',
-                    td5: 'Phòng Hành chính kế toán',
-                    td6: '1',
-                    td7: '1000000',
-                    td8: '1000000',
-                    td9: '8775000'
-                },
-                {
-                    isChecked: false,
-                    td2: 'MXT88618',
-                    td3: 'Máy tính xách tay Fujitsu',
-                    td4: 'Máy vi tính sách tay',
-                    td5: 'Phòng Hành chính kế toán',
-                    td6: '1',
-                    td7: '8000000',
-                    td8: '1125000',
-                    td9: '8775000'
-                },
-                {
-                    isChecked: false,
-                    td2: 'MXT88618',
-                    td3: 'Máy tính xách tay Fujitsu',
-                    td4: 'Máy vi tính sách tay',
-                    td5: 'Phòng Hành chính kế toán',
-                    td6: '1',
-                    td7: '10000000',
-                    td8: '1125000',
-                    td9: '8775000'
-                },
-                {
-                    isChecked: false,
-                    td2: 'MXT88618',
-                    td3: 'Máy tính xách tay Fujitsu',
-                    td4: 'Máy vi tính sách tay',
-                    td5: 'Phòng Hành chính kế toán',
-                    td6: '1',
-                    td7: '10000000',
-                    td8: '1125000',
-                    td9: '8775000'
-                },
-            ]
+            tbody: []
         }
+    },
+    computed: {
+        assets() {
+            return this.$store.state.assets.data
+        },
+        isLoading() {
+            return this.$store.state.assets.isLoading
+        },
+        totalQuantity() {
+            return this.tbody.reduce((total, asset) => total + asset.quantity, 0)
+        },
+        totalPrice() {
+            return this.tbody.reduce((total, asset) => total + asset.price, 0)
+        },
+        totalAccumulatedLose() {
+            return this.tbody.reduce((total, asset) => total + asset.accumulatedLose, 0)
+        }
+    },
+    watch: {
+        assets(newVal) {
+            this.tbody = newVal.map(asset => ({ isChecked: false, ...asset, accumulatedLose: this.accumulatedLose(asset) }))
+        }
+
     }
 }
 </script>
@@ -352,6 +329,9 @@ export default {
     visibility: visible;
 }
 
+.table td:not(:nth-child(3))::first-letter {
+    text-transform: capitalize;
+}
 
 .table td:nth-child(n+4):nth-child(-n+6) {
     white-space: unset;

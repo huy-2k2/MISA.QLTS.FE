@@ -28,17 +28,17 @@
         <div class="header__bottom">
             <MisaTextField icon="icon-search" placeholder="Tìm kiếm tài sản"></MisaTextField>
             <div class="header__bottom__select">
-                <MisaCombobox fieldText="email" fieldValue="id" :isLoading="$store.state.assetTypes.isLoading"
-                    :data="$store.state.assetTypes.data" label="" :isBoldPlaceHolder="true"
-                    :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter" v-model="assetTypeCode"
-                    placeholder="Loại tài sản">
+                <MisaCombobox fieldText="assetTypeName" fieldValue="assetTypeCode"
+                    :isLoading="$store.state.assetTypes.isLoading" :data="$store.state.assetTypes.data" label=""
+                    :isBoldPlaceHolder="true" :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter"
+                    v-model="assetTypeCode" placeholder="Loại tài sản">
                 </MisaCombobox>
             </div>
             <div class="header__bottom__select">
-                <MisaCombobox fieldText="email" fieldValue="id" label="" :isLoading="$store.state.departments.isLoading"
-                    :data="$store.state.departments.data" :isBoldPlaceHolder="true"
-                    :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter" v-model="departmentCode"
-                    placeholder="Bộ phận sử dụng">
+                <MisaCombobox fieldText="departmentName" fieldValue="departmentCode" label=""
+                    :isLoading="$store.state.departments.isLoading" :data="$store.state.departments.data"
+                    :isBoldPlaceHolder="true" :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter"
+                    v-model="departmentCode" placeholder="Bộ phận sử dụng">
                 </MisaCombobox>
             </div>
             <div class="header__bottom__right">
@@ -87,14 +87,22 @@ export default {
         }
     },
     methods: {
-        /**
-         * author: Nguyen Quoc Huy
-         * @param {Object}
-         * created at: 30/04/2023
-         * description: Hàm set value cho các input của header, gồm có input search, 2 combobox
-         */
-        setValue({ name, value }) {
-            this[name] = value
+        handleFilter() {
+            const department = this.$store.getters.departmentByCode(this.departmentCode)
+            const assetType = this.$store.getters.assetTypeByCode(this.assetTypeCode)
+
+            const departmentId = department?.departmentId
+            const assetTypeId = assetType?.assetTypeId
+
+            this.$store.dispatch('getFilterAssets', { departmentId, assetTypeId })
+        }
+    },
+    watch: {
+        departmentCode() {
+            this.handleFilter()
+        },
+        assetTypeCode() {
+            this.handleFilter()
         }
     },
     /**

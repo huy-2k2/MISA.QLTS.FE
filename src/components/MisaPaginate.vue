@@ -3,19 +3,33 @@
         <li class="paginate__icon">
             <div class="icon-arrow-left"></div>
         </li>
-        <li class="paginate__item active">1</li>
-        <li class="paginate__item">2</li>
-        <li class="paginate__item">...</li>
-        <li class="paginate__item">10</li>
+        <li @click="setCurrentPage(num)" :class="{ active: num == $store.state.currentPage }" v-for="num in paginates"
+            :key="num" class="paginate__item">
+            {{ num }}
+        </li>
         <li class="paginate__icon">
             <div class="icon-arrow-right"></div>
         </li>
+
     </ul>
 </template>
 
 <script>
 export default {
-
+    computed: {
+        paginates() {
+            const totalPage = this.$store.getters.totalPage;
+            let result = []
+            for (let i = 0; i < totalPage; i++)
+                result.push(i + 1)
+            return result
+        }
+    },
+    methods: {
+        setCurrentPage(currentPage) {
+            this.$store.dispatch('setCurrentPage', currentPage)
+        }
+    }
 }
 </script>
 
@@ -31,11 +45,12 @@ export default {
 .paginate__item {
     font-size: 11px;
     padding: 4px 6px;
+    cursor: pointer;
 }
 
 .paginate__item.active {
     border-radius: var(--radius-border);
-    background-color: #f5f5f5;
+    background-color: #eee;
 }
 
 .paginate__icon {

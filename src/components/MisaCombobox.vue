@@ -197,6 +197,9 @@ export default {
     watch: {
         data() {
             this.convertDataToOptions()
+        },
+        value() {
+            this.item.value = this.value
         }
     },
 
@@ -214,7 +217,6 @@ export default {
         window.addEventListener('click', this.eventWindowClick)
         // convert data sang options 
         this.convertDataToOptions()
-
     },
 
     /**
@@ -305,6 +307,10 @@ export default {
     font-family: mMisa Font;
     font-weight: 400;
     font-size: 13px;
+}
+
+.combobox__table td:first-child {
+    text-transform: uppercase;
 }
 
 .combobox__table td:first-child {

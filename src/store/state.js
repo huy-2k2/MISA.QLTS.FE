@@ -1,8 +1,9 @@
+import { PAGE_SIZE } from "@/config"
 function state() {
     return {
         assets: {
             data: [],
-            isLoading: true
+            isLoading: true,
         },
         departments: {
             data: [],
@@ -12,7 +13,12 @@ function state() {
             data: [],
             isLoading: true
         },
-        language: ''
+        language: '',
+        totalAsset: 0,
+        pageSize: PAGE_SIZE,
+        currentPage: 1,
+        filterDepartmentId: null,
+        filterAssetTypeId:null
     }
 }
 
