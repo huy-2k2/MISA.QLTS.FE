@@ -130,11 +130,14 @@ export default {
         * description: Hàm xử lý sự kiệc khi người dùng blur khỏi thẻ input
         */
         handleBlur() {
-            // set lại value cho thẻ input, trong trường hợp người dùng nhấn thêm vào ô input, value thẻ input được set lại là giá trị của item được chọn trước đó
+            // set lại value cho thẻ input, trong trường hợp người dùng nhấn thêm vào ô input, value thẻ set về ""
             if (this.item.value) {
-                this.item = { ...this.options.find(item => item.value == this.item.value) }
+                this.item = { ...this.options.find(item => item.value.toLowerCase() == this.item.value.toLowerCase()) }
                 if (!this.item.value)
                     this.$emit('update:modelValue', '')
+                else {
+                    this.$emit('update:modelValue', this.item.value)
+                }
 
             }
             // trường hợp người dùng xóa hết value thẻ input rồi blur, thì emit giá trị null cho component cha
@@ -290,12 +293,21 @@ export default {
 
 .combobox__table th:first-child {
     min-width: 50px;
-    text-align: center;
+    text-align: left;
+    padding-left: 15px;
 }
 
 .combobox__table th:nth-child(2),
 .combobox__table td:nth-child(2) {
-    padding-left: 30px;
+    padding-left: 15px;
+}
+
+.combobox__table td:nth-child(2)::first-letter {
+    text-transform: uppercase;
+}
+
+.combobox__table td:nth-child(2) {
+    text-transform: lowercase;
 }
 
 .combobox__table tr {
@@ -311,10 +323,8 @@ export default {
 
 .combobox__table td:first-child {
     text-transform: uppercase;
-}
-
-.combobox__table td:first-child {
-    text-align: center;
+    text-align: left;
+    padding-left: 15px;
 }
 
 .combobox__head__icon {

@@ -2,8 +2,8 @@ const getters = {
     departmentById: (state) => (departmentId) => {
         return state.departments.data.find(department => department.departmentId == departmentId)
     },
-    assetTypeById: (state) => (assetTypeId) => {
-        return state.assetTypes.data.find(assetType => assetType.assetTypeId == assetTypeId)
+    fixedAssetCategoryById: (state) => (fixedAssetCategoryId) => {
+        return state.fixedAssetCategorys.data.find(fixedAssetCategory => fixedAssetCategory.fixedAssetCategoryId == fixedAssetCategoryId)
     },
     totalPage(state) {
         return Math.ceil(state.totalAsset / state.pageSize)
@@ -11,8 +11,8 @@ const getters = {
     departmentByCode:(state) => (departmentCode) => {
         return state.departments.data.find(department => department.departmentCode == departmentCode)
     },
-    assetTypeByCode:(state) => (assetTypeCode) => {
-        return state.assetTypes.data.find(assetType => assetType.assetTypeCode == assetTypeCode)
+    fixedAssetCategoryByCode:(state) => (fixedAssetCategoryCode) => {
+        return state.fixedAssetCategorys.data.find(fixedAssetCategory => fixedAssetCategory.fixedAssetCategoryCode == fixedAssetCategoryCode)
     },
 }
 

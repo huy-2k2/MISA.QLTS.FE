@@ -26,9 +26,10 @@ export default {
      */
     mounted() {
         this.$store.dispatch('getDepartments')
-        this.$store.dispatch('getAssetTypes')
-        this.$store.dispatch('resetState')
-        this.$store.dispatch('getAssets')
+        this.$store.dispatch('getFixedAssetCategorys')
+        this.$store.dispatch("getFilterFixedAsset")
+        // this.$store.dispatch('resetState')
+        // this.$store.dispatch('getAssets')
     }
 }
 </script>

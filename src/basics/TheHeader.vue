@@ -26,12 +26,12 @@
             </ul>
         </div>
         <div class="header__bottom">
-            <MisaTextField icon="icon-search" placeholder="Tìm kiếm tài sản"></MisaTextField>
+            <MisaTextField v-model="textSearch" icon="icon-search" placeholder="Tìm kiếm tài sản"></MisaTextField>
             <div class="header__bottom__select">
-                <MisaCombobox fieldText="assetTypeName" fieldValue="assetTypeCode"
-                    :isLoading="$store.state.assetTypes.isLoading" :data="$store.state.assetTypes.data" label=""
-                    :isBoldPlaceHolder="true" :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter"
-                    v-model="assetTypeCode" placeholder="Loại tài sản">
+                <MisaCombobox fieldText="fixedAssetCategoryName" fieldValue="fixedAssetCategoryCode"
+                    :isLoading="$store.state.fixedAssetCategorys.isLoading" :data="$store.state.fixedAssetCategorys.data"
+                    label="" :isBoldPlaceHolder="true" :typeCombobox="$enum.typeCombobox.tableOption"
+                    icon="icon-header-filter" v-model="fixedAssetCategoryCode" placeholder="Loại tài sản">
                 </MisaCombobox>
             </div>
             <div class="header__bottom__select">
@@ -83,25 +83,36 @@ export default {
             isDiableRemove: true,
             isShowPopup: false,
             departmentCode: null,
-            assetTypeCode: null
+            fixedAssetCategoryCode: null,
+            textSearch: "",
+            settTimeOutDebounce: null
         }
     },
     methods: {
         handleFilter() {
+            clearTimeout(this.settTimeOutDebounce)
+
             const department = this.$store.getters.departmentByCode(this.departmentCode)
-            const assetType = this.$store.getters.assetTypeByCode(this.assetTypeCode)
+            const fixedAssetCategory = this.$store.getters.fixedAssetCategoryByCode(this.fixedAssetCategoryCode)
 
             const departmentId = department?.departmentId
-            const assetTypeId = assetType?.assetTypeId
+            const fixedAssetCategoryId = fixedAssetCategory?.fixedAssetCategoryId
 
-            this.$store.dispatch('getFilterAssets', { departmentId, assetTypeId })
+            this.settTimeOutDebounce = setTimeout(() => {
+                this.$store.commit("setFilter", { departmentId, fixedAssetCategoryId, textSearch: this.textSearch })
+                this.$store.commit("setCurrentPage", 1)
+                this.$store.dispatch("getFilterFixedAsset")
+            }, 500)
         }
     },
     watch: {
         departmentCode() {
             this.handleFilter()
         },
-        assetTypeCode() {
+        fixedAssetCategoryCode() {
+            this.handleFilter()
+        },
+        textSearch() {
             this.handleFilter()
         }
     },

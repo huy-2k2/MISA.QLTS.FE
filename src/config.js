@@ -1,5 +1,5 @@
-const BASE_API_URL = 'https://localhost:7248/api/'
+const BASE_API_URL = 'https://localhost:44348/api/'
 
-const PAGE_SIZE = 3;
+const DEFAULT_PAGE_SIZE = 10;
 
-export {BASE_API_URL, PAGE_SIZE}
+export {BASE_API_URL, DEFAULT_PAGE_SIZE}

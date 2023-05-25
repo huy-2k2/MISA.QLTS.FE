@@ -14,12 +14,14 @@ const mutations = {
     setCurrentPage(state, currentPage) {
         state.currentPage = currentPage
     },
-    setFilterDepartmentId(state, departmentId) {
-        state.filterDepartmentId = departmentId
+    setPageSize(state, pageSize) {
+        state.pageSize = pageSize
     },
-    setFilterAssetTypeId(state, assetTypeId) {
-        state.filterAssetTypeId = assetTypeId
-    }  
+    setFilter(state, {departmentId, fixedAssetCategoryId, textSearch}) {
+        state.filterDepartmentId = departmentId || ""
+        state.filterFixedAssetCategoryId = fixedAssetCategoryId || ""
+        state.filterTextSearch = textSearch || ""
+    },
 }
 
 export default mutations

@@ -3,15 +3,15 @@ import _enum from "./enum";
 const {vietnam, english} = _enum.languages
 
 const toastMessages = {
-    duplicateAssetSuccess: {
+    duplicateFixedAssetSuccess: {
         [vietnam]: 'Nhân bản dữ liệu thành công',
         [english]: '...'
     },
-    addAssetSuccess: {
+    addFixedAssetSuccess: {
         [vietnam]: 'Lưu dữ liệu thành công',
         [english]: '...'
     },
-    editAssetSuccess: {
+    editFixedAssetSuccess: {
         [vietnam]: 'Thay đổi dữ liệu thành công',
         [english]: '...'
     },

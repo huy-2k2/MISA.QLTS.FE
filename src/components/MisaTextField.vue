@@ -3,7 +3,7 @@
         <div class="textfield__icon">
             <div :class="icon"></div>
         </div>
-        <input :id="uuid" class="textfield__input" type="text" :placeholder="placeholder">
+        <input :id="uuid" v-model="value" class="textfield__input" type="text" :placeholder="placeholder">
     </label>
 </template>
 
@@ -18,8 +18,21 @@ export default {
     },
     props: {
         icon: String,
-        placeholder: String
+        placeholder: String,
+        modelValue: {
+
+        }
     },
+    computed: {
+        value: {
+            get() {
+                return this.modelValue
+            },
+            set(value) {
+                this.$emit('update:modelValue', value)
+            }
+        }
+    }
 }
 </script>
 

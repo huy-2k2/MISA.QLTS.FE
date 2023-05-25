@@ -50,7 +50,7 @@ export default {
       this.isShowDialog = true
     });
     // set biến store language là vietnam
-    this.$store.dispatch('setLanguage', this.$enum.languages.vietnam)
+    this.$store.commit('setLanguage', this.$enum.languages.vietnam)
   },
 }
 </script>

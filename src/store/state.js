@@ -1,7 +1,7 @@
-import { PAGE_SIZE } from "@/config"
+import { DEFAULT_PAGE_SIZE } from "@/config"
 function state() {
     return {
-        assets: {
+        fixedAssets: {
             data: [],
             isLoading: true,
         },
@@ -9,16 +9,17 @@ function state() {
             data: [],
             isLoading: true
         },
-        assetTypes: {
+        fixedAssetCategorys: {
             data: [],
             isLoading: true
         },
         language: '',
         totalAsset: 0,
-        pageSize: PAGE_SIZE,
+        pageSize: DEFAULT_PAGE_SIZE,
         currentPage: 1,
-        filterDepartmentId: null,
-        filterAssetTypeId:null
+        filterDepartmentId: "",
+        filterFixedAssetCategoryId:"",
+        filterTextSearch: ""
     }
 }
 

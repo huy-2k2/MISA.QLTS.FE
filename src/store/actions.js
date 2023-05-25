@@ -11,6 +11,7 @@ function getData(store, url, field, callback) {
         callback(data)
     })
     .catch(error => {
+        console.log(error);
         const message = apiErrorMessages[error.response.status][store.state.language]
         emitter.emit('setDialogMessage', message)
     })
@@ -18,75 +19,44 @@ function getData(store, url, field, callback) {
 
 const actions = {
     getDepartments(store) {
-        getData(store, `${BASE_API_URL}departments`, 'departments', (data) => {
-            store.commit('setData', {data, field: 'departments'})
+        getData(store, `${BASE_API_URL}department`, 'departments', (data) => {
+            store.commit('setData', {
+                data: data.map(department => ({departmentId: department.department_id, departmentCode: department.department_code, departmentName: department.department_name})) ,
+                field: 'departments'})
         })
     },
 
-    getAssetTypes(store) {
-        getData(store, `${BASE_API_URL}assettypes`, 'assetTypes', (data) => {
-            store.commit('setData', {data, field: 'assetTypes'})
+    getFixedAssetCategorys(store) {
+        getData(store, `${BASE_API_URL}fixedAssetCategory`, 'fixedAssetCategorys', (data) => {
+            store.commit('setData', {
+                data: data.map(fixedAssetCategory => ({fixedAssetCategoryId: fixedAssetCategory.fixed_asset_category_id, fixedAssetCategoryCode: fixedAssetCategory.fixed_asset_category_code, fixedAssetCategoryName: fixedAssetCategory.fixed_asset_category_name})),
+                field: 'fixedAssetCategorys'})
         })
     },
 
-    getAssets(store) {
-        getData(store, `${BASE_API_URL}paginateassets?pageSize=${store.state.pageSize}&currentpage=${store.state.currentPage}`, 'assets', (response) => {
-            store.commit('setData', {data: response.assets, field: 'assets'})
-            store.commit('setTotalAsset', response.totalAsset)
+    getFilterFixedAsset(store) {
+        getData(store, `${BASE_API_URL}fixedAsset?pageSize=${store.state.pageSize}&currentPage=${store.state.currentPage}&departmentId=${store.state.filterDepartmentId || ""}&fixedAssetCategoryId=${store.state.filterFixedAssetCategoryId || ""}&textSearch=${store.state.filterTextSearch || ""}`, "fixedAssets", (data) => {
+            store.commit("setData", {
+                data: data.listFixedAsset.map(fixedAsset => ( {
+                    fixedAssetId: fixedAsset.fixed_asset_id,
+                    fixedAssetCode: fixedAsset.fixed_asset_code,
+                    fixedAssetName: fixedAsset.fixed_asset_name,
+                    fixedAssetCategoryId: fixedAsset.fixed_asset_category_id,
+                    departmentId: fixedAsset.department_id,
+                    purchaseDate: fixedAsset.purchase_date,
+                    useDate: fixedAsset.use_date,
+                    cost: fixedAsset.cost,
+                    quantity: fixedAsset.quantity,
+                    depreciationRate: fixedAsset.depreciation_rate,
+                    depreciationAnnual: fixedAsset.depreciation_annual,
+                    trackedYear: fixedAsset.tracked_year,
+                    lifeTime: fixedAsset.life_time
+                })),
+                field: "fixedAssets"
+            })
+            store.commit("setTotalAsset", data.totalAsset)
         })
-    },
-
-    getAssetFilterByDepartmentId(store) {
-        getData(store, `${BASE_API_URL}paginateassets/department?pageSize=${store.state.pageSize}&currentpage=${store.state.currentPage}&departmentId=${store.state.filterDepartmentId}`, 'assets', (response) => {
-            store.commit('setData', {data: response.assets, field: 'assets'})
-            store.commit('setTotalAsset', response.totalAsset)
-        })
-    },
-
-    getAssetFilterByAssetTypeId(store) {
-        getData(store, `${BASE_API_URL}paginateassets/assetType?pageSize=${store.state.pageSize}&currentpage=${store.state.currentPage}&assetTypeId=${store.state.filterAssetTypeId}`, 'assets', (response) => {
-            store.commit('setData', {data: response.assets, field: 'assets'})
-            store.commit('setTotalAsset', response.totalAsset)
-        })
-    },
-
-    getAssetFilterByAll(store) {
-        getData(store, `${BASE_API_URL}paginateassets/all?pageSize=${store.state.pageSize}&currentpage=${store.state.currentPage}&departmentId=${store.state.filterDepartmentId}&assetTypeId=${store.state.filterAssetTypeId}`, 'assets', (response) => {
-            store.commit('setData', {data: response.assets, field: 'assets'})
-            store.commit('setTotalAsset', response.totalAsset)
-        })
-    },
-
-    setLanguage({commit}, language) {
-        commit('setLanguage', language)
-    },
-
-    setCurrentPage(store, currentPage) {
-        store.commit('setCurrentPage', currentPage)
-        store.dispatch('getFilterAssets', {departmentId: store.state.filterDepartmentId, assetTypeId: store.state.filterAssetTypeId, isSetCurrentPage: true})
-    },
-
-    resetState(store) {
-        store.commit('setCurrentPage', 1)
-        store.commit("setFilterDepartmentId", null)
-        store.commit("setFilterAssetTypeId", null)
-    },
-
-    getFilterAssets(store, {departmentId, assetTypeId, isSetCurrentPage}) {
-        if(!isSetCurrentPage)
-            store.commit('setCurrentPage', 1)
-        store.commit('setFilterDepartmentId', departmentId)
-        store.commit('setFilterAssetTypeId', assetTypeId)
-        if(!departmentId && !assetTypeId) {
-            store.dispatch('getAssets')
-        } else if(departmentId && assetTypeId) {
-            store.dispatch('getAssetFilterByAll')
-        } else if(departmentId) {
-            store.dispatch('getAssetFilterByDepartmentId')
-        } else if(assetTypeId) {
-            store.dispatch('getAssetFilterByAssetTypeId')
-        }
-    },
+    }
    
 }
 

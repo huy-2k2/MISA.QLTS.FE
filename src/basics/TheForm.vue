@@ -5,14 +5,14 @@
                 <h3 class="form__title">{{ formTitle }}</h3>
             </div>
             <div class="form__body">
-                <div ref="assetCode" class="form__body__item form__body__item--1">
-                    <MisaTextfieldForm @blur="validateassetCode" :error="errors.assetCode" v-model="form.assetCode"
-                        label="Mã tài sản" placeholder="Nhập mã tài sản">
+                <div ref="fixedAssetCode" class="form__body__item form__body__item--1">
+                    <MisaTextfieldForm @blur="validateFixedAssetCode" :error="errors.fixedAssetCode"
+                        v-model="form.fixedAssetCode" label="Mã tài sản" placeholder="Nhập mã tài sản">
                     </MisaTextfieldForm>
                 </div>
-                <div ref="assetName" class="form__body__item form__body__item--2">
-                    <MisaTextfieldForm @blur="validateassetName" :error="errors.assetName" v-model="form.assetName"
-                        label="Tên tài sản" placeholder="Nhập tên tài sản">
+                <div ref="fixedAssetName" class="form__body__item form__body__item--2">
+                    <MisaTextfieldForm @blur="validateFixedAssetName" :error="errors.fixedAssetName"
+                        v-model="form.fixedAssetName" label="Tên tài sản" placeholder="Nhập tên tài sản">
                     </MisaTextfieldForm>
                 </div>
                 <div ref="departmentCode" class="form__body__item form__body__item--1">
@@ -28,16 +28,16 @@
                         :required="false" placeholder="Nhập tên bộ phận sử dụng">
                     </MisaTextfieldForm>
                 </div>
-                <div ref="assetTypeCode" class="form__body__item form__body__item--1">
-                    <MisaCombobox fieldText="assetTypeName" fieldValue="assetTypeCode"
-                        :isLoading="$store.state.assetTypes.isLoading" :data="$store.state.assetTypes.data"
-                        :typeCombobox="$enum.typeCombobox.tableOption" @blurcombobox="validateassetTypeCode"
-                        :error="errors.assetTypeCode" v-model="form.assetTypeCode" label="Mã loại tài sản"
-                        placeholder="Chọn mã loại tài sản">
+                <div ref="fixedAssetCategoryCode" class="form__body__item form__body__item--1">
+                    <MisaCombobox fieldText="fixedAssetCategoryName" fieldValue="fixedAssetCategoryCode"
+                        :isLoading="$store.state.fixedAssetCategorys.isLoading"
+                        :data="$store.state.fixedAssetCategorys.data" :typeCombobox="$enum.typeCombobox.tableOption"
+                        @blurcombobox="validateFixedAssetCategoryCode" :error="errors.fixedAssetCategoryCode"
+                        v-model="form.fixedAssetCategoryCode" label="Mã loại tài sản" placeholder="Chọn mã loại tài sản">
                     </MisaCombobox>
                 </div>
                 <div class="form__body__item form__body__item--2">
-                    <MisaTextfieldForm v-model="form.assetTypeName" :disable="true" :required="false"
+                    <MisaTextfieldForm v-model="form.fixedAssetCategoryName" :disable="true" :required="false"
                         label="Tên loại tài sản" placeholder="Nhập tên loại tài sản">
                     </MisaTextfieldForm>
                 </div>
@@ -46,32 +46,32 @@
                         v-model="form.quantity" min="1">
                     </MisaNumberForm>
                 </div>
-                <div ref="price" class="form__body__item form__body__item--1">
-                    <MisaNumberForm @blur="handleBlurPrice" :error="errors.price" :currrency="true" :icon="false"
-                        label="Nguyên giá" :float="true" v-model="form.price" min="0"></MisaNumberForm>
+                <div ref="cost" class="form__body__item form__body__item--1">
+                    <MisaNumberForm @blur="handleBlurCost" :error="errors.cost" :currrency="true" :icon="false"
+                        label="Nguyên giá" :float="true" v-model="form.cost" min="0"></MisaNumberForm>
                 </div>
-                <div ref="useDuration" class="form__body__item form__body__item--1">
-                    <MisaNumberForm @blur="handleBlurUseDuration" :error="errors.useDuration" :icon="false"
-                        label="Số năm sử dụng" v-model="form.useDuration" min="0">
+                <div ref="lifeTime" class="form__body__item form__body__item--1">
+                    <MisaNumberForm @blur="handleBlurLifeTime" :error="errors.lifeTime" :icon="false" label="Số năm sử dụng"
+                        v-model="form.lifeTime" min="0">
                     </MisaNumberForm>
                 </div>
-                <div ref="loseRate" class="form__body__item form__body__item--1">
-                    <MisaNumberForm @blur="handleBlurloseRate" :float="true" :error="errors.loseRate"
-                        label="Tỷ lệ hao mòn (%)" v-model="form.loseRate" min="0"></MisaNumberForm>
+                <div ref="depreciationRate" class="form__body__item form__body__item--1">
+                    <MisaNumberForm @blur="handleBlurDepreciationRate" :float="true" :error="errors.depreciationRate"
+                        label="Tỷ lệ hao mòn (%)" v-model="form.depreciationRate" min="0"></MisaNumberForm>
                 </div>
-                <div ref="loseRateYear" class="form__body__item form__body__item--1">
-                    <MisaNumberForm @blur="validateloseRateYear" :error="errors.loseRateYear" :currrency="true"
-                        :icon="false" label="Giá trị hao mòn năm" :float="true" v-model="form.loseRateYear" min="0">
+                <div ref="depreciationAnnual" class="form__body__item form__body__item--1">
+                    <MisaNumberForm @blur="validateDepreciationAnnual" :error="errors.depreciationAnnual" :currrency="true"
+                        :icon="false" label="Giá trị hao mòn năm" :float="true" v-model="form.depreciationAnnual" min="0">
                     </MisaNumberForm>
                 </div>
                 <div ref="currentYear" class="form__body__item form__body__item--1">
-                    <MisaNumberForm :icon="false" :disable="true" label="Năm theo dõi" v-model="form.trackYear"
+                    <MisaNumberForm :icon="false" :disable="true" label="Năm theo dõi" v-model="form.trackedYear"
                         :required="false">
                     </MisaNumberForm>
                 </div>
-                <div ref="buyDate" class="form__body__item form__body__item--1">
-                    <MisaInputDate @blurdate="handleBlurBuyDate" :error="errors.buyDate" v-model="form.buyDate"
-                        label="Ngày mua"></MisaInputDate>
+                <div ref="purchaseDate" class="form__body__item form__body__item--1">
+                    <MisaInputDate @blurdate="handleBlurPurchaseDate" :error="errors.purchaseDate"
+                        v-model="form.purchaseDate" label="Ngày mua"></MisaInputDate>
                 </div>
                 <div ref="useDate" class="form__body__item form__body__item--1">
                     <MisaInputDate @blurdate="validateUseDate" v-model="form.useDate" :error="errors.useDate"
@@ -119,7 +119,7 @@ import axios from 'axios';
 export default {
     props: {
         typeForm: String,
-        assetId: String
+        fixedAssetId: String
     },
     data() {
         return {
@@ -127,13 +127,14 @@ export default {
             isChanged: false,
             isShowStore: false,
             isShowCancel: false,
+            isLoaded: false,
             form: {
-                assetCode: 'TS00001',
+                fixedAssetCode: 'TS00001',
                 quantity: '1',
-                price: '',
-                loseRateYear: '',
-                trackYear: new Date().getFullYear(),
-                buyDate: this.toCurrentDate(),
+                cost: '',
+                depreciationAnnual: '',
+                trackedYear: new Date().getFullYear(),
+                purchaseDate: this.toCurrentDate(),
                 useDate: this.toCurrentDate()
             },
             errors: {},
@@ -155,16 +156,16 @@ export default {
          * created at: 30/04/2023
          * description: Hàm tính giá trị hao mòn năm từ tỷ lệ hao mòn và nguyên giá
          */
-        loseRateYearValue() {
+        depreciationAnnualValue() {
             // kiểm tra xem người dùng đã nhập nguyên giá và tỷ lệ hao mòn chưa
-            if (this.form.loseRate && this.form.price) {
+            if (this.form.depreciationRate && this.form.cost) {
                 // kiểm tra xem giá trị hao mòn năm có phải là số nguyên không
-                if (Number.isInteger(Number.parseFloat(this.toRounded(this.form.loseRate / 100 * this.form.price)))) {
-                    return Number.parseInt(this.form.loseRate / 100 * this.form.price)
+                if (Number.isInteger(Number.parseFloat(this.toRounded(this.form.depreciationRate / 100 * this.form.cost)))) {
+                    return Number.parseInt(this.form.depreciationRate / 100 * this.form.cost)
                 }
                 // Nếu hao mòn năm không là số nguyên thì làm tròn 2 số sau phần thập phân
                 else {
-                    return this.toRounded(this.form.loseRate / 100 * this.form.price)
+                    return this.toRounded(this.form.depreciationRate / 100 * this.form.cost)
                 }
             }
             else
@@ -185,8 +186,8 @@ export default {
          * created at: 30/04/2023
          * description: Hàm lấy tỷ lệ hao mòn từ form để sử dụng watch, (watch thuộc tính)
          */
-        loseRate() {
-            return this.form.loseRate
+        depreciationRate() {
+            return this.form.depreciationRate
         },
 
         /**
@@ -194,8 +195,8 @@ export default {
         * created at: 30/04/2023
         * description: Hàm lấy nguyên giá từ form để sử dụng watch, (watch thuộc tính)
         */
-        price() {
-            return this.form.price
+        cost() {
+            return this.form.cost
         }
     },
 
@@ -206,22 +207,36 @@ export default {
      */
     beforeMount() {
         // gọi api để lấy dữ liệu về tài sản được chọn
-        if (this.assetId) {
-            axios.get(`${BASE_API_URL}assets/${this.assetId}`)
+        if (this.fixedAssetId) {
+            axios.get(`${BASE_API_URL}fixedAsset/${this.fixedAssetId}`)
                 .then(({ data }) => {
-                    const department = this.$store.getters.departmentById(data.departmentId)
-                    const assetType = this.$store.getters.assetTypeById(data.assetTypeId)
-                    this.form.assetCode = data.assetCode
-                    this.form.assetName = data.assetName
+                    const department = this.$store.getters.departmentById(data.department_id)
+                    const fixedAssetCategory = this.$store.getters.fixedAssetCategoryById(data.fixed_asset_category_id)
+                    this.form.fixedAssetName = data.fixed_asset_name
                     this.form.departmentCode = department.departmentCode
-                    this.form.assetTypeCode = assetType.assetTypeCode
+                    this.form.fixedAssetCategoryCode = fixedAssetCategory.fixedAssetCategoryCode
                     this.form.quantity = data.quantity
-                    this.form.price = data.price
-                    this.form.useDuration = data.useDuration
-                    this.form.loseRate = data.loseRate
-                    this.form.trackYear = data.trackYear
-                    this.form.buyDate = data.buyDate.substring(0, 10)
-                    this.form.useDate = data.useDate.substring(0, 10)
+                    this.form.cost = data.cost
+                    this.form.lifeTime = data.life_time
+                    this.form.depreciationRate = data.depreciation_rate
+                    this.form.trackedYear = data.tracked_year
+                    this.form.purchaseDate = data.purchase_date.substring(0, 10)
+                    this.form.useDate = data.use_date.substring(0, 10)
+                    if (this.typeForm == this.$enum.typeForm.edit)
+                        this.form.fixedAssetCode = data.fixed_asset_code
+                    // dùng settimeout để cho biến isLoaded là false khi hàm watch thực hiện lúc lấy data từ server
+                    setTimeout(() => this.isLoaded = true)
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+
+        }
+        // nếu là form thêm mới hoạc duplicate thì lấy gợi ý mã tài sản
+        if (this.typeForm != this.$enum.typeForm.edit) {
+            axios.get(`${BASE_API_URL}fixedAsset/recommendFixedAssetCode`)
+                .then(({ data }) => {
+                    this.form.fixedAssetCode = data
                 })
         }
     },
@@ -232,12 +247,12 @@ export default {
     * description: Focus vào input đầu tiên khi mở form, và xử lý sự kiện taborder cho  form
     */
     mounted() {
-        this.$refs.assetCode.querySelector('input').focus()
+        this.$refs.fixedAssetCode.querySelector('input').focus()
         this.eventKeyDown = (event) => {
             if (event.key == 'Tab') {
                 // nếu ấn đang ở input đầu tiên mà ấn shift tab thì đến thằng button cuối cùng
                 if (event.shiftKey) {
-                    if (this.$refs.assetCode.querySelector('input:focus')) {
+                    if (this.$refs.fixedAssetCode.querySelector('input:focus')) {
                         this.$refs.submitButton.querySelector('button').focus();
                         // this.$refs.submitButton.querySelectorAll('button')[1].focus();
                         event.preventDefault()
@@ -245,7 +260,7 @@ export default {
                     // nếu như button cuối cùng đang được focus mà ấn tab thì sẽ focus quay trở về input đầu tiên
                 } else {
                     if (this.$refs.submitButton.querySelector('button:focus')) {
-                        this.$refs.assetCode.querySelector('input').focus()
+                        this.$refs.fixedAssetCode.querySelector('input').focus()
                         event.preventDefault();
                     }
                 }
@@ -260,6 +275,12 @@ export default {
         }
         window.addEventListener('keydown', this.eventKeyDown)
     },
+
+    /**
+     * author: Nguyen Quoc Huy
+     * created at: 30/04/2023
+     * description: bỏ lắng nghe các sự kiện khi unmount
+     */
     unmounted() {
         window.removeEventListener('keydown', this.eventKeyDown)
     },
@@ -267,12 +288,12 @@ export default {
         /**
         * author: Nguyen Quoc Huy
         * created at: 30/04/2023
-        * description: khi blur nguyên giá thì valiate lại giá trị hao mòn năm
+        * description: khi blur nguyên giá thì validate lại giá trị hao mòn năm
         */
-        handleBlurPrice() {
-            this.validatePrice()
-            if (this.form.loseRateYear?.toString().length)
-                this.validateloseRateYear()
+        handleBlurCost() {
+            this.validateCost()
+            if (this.form.depreciationAnnual?.toString().length)
+                this.validateDepreciationAnnual()
         },
 
         /**
@@ -280,10 +301,10 @@ export default {
         * created at: 30/04/2023
         * description: khi blur tỷ lệ hao mòn thì valiate lại giá trị hao mòn năm
         */
-        handleBlurloseRate() {
-            this.validateloseRate()
-            if (this.form.loseRateYear)
-                this.validateloseRateYear()
+        handleBlurDepreciationRate() {
+            this.validateDepreciationRate()
+            if (this.form.depreciationAnnual)
+                this.validateDepreciationAnnual()
         },
 
         /**
@@ -291,8 +312,8 @@ export default {
          * created at: 30/04/2023
          * description: khi blur ngày mua thì valiate lại ngày sử dụng
          */
-        handleBlurBuyDate() {
-            this.validateBuyDate()
+        handleBlurPurchaseDate() {
+            this.validatePurchaseDate()
             if (this.form.useDate)
                 this.validateUseDate()
         },
@@ -302,10 +323,10 @@ export default {
         * created at: 30/04/2023
         * description: khi blur số năm sử dụng thì validate luôn tỉ lệ hao mòn
         */
-        handleBlurUseDuration() {
-            this.validateUseDuration()
-            if (this.form.loseRate?.toString().length)
-                this.validateloseRate()
+        handleBlurLifeTime() {
+            this.validateLifeTime()
+            if (this.form.depreciationRate?.toString().length)
+                this.validateDepreciationRate()
         },
         /**
          * author: Nguyen Quoc Huy
@@ -334,7 +355,7 @@ export default {
          */
         handleCloseCancel() {
             this.isShowCancel = false
-            this.$refs.assetCode.querySelector('input').focus()
+            this.$refs.fixedAssetCode.querySelector('input').focus()
         },
 
         /**
@@ -344,7 +365,7 @@ export default {
          */
         handleCloseStore() {
             this.isShowStore = false
-            this.$refs.assetCode.querySelector('input').focus()
+            this.$refs.fixedAssetCode.querySelector('input').focus()
         },
         /**
          * author: Nguyen Quoc Huy
@@ -364,41 +385,29 @@ export default {
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
-         * description: xử lý việc lưu dữ liệu, gọi api. hiện thông báo tương ứng ...
-         */
-        handleStore() {
-            // emit sự kiện đóng form cho component cha
-            this.$emit('clickClose')
-            // hiện thông báo
-            this.emitter.emit("setToastMessage", this.toastMessages.addAssetSuccess[this.$store.state.language]);
-        },
-
-        /**
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
          * description: xử lý việc sửa dữ liệu, gọi api. hiện thông báo tương ứng ...
          */
         handleEdit() {
-            axios.put(`${BASE_API_URL}assets/${this.assetId}`, {
-                assetCode: this.form.assetCode,
-                departmentId: this.$store.getters.departmentByCode(this.form.departmentCode).departmentId,
-                assetTypeId: this.$store.getters.assetTypeByCode(this.form.assetTypeCode).assetTypeId,
-                assetName: this.form.assetName,
+            // submit lên backend
+            axios.put(`${BASE_API_URL}fixedAsset/${this.fixedAssetId}`, {
+                fixed_asset_code: this.form.fixedAssetCode,
+                fixed_asset_name: this.form.fixedAssetName,
+                department_id: this.$store.getters.departmentByCode(this.form.departmentCode).departmentId,
+                fixed_asset_category_id: this.$store.getters.fixedAssetCategoryByCode(this.form.fixedAssetCategoryCode).fixedAssetCategoryId,
                 quantity: this.form.quantity,
-                price: this.form.price,
-                useDuration: this.form.useDuration,
-                trackYear: this.form.trackYear,
-                buyDate: this.form.buyDate,
-                useDate: this.form.useDate,
-                loseRate: this.form.loseRate,
-                loseRateYear: this.form.loseRateYear
-            }).then(({ data }) => {
-                console.log(data);
+                cost: this.form.cost,
+                life_Time: this.form.lifeTime,
+                tracked_year: this.form.trackedYear,
+                purchase_date: this.form.purchaseDate,
+                use_date: this.form.useDate,
+                depreciation_rate: this.form.depreciationRate,
+                depreciation_annual: this.form.depreciationAnnual
+            }).then(() => {
                 // emit sự kiện đóng form cho component cha
                 this.$emit('clickClose')
                 // hiện thông báo
-                this.emitter.emit("setToastMessage", this.toastMessages.editAssetSuccess[this.$store.state.language]);
-
+                this.emitter.emit("setToastMessage", this.toastMessages.editFixedAssetSuccess[this.$store.state.language]);
+                this.$store.dispatch("getFilterFixedAsset")
             })
         },
 
@@ -407,11 +416,33 @@ export default {
         * created at: 30/04/2023
         * description: xử lý việc nhân bản dữ liệu, gọi api. hiện thông báo tương ứng ...
         */
-        handleDuplicate() {
-            // emit sự kiện đóng form cho component cha
-            this.$emit('clickClose')
-            // hiện thông báo
-            this.emitter.emit("setToastMessage", this.toastMessages.duplicateAssetSuccess[this.$store.state.language]);
+        handleStore() {
+            axios.post(`${BASE_API_URL}fixedAsset`, {
+                fixed_asset_code: this.form.fixedAssetCode,
+                fixed_asset_name: this.form.fixedAssetName,
+                department_id: this.$store.getters.departmentByCode(this.form.departmentCode).departmentId,
+                fixed_asset_category_id: this.$store.getters.fixedAssetCategoryByCode(this.form.fixedAssetCategoryCode).fixedAssetCategoryId,
+                quantity: this.form.quantity,
+                cost: this.form.cost,
+                life_Time: this.form.lifeTime,
+                tracked_year: this.form.trackedYear,
+                purchase_date: this.form.purchaseDate,
+                use_date: this.form.useDate,
+                depreciation_rate: this.form.depreciationRate,
+                depreciation_annual: this.form.depreciationAnnual
+            })
+                .then(() => {
+                    const typeNotifi = this.typeForm == "duplicate" ? "duplicateFixedAssetSuccess" : "addFixedAssetSuccess";
+                    // emit sự kiện đóng form cho component cha
+                    this.$emit('clickClose')
+                    // hiện thông báo
+                    this.emitter.emit("setToastMessage", this.toastMessages[typeNotifi][this.$store.state.language]);
+                    // tải lại danh sách tài sản
+                    this.$store.dispatch("getFilterFixedAsset")
+
+                })
+
+
         },
 
         /**
@@ -419,22 +450,21 @@ export default {
        * created at: 30/04/2023
        * description: xử lý sự kiện khi người dùng ấn nút lưu
        */
-        handleSubmit() {
+        async handleSubmit() {
             this.isShowStore = false
             this.errors = {}
             // validate lại tất cả các input, thứ tự validate sẽ ảnh hướng đến input đầu tiên được focus khi gặp lỗi
-            this.validateassetCode()
-            this.validateassetName()
+            await this.validateFixedAssetCode()
+            this.validateFixedAssetName()
             this.validateDepartmentCode()
-            this.validateassetTypeCode()
+            this.validateFixedAssetCategoryCode()
             this.validateQuantity()
-            this.validatePrice()
-            this.validateUseDuration()
-            this.validateloseRate()
-            this.validateloseRateYear()
-            this.validateBuyDate()
+            this.validateCost()
+            this.validateLifeTime()
+            this.validateDepreciationRate()
+            this.validateDepreciationAnnual()
+            this.validatePurchaseDate()
             this.validateUseDate()
-            console.log(this.form);
             // kiểm tra xem có error nào không, nếu có thì kết thúc hàm
             for (const property in this.errors) {
                 if (this.errors[property]) {
@@ -446,10 +476,7 @@ export default {
             if (this.typeForm == this.$enum.typeForm.edit) {
                 this.handleEdit()
             }
-            // thực hiện nhân bản nếu form là duplicate
-            else if (this.typeForm == this.$enum.typeForm.duplicate)
-                this.handleDuplicate()
-            // thự hiện lưu
+            // với nhận bản hoạc thêm
             else
                 this.handleStore()
         },
@@ -457,35 +484,46 @@ export default {
         /**
         * author: Nguyen Quoc Huy
         * created at: 30/04/2023
-        * description: hàm validate trường assetCode
+        * description: hàm validate trường fixedAssetCode
         */
-        validateassetCode() {
-            let length = { min: 0, max: 255 }
+        async validateFixedAssetCode() {
+            let length = { min: 0, max: 50 }
             // gán lại cho error là rỗng
-            this.errors.assetCode = ''
-            // kiểm tra assetcode khác rỗng
-            if (!this.validateRequired(this.form.assetCode))
-                this.errors.assetCode = 'Cần nhập mã tài sản'
-            // kiểm tra assetcode có length hợp lệ
-            else if (!this.validateLength(this.form.assetCode, length.min, length.max))
-                this.errors.assetCode = `Cần nhập mã tài sản từ ${length.min} đến ${length.max} kí tự`
+            this.errors.fixedAssetCode = ''
+            // kiểm tra fixedAssetCode khác rỗng
+            if (!this.validateRequired(this.form.fixedAssetCode))
+                this.errors.fixedAssetCode = 'Cần nhập mã tài sản'
+            // kiểm tra fixedAssetCode có length hợp lệ
+            else if (!this.validateLength(this.form.fixedAssetCode, length.min, length.max))
+                this.errors.fixedAssetCode = `Cần nhập mã tài sản từ ${length.min} đến ${length.max} kí tự`
+            else {
+                var url = `${BASE_API_URL}fixedAsset/checkFixedAssetCodeExisted?fixedAssetCode=${this.form.fixedAssetCode}&fixedAssetId=${this.typeForm == this.$enum.typeForm.edit ? this.fixedAssetId : ''}`;
+                try {
+                    const response = await axios.get(url)
+                    if (response.data) {
+                        this.errors.fixedAssetCode = "Mã tài sản bị trùng"
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
         },
 
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
-         * description: hàm validate trường assetTypeName
+         * description: hàm validate trường fixedAssetCategoryName
          */
-        validateassetName() {
+        validateFixedAssetName() {
             let length = { min: 0, max: 255 }
             // gán lại error là rỗng
-            this.errors.assetName = ''
-            // kiểm tra  assettypename khác rỗng
-            if (!this.validateRequired(this.form.assetName))
-                this.errors.assetName = 'Cần nhập tên tài sản'
-            // kiểm tra assetname có length hợp lệ
-            else if (!this.validateLength(this.form.assetName, length.min, length.max))
-                this.errors.assetName = `Cần nhập tên tài sản từ ${length.min} đến ${length.max} kí tự`
+            this.errors.fixedAssetName = ''
+            // kiểm tra  fixedAssetName khác rỗng
+            if (!this.validateRequired(this.form.fixedAssetName))
+                this.errors.fixedAssetName = 'Cần nhập tên tài sản'
+            // kiểm tra fixedAssetName có length hợp lệ
+            else if (!this.validateLength(this.form.fixedAssetName, length.min, length.max))
+                this.errors.fixedAssetName = `Cần nhập tên tài sản từ ${length.min} đến ${length.max} kí tự`
         },
 
         /**
@@ -504,27 +542,27 @@ export default {
         /**
         * author: Nguyen Quoc Huy
         * created at: 30/04/2023
-        * description: hàm validate trường assettypecode
+        * description: hàm validate trường fixedAssetCategorycode
         */
-        validateassetTypeCode() {
+        validateFixedAssetCategoryCode() {
             // gán lại error là rỗng
-            this.errors.assetTypeCode = ''
-            // kiểm tra  assettypecode khác rỗng
-            if (!this.validateRequired(this.form.assetTypeCode))
-                this.errors.assetTypeCode = 'Cần nhập mã loại tài sản'
+            this.errors.fixedAssetCategoryCode = ''
+            // kiểm tra  fixedAssetCategorycode khác rỗng
+            if (!this.validateRequired(this.form.fixedAssetCategoryCode))
+                this.errors.fixedAssetCategoryCode = 'Cần nhập mã loại tài sản'
         },
 
         /**
         * author: Nguyen Quoc Huy
         * created at: 30/04/2023
-        * description: hàm validate trường buydate
+        * description: hàm validate trường purchaseDate
         */
-        validateBuyDate() {
+        validatePurchaseDate() {
             // gán lại error là rỗng
-            this.errors.buyDate = ''
-            // kiểm tra buydate khác rỗng
-            if (!this.validateRequired(this.form.buyDate))
-                this.errors.buyDate = 'Cần nhập ngày mua'
+            this.errors.purchaseDate = ''
+            // kiểm tra purchaseDate khác rỗng
+            if (!this.validateRequired(this.form.purchaseDate))
+                this.errors.purchaseDate = 'Cần nhập ngày mua'
         },
 
         /**
@@ -538,8 +576,8 @@ export default {
             // kiểm tra usedate khác rỗng
             if (!this.validateRequired(this.form.useDate))
                 this.errors.useDate = 'Cần nhập ngày sử dụng'
-            // kiểm tra use date phải sau buydate
-            else if (this.form.buyDate && this.form.useDate && this.form.buyDate > this.form.useDate)
+            // kiểm tra use date phải sau purchaseDate
+            else if (this.form.purchaseDate && this.form.useDate && this.form.purchaseDate > this.form.useDate)
                 this.errors.useDate = 'Ngày bắt đầu sử dụng phải sau ngày mua'
         },
 
@@ -562,81 +600,81 @@ export default {
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
-         * description: hàm validate trường price
+         * description: hàm validate trường cost
          */
-        validatePrice() {
+        validateCost() {
             // gán lại error là rỗng
-            this.errors.price = ''
-            //kiểm tra price khác rỗng
-            if (!this.validateRequired(this.form.price))
-                this.errors.price = 'Cần nhập nguyên giá'
-            // kiểm tra price là số nguyên
-            // else if (!this.validateInterger(this.form.price))
-            //     this.errors.price = 'Cần nhập nguyên giá là số nguyên'
+            this.errors.cost = ''
+            //kiểm tra cost khác rỗng
+            if (!this.validateRequired(this.form.cost))
+                this.errors.cost = 'Cần nhập nguyên giá'
+            // kiểm tra cost là số nguyên
+            // else if (!this.validateInterger(this.form.cost))
+            //     this.errors.cost = 'Cần nhập nguyên giá là số nguyên'
         },
 
         /**
         * author: Nguyen Quoc Huy
         * created at: 30/04/2023
-        * description: hàm validate trường useDuration
+        * description: hàm validate trường lifeTime
         */
-        validateUseDuration() {
+        validateLifeTime() {
             // gán lại error là rỗng
-            this.errors.useDuration = ''
-            // kiểm tra useDuration khác rỗng
-            if (!this.validateRequired(this.form.useDuration))
-                this.errors.useDuration = 'Cần nhập số năm sử dụng'
-            // kiểm tra useDuration là số nguyên
-            else if (!this.validateInterger(this.form.useDuration))
-                this.errors.useDuration = 'Cần nhập số năm sử dụng là số nguyên'
-            else if (this.form.useDuration <= 0)
-                this.errors.useDuration = 'Số năm sử dụng phải lớn hơn 0'
+            this.errors.lifeTime = ''
+            // kiểm tra lifeTime khác rỗng
+            if (!this.validateRequired(this.form.lifeTime))
+                this.errors.lifeTime = 'Cần nhập số năm sử dụng'
+            // kiểm tra lifeTime là số nguyên
+            else if (!this.validateInterger(this.form.lifeTime))
+                this.errors.lifeTime = 'Cần nhập số năm sử dụng là số nguyên'
+            else if (this.form.lifeTime <= 0)
+                this.errors.lifeTime = 'Số năm sử dụng phải lớn hơn 0'
         },
 
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
-         * description: hàm validate trường useDuration
+         * description: hàm validate trường lifeTime
          */
-        validateloseRate() {
+        validateDepreciationRate() {
             // gán lại error là rỗng
-            this.errors.loseRate = ''
-            // kiểm tra useDuration khác rỗng
-            if (!this.validateRequired(this.form.loseRate))
-                this.errors.loseRate = 'Cần nhập tỷ lệ hao mòn'
-            // kiểm tra useDuration là số thực
-            else if (!this.validateRealNumber(this.form.loseRate))
-                this.errors.loseRate = 'Cần nhập tỷ lệ hao mòn là số thực'
+            this.errors.depreciationRate = ''
+            // kiểm tra lifeTime khác rỗng
+            if (!this.validateRequired(this.form.depreciationRate))
+                this.errors.depreciationRate = 'Cần nhập tỷ lệ hao mòn'
+            // kiểm tra lifeTime là số thực
+            else if (!this.validateRealNumber(this.form.depreciationRate))
+                this.errors.depreciationRate = 'Cần nhập tỷ lệ hao mòn là số thực'
             // kiểm tra Tỷ lệ hao mòn phải bằng 1/Số năm sử dụng
-            else if (this.form.useDuration > 0) {
-                if (this.toRounded(1 / this.form.useDuration * 100) != this.toRounded(this.form.loseRate))
-                    this.errors.loseRate = 'Tỷ lệ hao mòn phải bằng 1/Số năm sử dụng'
+            else if (this.form.lifeTime > 0) {
+                if (this.toRounded(1 / this.form.lifeTime * 100) != this.toRounded(this.form.depreciationRate))
+                    this.errors.depreciationRate = 'Tỷ lệ hao mòn phải bằng 1/Số năm sử dụng'
             }
         },
 
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
-         * description: hàm validate trường loseRateYear
+         * description: hàm validate trường depreciationAnnual
          */
-        validateloseRateYear() {
+        validateDepreciationAnnual() {
             // gán lại error là rỗng
-            this.errors.loseRateYear = ''
-            // kiểm tra loseRateYear khác rỗng
-            if (!this.validateRequired(this.form.loseRateYear)) {
-                this.errors.loseRateYear = 'Cần nhập giá trị hao mòn năm'
+            this.errors.depreciationAnnual = ''
+            // kiểm tra depreciationAnnual khác rỗng
+            if (!this.validateRequired(this.form.depreciationAnnual)) {
+                this.errors.depreciationAnnual = 'Cần nhập giá trị hao mòn năm'
                 return
             }
             // kiểm tra giá trị hao mòn năm phải bằng tỷ lệ hao mòn* Nguyên giá
-            if (this.form.loseRate && this.form.price) {
-                if (this.loseRateYearValue != this.form.loseRateYear) {
-                    this.errors.loseRateYear = 'Giá trị hao mòn năm phải bằng tỷ lệ hao mòn* Nguyên giá'
+            if (this.form.depreciationRate && this.form.cost) {
+                if (this.depreciationAnnualValue != this.form.depreciationAnnual) {
+                    this.errors.depreciationAnnual = 'Giá trị hao mòn năm phải bằng tỷ lệ hao mòn* Nguyên giá'
                     return
                 }
             }
             //kiểm tra hao mòn năm phải nhỏ hơn hoạc bằng nguyên giá
-            if (Number.parseInt(this.form.loseRateYear) > Number.parseInt(this.form.price)) {
-                this.errors.loseRateYear = 'Hao mòn năm phải nhỏ hơn hoạc bằng nguyên giá'
+            if (Number.parseInt(this.form.depreciationAnnual) > Number.parseInt(this.form.cost)) {
+                this.errors.depreciationAnnual = 'Hao mòn năm phải nhỏ hơn hoạc bằng nguyên giá'
                 return
             }
         },
@@ -692,15 +730,16 @@ export default {
          */
         form: {
             handler() {
-                // đánh dấu form đã được thay đổi
-                this.isChanged = true
+                // đánh dấu form đã được thay đổi 
+                if (this.isLoaded)
+                    this.isChanged = true
                 // nếu departmentCode thay đổi thì tự động điền cho departmentName
                 if (this.form.departmentCode) {
                     this.form.departmentName = this.$store.state.departments.data.find(department => department.departmentCode == this.form.departmentCode).departmentName
                 }
-                // nếu assetTypeCode thay đổi thì tự động điền cho assetTypeName
-                if (this.form.assetTypeCode)
-                    this.form.assetTypeName = this.$store.state.assetTypes.data.find(assettype => assettype.assetTypeCode == this.form.assetTypeCode).assetTypeName
+                // nếu fixedAssetCategoryCode thay đổi thì tự động điền cho fixedAssetCategoryName
+                if (this.form.fixedAssetCategoryCode)
+                    this.form.fixedAssetCategoryName = this.$store.state.fixedAssetCategorys.data.find(fixedAssetCategory => fixedAssetCategory.fixedAssetCategoryCode == this.form.fixedAssetCategoryCode).fixedAssetCategoryName
             },
             deep: true
         },
@@ -710,8 +749,8 @@ export default {
         * created at: 30/04/2023
         * description: tính giá trị của hao mòn năm khi tỷ lệ hao mòn thay đổi
         */
-        loseRate() {
-            this.form.loseRateYear = this.loseRateYearValue
+        depreciationRate() {
+            this.form.depreciationAnnual = this.depreciationAnnualValue
         },
 
         /**
@@ -719,8 +758,8 @@ export default {
         * created at: 30/04/2023
         * description: tính giá trị của hao mòn năm khi nguyên giá thay đổi
         */
-        price() {
-            this.form.loseRateYear = this.loseRateYearValue
+        cost() {
+            this.form.depreciationAnnual = this.depreciationAnnualValue
         }
     },
     components: { MisaTextfieldForm, MisaNumberForm, MisaInputDate, MisaCombobox, ThePopup, MisaDialog, MisaButton }

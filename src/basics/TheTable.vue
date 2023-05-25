@@ -1,8 +1,8 @@
 <template>
-    <div :class="{ isLoading }" class="table-wrapper custom-scrollbar">
+    <div ref="tableWrapper" :class="{ isLoading }" class="table-wrapper custom-scrollbar">
         <MisaLoading v-if="isLoading"></MisaLoading>
         <table v-else class="table">
-            <thead>
+            <thead ref="tableHead">
                 <tr>
                     <th scope="col">
                         <MisaInputCheckbox @changeChecked="handleCheckAll" :checked="isCheckedAll">
@@ -35,15 +35,15 @@
                             :checked="tr.isChecked">
                         </MisaInputCheckbox>
                     </td>
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ tr.assetCode }}</td>
-                    <td>{{ tr.assetName }}</td>
-                    <td>{{ $store.getters.assetTypeById(tr.assetTypeId).assetTypeName }}</td>
-                    <td>{{ $store.getters.departmentById(tr.departmentId).departmentName }}</td>
+                    <td>{{ index + 1 + $store.state.pageSize * ($store.state.currentPage - 1) }}</td>
+                    <td>{{ tr.fixedAssetCode }}</td>
+                    <td>{{ tr.fixedAssetName }}</td>
+                    <td>{{ $store.getters.fixedAssetCategoryById(tr.fixedAssetCategoryId)?.fixedAssetCategoryName }}</td>
+                    <td>{{ $store.getters.departmentById(tr.departmentId)?.departmentName }}</td>
                     <td>{{ tr.quantity }}</td>
-                    <td>{{ convertCurrency(tr.price) }}</td>
-                    <td>{{ convertCurrency(tr.accumulatedLose) }}</td>
-                    <td>{{ convertCurrency(tr.price - tr.accumulatedLose) }}</td>
+                    <td>{{ toCurrency(tr.cost) }}</td>
+                    <td> 0 </td>
+                    <td>{{ toCurrency(tr.cost) }}</td>
                     <td>
                         <div class="table__function">
                             <TheToolTip tooltip="Sửa">
@@ -59,16 +59,33 @@
                             </TheToolTip>
                         </div>
                     </td>
-
                 </tr>
+                <tr ref="trBonus"></tr>
             </tbody>
             <tbody class="table__footer">
-                <tr>
+                <tr ref="tableFooter">
                     <td class="table__footer__td">
                         <div class="table__footer__left">
                             <p class="table__footer__total">Tổng số: <strong>{{ $store.state.totalAsset }}</strong>
-                                bản ghi</p>
-                            <MisaSelect></MisaSelect>
+                                bản ghi
+                            </p>
+                            <div class="table__footer__select">
+                                <div ref="selectPageSizeHead" @click="isShowPageSizeList = !isShowPageSizeList"
+                                    class="table__footer__select__head">
+                                    <div class="table__footer__select__value">{{ $store.state.pageSize }}</div>
+                                    <div class="table__footer__select__icon">
+                                        <div v-show="!isShowPageSizeList" class="icon-down"></div>
+                                        <div v-show="isShowPageSizeList" class="icon-up"></div>
+                                    </div>
+                                </div>
+                                <div ref="selectPageSizeOption" v-show="isShowPageSizeList"
+                                    class="table__footer__select__options">
+                                    <div @click="handleSetPageSize(pageSize)" v-for="pageSize in pageSizeList"
+                                        :key="pageSize" class="table__footer__select__option">
+                                        {{ pageSize }}
+                                    </div>
+                                </div>
+                            </div>
                             <MisaPaginate></MisaPaginate>
                         </div>
                     </td>
@@ -78,9 +95,9 @@
                     <td></td>
                     <td></td>
                     <td class="table__footer__conclusion">{{ totalQuantity }}</td>
-                    <td class="table__footer__conclusion">{{ toCurrency(totalPrice) }}</td>
-                    <td class="table__footer__conclusion">{{ toCurrency(totalAccumulatedLose) }}</td>
-                    <td class="table__footer__conclusion">{{ toCurrency(totalPrice - totalAccumulatedLose) }}</td>
+                    <td class="table__footer__conclusion">{{ toCurrency(totalCost) }}</td>
+                    <td class="table__footer__conclusion">0</td>
+                    <td class="table__footer__conclusion">{{ toCurrency(totalCost) }}</td>
                     <td></td>
                 </tr>
             </tbody>
@@ -91,7 +108,7 @@
             </MisaDialog>
         </ThePopup>
         <ThePopup :isShow="isShowForm" @close="isShowForm = false">
-            <TheForm :assetId="assetId" :typeForm="typeForm" @clickClose="isShowForm = false"></TheForm>
+            <TheForm :fixedAssetId="fixedAssetId" :typeForm="typeForm" @clickClose="isShowForm = false"></TheForm>
         </ThePopup>
     </div>
 </template>
@@ -100,22 +117,25 @@
 import MisaDialog from '@/components/MisaDialog.vue'
 import MisaInputCheckbox from '../components/MisaInputCheckbox.vue'
 import MisaPaginate from '../components/MisaPaginate.vue'
-import MisaSelect from '../components/MisaSelect.vue'
 import ThePopup from './ThePopup.vue'
 import TheToolTip from './TheToolTip.vue'
 import TheForm from './TheForm.vue'
 import MisaLoading from '@/components/MisaLoading.vue'
+import axios from 'axios'
+import { BASE_API_URL } from '@/config'
 export default {
     methods: {
-
         /**
-         * @param {Interget} value 
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
-         * description: Hàm chuyển giá trị number thành tiền tệ, gọi hàm global function 
-         */
-        convertCurrency(value) {
-            return this.toCurrency(value)
+        * @param {Boolean} checked 
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: Hàm xử lý sự kiện khi người dùng thay đổi size của page
+        */
+        handleSetPageSize(pageSize) {
+            this.isShowPageSizeList = false
+            this.$store.commit("setPageSize", pageSize)
+            this.$store.commit("setCurrentPage", 1)
+            this.$store.dispatch("getFilterFixedAsset")
         },
 
         /**
@@ -156,10 +176,24 @@ export default {
         * description: Hàm xử lý sự kiện khi người dùng click button remove tài sản
         */
         handleRemove() {
-            // xóa tất cả các dòng có checked là true
-            this.tbody = this.tbody.filter(tr => !tr.isChecked)
-            this.isCheckedAll = false
-            this.isShowRemove = false
+            // lấy ra danh sách id tài sản cần xóa
+            const removeFixedAssetList = this.tbody.filter(fixedAsset => fixedAsset.isChecked)
+            const removeFixedAssetCodeList = removeFixedAssetList.map(fixedAsset => fixedAsset.fixedAssetId)
+            console.log(removeFixedAssetCodeList);
+            axios.post(`${BASE_API_URL}fixedAsset/delete`, removeFixedAssetCodeList)
+                .then(() => {
+                    this.isCheckedAll = false
+                    this.isShowRemove = false
+                    // tính lại giá trị tổng số trang
+                    const newTotalPage = Math.ceil((this.$store.state.totalAsset - removeFixedAssetList.length) / this.$store.state.pageSize)
+                    console.log();
+                    // nếu trang hiện tại lớn hơn tổng số trang mới thì currentPage = newTotalPage
+                    if (this.$store.state.currentPage > newTotalPage) {
+                        this.$store.commit("setCurrentPage", newTotalPage)
+                    }
+                    this.$store.dispatch("getFilterFixedAsset")
+                })
+
         },
 
         /**
@@ -177,7 +211,7 @@ export default {
             this.isShowForm = true;
             this.typeForm = this.$enum.typeForm.edit;
             // gán giá trị dữ liệu sửa bằng giá trị ở dòng người dùng click 
-            this.assetId = tr.assetId
+            this.fixedAssetId = tr.fixedAssetId
         },
 
         /**
@@ -191,18 +225,12 @@ export default {
             this.isShowForm = true;
             this.typeForm = this.$enum.typeForm.duplicate;
             // gán giá trị dữ liệu nhân bản bằng giá trị ở dòng người dùng click 
-            this.assetId = tr
+            this.fixedAssetId = tr.fixedAssetId
         },
-        accumulatedLose(asset) {
-            const startUseYear = new Date(asset.useDate).getFullYear();
-            const currentYear = new Date().getFullYear();
-            return (currentYear - startUseYear) * asset.loseRateYear
-        }
     },
     components: {
         MisaInputCheckbox,
         MisaPaginate,
-        MisaSelect,
         MisaDialog,
         ThePopup,
         TheToolTip,
@@ -224,59 +252,127 @@ export default {
                 return
             // tạo thông báo khi bản xóa 1 bản
             else if (checkedTrs.length == 1)
-                this.dialogText = `Bạn có muốn xóa tài sản <strong>${checkedTrs[0].td2} - ${checkedTrs[0].td3}</strong>?`
+                this.dialogText = `Bạn có muốn xóa tài sản <strong>${checkedTrs[0].fixedAssetCode} - ${checkedTrs[0].fixedAssetName}</strong>?`
             // tạo thông báo khi xóa nhiều bản
             else {
                 this.dialogText = `<strong>${checkedTrs.length < 10 ? '0' + checkedTrs.length : checkedTrs.length}</strong> tài sản đã được chọn. Bạn có muốn xóa các tài sản này khỏi danh sách?`
             }
             this.isShowRemove = true
         });
+
+        // lắng  nghe sự kiện ẩn select page size khi click vào màn hình
+        this.eventTogglePageSizeList = (event) => {
+            if (this.$refs.selectPageSizeHead?.contains(event.target) || this.$refs.selectPageSizeOption?.contains(event.target))
+                return
+            this.isShowPageSizeList = false
+        }
+        window.addEventListener('click', this.eventTogglePageSizeList)
+    },
+
+    /**
+     * author: Nguyen Quoc Huy
+     * created at: 30/04/2023
+     * description: thực hiện xóa các trình lắng nghe sự kiện khi unmount
+     */
+    unmounted() {
+        // xóa sự kiện ẩn select page size khi click vào màn hình
+        window.removeEventListener('click', this.eventTogglePageSizeList)
     },
 
     data() {
         return {
-            assetId: null,
+            fixedAssetId: null,
             typeForm: null,
             isShowForm: false,
             dialogText: '',
             isShowRemove: false,
             isCheckedAll: false,
-            tbody: []
+            tbody: [],
+            pageSizeList: [5, 10, 15, 20, 30, 40],
+            isShowPageSizeList: false,
+            eventTogglePageSizeList: null
         }
     },
     computed: {
-        assets() {
-            return this.$store.state.assets.data
+        fixedAssets() {
+            return this.$store.state.fixedAssets.data
         },
         isLoading() {
-            return this.$store.state.assets.isLoading
+            return this.$store.state.fixedAssets.isLoading
         },
         totalQuantity() {
             return this.tbody.reduce((total, asset) => total + asset.quantity, 0)
         },
-        totalPrice() {
-            return this.tbody.reduce((total, asset) => total + asset.price, 0)
+        totalCost() {
+            return this.tbody.reduce((total, asset) => total + asset.cost, 0)
         },
-        totalAccumulatedLose() {
-            return this.tbody.reduce((total, asset) => total + asset.accumulatedLose, 0)
-        }
     },
-    watch: {
-        assets(newVal) {
-            this.tbody = newVal.map(asset => ({ isChecked: false, ...asset, accumulatedLose: this.accumulatedLose(asset) }))
-        }
 
+    /**
+    * author: Nguyen Quoc Huy
+    * created at: 30/04/2023
+    * description: mỗi khi fixedAssets từ store thay đổi thì tính lại biến tbody
+    */
+    watch: {
+        fixedAssets(newVal) {
+            this.tbody = newVal.map(fixedAsset => ({ isChecked: false, ...fixedAsset }))
+            // set kích thước cho phần tử tr bonus
+            this.$nextTick(() => {
+                // phần kích thước độn thêm = chiều cao table__wrapper - chiều cao thead - số dòng  * chiều cao 1 dòng dữ liệu, 2 là độ dài của border trên và dưới của table__wrapper
+                let newHeight = this.$refs.tableWrapper.offsetHeight - this.$refs.tableHead.offsetHeight - (newVal.length + 1) * this.$refs.tableFooter.offsetHeight - 2
+                newHeight = newHeight > 0 ? newHeight : 0;
+                this.$refs.trBonus.style.height = `${newHeight}px`
+            })
+        }
     }
 }
 </script>
 
 <style scoped>
+.table__footer__select__options {
+    bottom: calc(100% + 2px);
+    left: 0;
+    position: absolute;
+    font-family: mMisa Font;
+    background-color: #fff;
+    width: 100%;
+    box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.323);
+    border-radius: var(--radius-border);
+    overflow: hidden;
+}
+
+.table__footer__select__option {
+    padding: 4px 8px;
+    width: 100%;
+}
+
+.table__footer__select__option:hover {
+    background-color: rgba(67, 195, 227, 0.668);
+    cursor: pointer;
+}
+
+.table__footer__select__head {
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: var(--radius-border);
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    width: 60px;
+    font-family: mMisa Font;
+}
+
+.table__footer__select {
+    position: relative;
+}
+
 .table-wrapper {
     border: 1px solid var(--color-border);
     box-shadow: 0 3px 10px rgba(0, 0, 0, .16);
     border-radius: var(--radius-border);
     position: relative;
-    max-height: 100%;
+    height: 100%;
     max-width: 100%;
     overflow-x: auto;
     overflow-y: auto;
@@ -303,13 +399,15 @@ export default {
     font-size: 13px;
     font-weight: 700;
     font-family: bMisa Font;
-    padding: 11px 8px;
+    padding: 0px 8px;
+    height: 38px;
     white-space: nowrap;
 }
 
 .table td {
-    padding: 12px 8px;
+    padding: 0 8px;
     font-size: 13px;
+    height: 40px;
     font-weight: 400;
     font-family: mMisa Font;
     white-space: nowrap;
@@ -337,7 +435,7 @@ export default {
     white-space: unset;
 }
 
-.table tbody tr td,
+.table tbody:not(.table__footer) tr td,
 .table th {
     border-bottom: 1px solid var(--color-border);
 }
@@ -379,11 +477,11 @@ export default {
 
 .table__footer td {
     font-family: Misa Font;
+
 }
 
 .table__footer__td {
     position: relative;
-
 }
 
 .table__footer__left {
@@ -409,7 +507,7 @@ export default {
 
 .table thead {
     position: sticky;
-    background-color: #eeeeee59;
+    background-color: #eee;
     top: 0;
 }
 

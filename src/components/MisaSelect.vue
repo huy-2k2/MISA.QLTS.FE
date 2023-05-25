@@ -1,14 +1,16 @@
 <template>
     <select class="select_pure" name="" id="">
-        <option value="">1</option>
-        <option value="">2</option>
-        <option value="">3</option>
+        <option v-for="item in items" :key="item" value="">{{ item }}</option>
     </select>
 </template>
 
 <script>
 export default {
+    props: {
+        items: {
 
+        }
+    }
 }
 </script >
 
