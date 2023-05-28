@@ -1,41 +1,48 @@
-import axios from "axios"
-import emitter from '../common/emitter';
-import apiErrorMessages from "@/resource/apiErrorMessages";
-import { BASE_API_URL } from "../config";
+import {getFilterFixedAssetApi, getDepartmentsApi, getFixedAssetCategorysApi} from '../js/api'
 
-function getData(store, url, field, callback) {
-    store.commit('setLoading', {isLoading: true, field})
-    axios.get(url)
-    .then(({data}) =>{
-        store.commit('setLoading', {isLoading: false, field})
-        callback(data)
-    })
-    .catch(error => {
-        console.log(error);
-        const message = apiErrorMessages[error.response.status][store.state.language]
-        emitter.emit('setDialogMessage', message)
-    })
-}
 
 const actions = {
+    /**
+     * description: action lấy ra tất cả thông tin phòng ban rồi lưu vào state
+     * created by: NQ Huy(25/05/2023)
+     * @param {*} store 
+     */
     getDepartments(store) {
-        getData(store, `${BASE_API_URL}department`, 'departments', (data) => {
+        store.commit('setLoading', {isLoading: true, field: "departments"})
+        getDepartmentsApi((data) => {
             store.commit('setData', {
                 data: data.map(department => ({departmentId: department.department_id, departmentCode: department.department_code, departmentName: department.department_name})) ,
-                field: 'departments'})
+                field: 'departments'
+            })
+            store.commit('setLoading', {isLoading: false, field: "departments"})
         })
     },
 
+    /**
+     * description: lấy ra tất cả mã loại tài sản rồi lưu vào state
+     * create by: NQ Huy(25/05/2023)
+     * @param {*} store 
+     */
     getFixedAssetCategorys(store) {
-        getData(store, `${BASE_API_URL}fixedAssetCategory`, 'fixedAssetCategorys', (data) => {
+        store.commit('setLoading', {isLoading: true, field: "fixedAssetCategorys"})
+        getFixedAssetCategorysApi((data) => {
             store.commit('setData', {
-                data: data.map(fixedAssetCategory => ({fixedAssetCategoryId: fixedAssetCategory.fixed_asset_category_id, fixedAssetCategoryCode: fixedAssetCategory.fixed_asset_category_code, fixedAssetCategoryName: fixedAssetCategory.fixed_asset_category_name})),
-                field: 'fixedAssetCategorys'})
+                data: data.map(fixedAssetCategory => ({fixedAssetCategoryId: fixedAssetCategory.fixed_asset_category_id, fixedAssetCategoryCode: fixedAssetCategory.fixed_asset_category_code, fixedAssetCategoryName: fixedAssetCategory.fixed_asset_category_name, lifeTime: fixedAssetCategory.life_time, depreciationRate: fixedAssetCategory.depreciation_rate})),
+                field: 'fixedAssetCategorys'
+            })
+            store.commit('setLoading', {isLoading: false, field: "fixedAssetCategorys"})
         })
     },
 
+    /**
+     * description: lấy ra các tài sản thỏa mã điều kiện lọc rồi lưu vào state
+     * create by: NQ Huy(25/05/2023)
+     * @param {*} store 
+     */
     getFilterFixedAsset(store) {
-        getData(store, `${BASE_API_URL}fixedAsset?pageSize=${store.state.pageSize}&currentPage=${store.state.currentPage}&departmentId=${store.state.filterDepartmentId || ""}&fixedAssetCategoryId=${store.state.filterFixedAssetCategoryId || ""}&textSearch=${store.state.filterTextSearch || ""}`, "fixedAssets", (data) => {
+        store.commit('setLoading', {isLoading: true, field: "fixedAssets"})
+        // lấy dữ liệu tài rồi lưu vào state
+        getFilterFixedAssetApi(store.state.pageSize, store.state.currentPage, store.state.filterDepartmentId || "", store.state.filterFixedAssetCategoryId || "", store.state.filterTextSearch || "", (data) => {
             store.commit("setData", {
                 data: data.listFixedAsset.map(fixedAsset => ( {
                     fixedAssetId: fixedAsset.fixed_asset_id,
@@ -54,7 +61,11 @@ const actions = {
                 })),
                 field: "fixedAssets"
             })
+            // lưu các dữ liệu về tổng tài sản, tổng số lượng, tổng nguyên giá
             store.commit("setTotalAsset", data.totalAsset)
+            store.commit("setTotalQuantity", data.totalQuantity)
+            store.commit("setTotalCost", data.totalCost)
+            store.commit('setLoading', {isLoading: false, field: "fixedAssets"})
         })
     }
    

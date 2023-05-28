@@ -1,5 +1,6 @@
 <template>
-    <button @click="$emit('clickButton')" :type="type" class="button" :class="{ ['button--sub']: isSub }">
+    <button :disabled="disabled" @click="$emit('clickButton')" :type="type" class="button"
+        :class="{ ['button--sub']: isSub }">
         <div class="button__icon">
             <div :class="icon"></div>
         </div>
@@ -18,6 +19,10 @@ export default {
             default: ''
         },
         isSub: {
+            type: Boolean,
+            default: false
+        },
+        disabled: {
             type: Boolean,
             default: false
         }
@@ -41,6 +46,12 @@ export default {
     background-color: #1aa4c8;
     border-radius: 3px;
     border: none;
+    user-select: none;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .button:focus {

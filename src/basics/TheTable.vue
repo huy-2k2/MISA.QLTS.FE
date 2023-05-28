@@ -1,5 +1,8 @@
 <template>
     <div ref="tableWrapper" :class="{ isLoading }" class="table-wrapper custom-scrollbar">
+        <div v-show="$store.state.totalAsset == 0 && !isLoading" class="table__nodata">
+            <img src="../assets/image/nodata.png" alt="">
+        </div>
         <MisaLoading v-if="isLoading"></MisaLoading>
         <table v-else class="table">
             <thead ref="tableHead">
@@ -9,23 +12,23 @@
                         </MisaInputCheckbox>
                     </th>
                     <th scope="col">
-                        <TheToolTip tooltip="Số thứ tự">
-                            STT
+                        <TheToolTip :tooltip="resource.tHead[0].tooltip">
+                            {{ resource.tHead[0].text }}
                         </TheToolTip>
                     </th>
-                    <th scope="col">Mã tài sản</th>
-                    <th scope="col">Tên tài sản</th>
-                    <th scope="col">Loại tài sản</th>
-                    <th scope="col">Bộ phận sử dụng</th>
-                    <th scope="col">Số lượng</th>
-                    <th scope="col">Nguyên giá</th>
+                    <th scope="col">{{ resource.tHead[1] }}</th>
+                    <th scope="col">{{ resource.tHead[2] }}</th>
+                    <th scope="col">{{ resource.tHead[3] }}</th>
+                    <th scope="col">{{ resource.tHead[4] }}</th>
+                    <th scope="col">{{ resource.tHead[5] }}</th>
+                    <th scope="col">{{ resource.tHead[6] }}</th>
                     <th scope="col">
-                        <TheToolTip tooltip="Hao mòn/khấu hao lũy kế">
-                            HM/KH lũy kế
+                        <TheToolTip :tooltip="resource.tHead[7].tooltip">
+                            {{ resource.tHead[7].text }}
                         </TheToolTip>
                     </th>
-                    <th scope="col">Giá trị còn lại</th>
-                    <th scope="col">Chức năng</th>
+                    <th scope="col">{{ resource.tHead[8] }}</th>
+                    <th scope="col">{{ resource.tHead[9] }}</th>
                 </tr>
             </thead>
             <tbody ref="tbody" class="table__body">
@@ -40,10 +43,10 @@
                     <td>{{ tr.fixedAssetName }}</td>
                     <td>{{ $store.getters.fixedAssetCategoryById(tr.fixedAssetCategoryId)?.fixedAssetCategoryName }}</td>
                     <td>{{ $store.getters.departmentById(tr.departmentId)?.departmentName }}</td>
-                    <td>{{ tr.quantity }}</td>
-                    <td>{{ toCurrency(tr.cost) }}</td>
+                    <td>{{ convert.toCurrency(tr.quantity) }}</td>
+                    <td>{{ convert.toCurrency(tr.cost) }}</td>
                     <td> 0 </td>
-                    <td>{{ toCurrency(tr.cost) }}</td>
+                    <td>{{ convert.toCurrency(tr.cost) }}</td>
                     <td>
                         <div class="table__function">
                             <TheToolTip tooltip="Sửa">
@@ -66,7 +69,8 @@
                 <tr ref="tableFooter">
                     <td class="table__footer__td">
                         <div class="table__footer__left">
-                            <p class="table__footer__total">Tổng số: <strong>{{ $store.state.totalAsset }}</strong>
+                            <p class="table__footer__total">Tổng số: <strong>{{ convert.toCurrency($store.state.totalAsset)
+                            }}</strong>
                                 bản ghi
                             </p>
                             <div class="table__footer__select">
@@ -94,10 +98,10 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td class="table__footer__conclusion">{{ totalQuantity }}</td>
-                    <td class="table__footer__conclusion">{{ toCurrency(totalCost) }}</td>
+                    <td class="table__footer__conclusion">{{ convert.toCurrency($store.state.totalQuantity) }}</td>
+                    <td class="table__footer__conclusion">{{ convert.toCurrency($store.state.totalCost) }}</td>
                     <td class="table__footer__conclusion">0</td>
-                    <td class="table__footer__conclusion">{{ toCurrency(totalCost) }}</td>
+                    <td class="table__footer__conclusion">{{ convert.toCurrency($store.state.totalCost) }}</td>
                     <td></td>
                 </tr>
             </tbody>
@@ -121,8 +125,9 @@ import ThePopup from './ThePopup.vue'
 import TheToolTip from './TheToolTip.vue'
 import TheForm from './TheForm.vue'
 import MisaLoading from '@/components/MisaLoading.vue'
-import axios from 'axios'
-import { BASE_API_URL } from '@/config'
+// import axios from 'axios'
+// import { BASE_API_URL } from '@/config'
+import { deleteFixedAssetsApi } from '@/js/api'
 export default {
     methods: {
         /**
@@ -179,21 +184,19 @@ export default {
             // lấy ra danh sách id tài sản cần xóa
             const removeFixedAssetList = this.tbody.filter(fixedAsset => fixedAsset.isChecked)
             const removeFixedAssetCodeList = removeFixedAssetList.map(fixedAsset => fixedAsset.fixedAssetId)
-            console.log(removeFixedAssetCodeList);
-            axios.post(`${BASE_API_URL}fixedAsset/delete`, removeFixedAssetCodeList)
-                .then(() => {
-                    this.isCheckedAll = false
-                    this.isShowRemove = false
-                    // tính lại giá trị tổng số trang
-                    const newTotalPage = Math.ceil((this.$store.state.totalAsset - removeFixedAssetList.length) / this.$store.state.pageSize)
-                    console.log();
-                    // nếu trang hiện tại lớn hơn tổng số trang mới thì currentPage = newTotalPage
-                    if (this.$store.state.currentPage > newTotalPage) {
-                        this.$store.commit("setCurrentPage", newTotalPage)
-                    }
-                    this.$store.dispatch("getFilterFixedAsset")
-                })
 
+            deleteFixedAssetsApi(removeFixedAssetCodeList, () => {
+                this.isCheckedAll = false
+                this.isShowRemove = false
+                // tính lại giá trị tổng số trang
+                const newTotalPage = Math.ceil((this.$store.state.totalAsset - removeFixedAssetList.length) / this.$store.state.pageSize)
+                // nếu trang hiện tại lớn hơn tổng số trang mới thì currentPage = newTotalPage
+                if (this.$store.state.currentPage > newTotalPage) {
+                    this.$store.commit("setCurrentPage", newTotalPage)
+                }
+                this.$store.dispatch("getFilterFixedAsset")
+            }, () => this.isShowRemove = false
+            )
         },
 
         /**
@@ -288,7 +291,7 @@ export default {
             isShowRemove: false,
             isCheckedAll: false,
             tbody: [],
-            pageSizeList: [5, 10, 15, 20, 30, 40],
+            pageSizeList: [10, 20, 50, 100],
             isShowPageSizeList: false,
             eventTogglePageSizeList: null
         }
@@ -300,12 +303,6 @@ export default {
         isLoading() {
             return this.$store.state.fixedAssets.isLoading
         },
-        totalQuantity() {
-            return this.tbody.reduce((total, asset) => total + asset.quantity, 0)
-        },
-        totalCost() {
-            return this.tbody.reduce((total, asset) => total + asset.cost, 0)
-        },
     },
 
     /**
@@ -316,6 +313,7 @@ export default {
     watch: {
         fixedAssets(newVal) {
             this.tbody = newVal.map(fixedAsset => ({ isChecked: false, ...fixedAsset }))
+            this.isCheckedAll = false
             // set kích thước cho phần tử tr bonus
             this.$nextTick(() => {
                 // phần kích thước độn thêm = chiều cao table__wrapper - chiều cao thead - số dòng  * chiều cao 1 dòng dữ liệu, 2 là độ dài của border trên và dưới của table__wrapper
@@ -329,6 +327,19 @@ export default {
 </script>
 
 <style scoped>
+.table__body td:nth-child(2) {}
+
+.tableWrapper {
+    position: relative;
+}
+
+.table__nodata {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 .table__footer__select__options {
     bottom: calc(100% + 2px);
     left: 0;
@@ -361,6 +372,7 @@ export default {
     border: 1px solid #ccc;
     width: 60px;
     font-family: mMisa Font;
+    cursor: pointer;
 }
 
 .table__footer__select {
@@ -433,6 +445,13 @@ export default {
 
 .table td:nth-child(n+4):nth-child(-n+6) {
     white-space: unset;
+}
+
+.table td:nth-child(n+3):nth-child(-n+6) {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .table tbody:not(.table__footer) tr td,

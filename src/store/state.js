@@ -13,8 +13,9 @@ function state() {
             data: [],
             isLoading: true
         },
-        language: '',
         totalAsset: 0,
+        totalQuantity: 0,
+        totalCost: 0,
         pageSize: DEFAULT_PAGE_SIZE,
         currentPage: 1,
         filterDepartmentId: "",

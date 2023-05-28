@@ -4,14 +4,14 @@
             <div class="menu__head__icon">
                 <div class="menu-main-icon"></div>
             </div>
-            <h3 class="menu__head__title menu__hidden">Misa qlts</h3>
+            <h3 class="menu__head__title menu__hidden">{{ resource.menu[0] }}</h3>
         </div>
         <ul class="menu__body">
             <RouterLink to="/" class="menu__item">
                 <div class="menu__item__icon">
                     <div class="menu-item-icon-1"></div>
                 </div>
-                <div class="menu__item__text menu__hidden">Tổng quan</div>
+                <div class="menu__item__text menu__hidden">{{ resource.menu[1] }}</div>
                 <div class="menu__item__expand menu__hidden"></div>
             </RouterLink>
             <RouterLink to="/asset" class="menu__item active">
@@ -19,15 +19,15 @@
                     <div class="icon--unactive menu-item-icon-2"></div>
                     <div class="icon--active menu-item-icon-2--active"></div>
                 </div>
-                <div class="menu__item__text menu__hidden">Tài sản</div>
+                <div class="menu__item__text menu__hidden">{{ resource.menu[2] }}</div>
                 <div class="menu__item__expand menu__hidden"></div>
             </RouterLink>
-            <TheToolTip tooltip="Tài sản hệ thống đường bộ">
+            <TheToolTip :tooltip="resource.menu[3].tooltip">
                 <RouterLink to="/asset-htdb" class="menu__item">
                     <div class="menu__item__icon">
                         <div class="menu-item-icon-3"></div>
                     </div>
-                    <div class="menu__item__text menu__hidden">Tài sản HT-ĐB</div>
+                    <div class="menu__item__text menu__hidden">{{ resource.menu[3].text }}</div>
                     <div class="menu__item__expand menu__hidden"></div>
                 </RouterLink>
             </TheToolTip>
@@ -35,28 +35,28 @@
                 <div class="menu__item__icon">
                     <div class="menu-item-icon-4"></div>
                 </div>
-                <div class="menu__item__text menu__hidden">Công cụ dụng cụ</div>
+                <div class="menu__item__text menu__hidden">{{ resource.menu[4] }}</div>
                 <div class="menu__item__expand menu__hidden"></div>
             </RouterLink>
             <RouterLink to="/category" class="menu__item">
                 <div class="menu__item__icon">
                     <div class="menu-item-icon-5"></div>
                 </div>
-                <div class="menu__item__text menu__hidden">Danh mục</div>
+                <div class="menu__item__text menu__hidden">{{ resource.menu[5] }}</div>
                 <div class="menu__item__expand menu__hidden"></div>
             </RouterLink>
             <RouterLink to="/search" class="menu__item">
                 <div class="menu__item__icon">
                     <div class="menu-item-icon-6"></div>
                 </div>
-                <div class="menu__item__text menu__hidden">Tra cứu</div>
+                <div class="menu__item__text menu__hidden">{{ resource.menu[6] }}</div>
                 <div class="menu__item__expand menu__hidden"></div>
             </RouterLink>
             <RouterLink to="/report" class="menu__item">
                 <div class="menu__item__icon">
                     <div class="menu-item-icon-7"></div>
                 </div>
-                <div class="menu__item__text menu__hidden">Báo cáo</div>
+                <div class="menu__item__text menu__hidden">{{ resource.menu[7] }}</div>
                 <div class="menu__item__expand menu__hidden"></div>
             </RouterLink>
         </ul>

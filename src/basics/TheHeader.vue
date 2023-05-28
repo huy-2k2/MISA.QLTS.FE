@@ -27,18 +27,20 @@
         </div>
         <div class="header__bottom">
             <MisaTextField v-model="textSearch" icon="icon-search" placeholder="Tìm kiếm tài sản"></MisaTextField>
-            <div class="header__bottom__select">
+            <div ref="fixedAssetCategoryCode" class="header__bottom__select">
                 <MisaCombobox fieldText="fixedAssetCategoryName" fieldValue="fixedAssetCategoryCode"
                     :isLoading="$store.state.fixedAssetCategorys.isLoading" :data="$store.state.fixedAssetCategorys.data"
                     label="" :isBoldPlaceHolder="true" :typeCombobox="$enum.typeCombobox.tableOption"
-                    icon="icon-header-filter" v-model="fixedAssetCategoryCode" placeholder="Loại tài sản">
+                    icon="icon-header-filter" v-model="fixedAssetCategoryCode" placeholder="Loại tài sản"
+                    @enter="handleEnterToTab('departmentCode')">
                 </MisaCombobox>
             </div>
-            <div class="header__bottom__select">
+            <div ref="departmentCode" class="header__bottom__select">
                 <MisaCombobox fieldText="departmentName" fieldValue="departmentCode" label=""
                     :isLoading="$store.state.departments.isLoading" :data="$store.state.departments.data"
                     :isBoldPlaceHolder="true" :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter"
-                    v-model="departmentCode" placeholder="Bộ phận sử dụng">
+                    v-model="departmentCode" placeholder="Bộ phận sử dụng"
+                    @enter="handleEnterToTab('fixedAssetCategoryCode')">
                 </MisaCombobox>
             </div>
             <div class="header__bottom__right">
@@ -53,7 +55,7 @@
             </div>
         </div>
         <ThePopup :isShow="isShowPopup" @close="isShowPopup = false">
-            <TheForm @clickClose="isShowPopup = false"></TheForm>
+            <TheForm :typeForm="$enum.typeForm.add" @clickClose="isShowPopup = false"></TheForm>
         </ThePopup>
     </div>
 </template>
@@ -89,15 +91,35 @@ export default {
         }
     },
     methods: {
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: các combobox khi ấn enter thì chuyển sang input tiếp theo, nên cần có sự kiện enter cho combobox
+         */
+        handleEnterToTab(nextInput) {
+            const input = this.$refs[nextInput].querySelector('input')
+            input.focus()
+            input.select()
+        },
+
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description:khi người dùng nhập vào các input lọc dữ liệu thì thực hiện lọc
+         */
         handleFilter() {
             clearTimeout(this.settTimeOutDebounce)
 
+            // lấy ra department và fixedAssetCategory từ mã code
             const department = this.$store.getters.departmentByCode(this.departmentCode)
             const fixedAssetCategory = this.$store.getters.fixedAssetCategoryByCode(this.fixedAssetCategoryCode)
 
             const departmentId = department?.departmentId
             const fixedAssetCategoryId = fixedAssetCategory?.fixedAssetCategoryId
 
+            // bebounce 500ms thì call api
             this.settTimeOutDebounce = setTimeout(() => {
                 this.$store.commit("setFilter", { departmentId, fixedAssetCategoryId, textSearch: this.textSearch })
                 this.$store.commit("setCurrentPage", 1)

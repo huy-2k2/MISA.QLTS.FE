@@ -35,16 +35,18 @@ export default {
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
-         * description: Computed chuyển đổi value của input về dạng tiền tệ vnđ, sử dụng global function toCurrency
+         * description: Computed chuyển đổi value của input về dạng tiền tệ vnđ, sử dụng global function convert.toCurrency
          */
         valueCurrenCy() {
+            if (!this.value)
+                return ''
             const parts = this.value.toString().split('.')
             // trường hợp người dùng nhập số nguyên
             if (parts.length == 1)
-                return this.toCurrency(parts[0])
+                return this.convert.toCurrency(parts[0])
             // trường hợp nhập số thập phân
             else
-                return this.toCurrency(parts[0]) + ',' + parts[1]
+                return this.convert.toCurrency(parts[0]) + ',' + parts[1]
         },
 
         value: {
@@ -65,7 +67,7 @@ export default {
          * description: Hàm nhận giá trị số thực và trả về số làm tròn 2 chữ số sau dấu phẩy
          */
         rounded(num) {
-            return !this.float ? num : this.toRounded(num)
+            return !this.float ? num : this.convert.toRounded(num)
         },
 
         /**

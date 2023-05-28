@@ -9,10 +9,4 @@ const typeCombobox = {
     listOption: 'listOption'
 }
 
-const languages = {
-    vietnam: 'vn',
-    english: 'eng',
-}
-
-
-export default {typeForm, typeCombobox, languages}
+export default {typeForm, typeCombobox}

@@ -33,7 +33,6 @@ export default {
 }
 
 .popup__content {
-    background-color: #fff;
     border-radius: var(--radius-border);
     position: relative;
 }

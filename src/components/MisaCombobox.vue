@@ -8,9 +8,9 @@
             <div v-if="icon" class="combobox__head__icon">
                 <div class="icon-header-filter"></div>
             </div>
-            <input :id="uuid" @focus="this.isShow = true" @keyup="handleControll" @keydown="handleTabOut"
-                @input="handleFilterOptions" v-model="item.value" :class="{ isBoldPlaceHolder }" class="combobox__input"
-                type="text" :placeholder="placeholder">
+            <input ref="input" :id="uuid" @focus="this.isShow = true" @keydown="handleControll" @input="handleFilterOptions"
+                v-model="item.value" :class="{ isBoldPlaceHolder }" class="combobox__input" type="text"
+                :placeholder="placeholder">
             <div class="combobox__icon">
                 <div class="icon-down"></div>
             </div>
@@ -20,9 +20,9 @@
                 <MyLoading v-show="isLoading"></MyLoading>
                 <div v-show="typeCombobox == $enum.typeCombobox.listOption" @click="handleSetItem(option)"
                     v-for="(option) in  filterOptions " :key="option.value" class="combobox__item"
-                    :class="{ active: option.value == item.value }">
+                    :class="{ active: option.value == value }">
                     <span class="combobox__item__text">{{ option.text }}</span>
-                    <span class="combobox__item__icon" v-show="option.value == item.value">
+                    <span class="combobox__item__icon" v-show="option.value == value">
                         <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
                             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                 stroke-width="32" d="M416 128L192 384l-96-96" />
@@ -35,7 +35,7 @@
                             <th>Mã</th>
                             <th>Tên</th>
                         </tr>
-                        <tr :class="{ active: option.value == item.value }" @click="handleSetItem(option)"
+                        <tr :class="{ active: option.value == value }" @click="handleSetItem(option)"
                             v-for="( option ) in  filterOptions " :key="option.value">
                             <td>{{ option.value }}</td>
                             <td>{{ option.text }}</td>
@@ -74,11 +74,12 @@ export default {
         * @param {Event} event 
         * author: Nguyen Quoc Huy
         * created at: 30/04/2023
-        * description: hàm xử lý sự kiện người dùng nhấn lên và xuống khi đang focus vào thẻ input, tự chọn option tương ứng
+        * description: hàm xử lý sự kiện người dùng nhấn lên và xuống khi đang focus vào thẻ input, tự chọn option tương ứng, hoạc ấn tab hoạc ender để đóng combobox
         */
         handleControll(event) {
             let index = this.filterOptions.findIndex(option => option.value == this.item.value)
             if (event.code == 'ArrowDown' || event.code == 'ArrowUp') {
+                event.preventDefault()
                 if (event.code == "ArrowDown") {
                     // xử lý khi index đạt max
                     index = (index + 1) % this.filterOptions.length
@@ -95,6 +96,14 @@ export default {
                     left: 0,
                     behavior: 'smooth'
                 })
+            }
+            // sự kiện người dùng ấn tab để chuyển sang input tiếp theo
+            if (event.code == 'Tab') {
+                this.handleBlur()
+            }
+            if (event.code == "Enter") {
+                this.$emit('enter')
+                this.handleBlur()
             }
         },
 
@@ -130,11 +139,17 @@ export default {
         * description: Hàm xử lý sự kiệc khi người dùng blur khỏi thẻ input
         */
         handleBlur() {
-            // set lại value cho thẻ input, trong trường hợp người dùng nhấn thêm vào ô input, value thẻ set về ""
+            // set lại value cho thẻ input, trong trường hợp người dùng nhấn thêm vào ô input, value là giá trị set gần nhất trước đó
             if (this.item.value) {
                 this.item = { ...this.options.find(item => item.value.toLowerCase() == this.item.value.toLowerCase()) }
-                if (!this.item.value)
-                    this.$emit('update:modelValue', '')
+                if (!this.item.value) {
+                    if (this.value) {
+                        this.$emit("update:modelValue", this.value)
+                        this.item.value = this.value
+                    }
+                    else
+                        this.$emit('update:modelValue', '')
+                }
                 else {
                     this.$emit('update:modelValue', this.item.value)
                 }
@@ -151,18 +166,6 @@ export default {
             this.$emit('blurcombobox')
             this.isShow = false
             this.filterOptions = this.options
-        },
-
-        /**
-         * author: Nguyen Quoc Huy
-         * @param {Event}
-         * created at: 30/04/2023
-         * description: hàm xử lý sự kiện người dùng tab ra khỏi thẻ input, gọi hàm xử lý blur phía trên
-         */
-        handleTabOut(event) {
-            if (event.code == 'Tab') {
-                this.handleBlur()
-            }
         },
 
         /**
@@ -441,5 +444,12 @@ export default {
 .combobox__input.isBoldPlaceHolder::placeholder {
     font-style: normal;
     color: #000;
+}
+
+.temp-input {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    position: absolute;
 }
 </style>

@@ -35,7 +35,9 @@ function toCurrentDate() {
  * description: Hàm làm tròn
  */
 function toRounded(num, decimal = 2) {
+    if(Number.isInteger(num))
+        return num
     return Number.parseFloat(num).toFixed(decimal)
 }
 
-export {toCurrency, toCurrentDate, toRounded}
+export default {toCurrency, toCurrentDate, toRounded}

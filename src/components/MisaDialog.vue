@@ -7,17 +7,17 @@
             <div class="dialog__title" v-html="text"></div>
         </div>
         <div ref="dialogButtons" class="dialog__control">
-            <MyButton @clickButton="$emit('click2')" v-if="quantity >= 2" :isSub="true" :text="button2"></MyButton>
-            <MyButton @clickButton="$emit('click3')" v-if="quantity >= 3" :isSub="true" :text="button3"></MyButton>
-            <MyButton @clickButton="$emit('click1')" :text="button1"></MyButton>
+            <MisaButton @clickButton="$emit('click2')" v-if="quantity >= 2" :isSub="true" :text="button2"></MisaButton>
+            <MisaButton @clickButton="$emit('click3')" v-if="quantity >= 3" :isSub="true" :text="button3"></MisaButton>
+            <MisaButton @clickButton="$emit('click1')" :text="button1"></MisaButton>
         </div>
     </div>
 </template>
 
 <script>
-import MyButton from './MisaButton.vue'
+import MisaButton from './MisaButton.vue'
 export default {
-    components: { MyButton },
+    components: { MisaButton },
     data() {
         return {
             handleKeyDown: null
@@ -71,11 +71,11 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .dialog {
     background-color: #fff;
     border-radius: var(--radius-border);
-    padding: 30px 20px;
+    padding: 20px;
     box-shadow: 0 4px 8px 0px rgba(0, 0, 0, 0.155);
     max-width: 600px;
     min-width: 400px;
