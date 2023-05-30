@@ -1,5 +1,5 @@
 <template>
-    <button :disabled="isDisable" :title="title" class="button-icon">
+    <button @click="$emit('clickButton')" :disabled="isDisable" :title="title" class="button-icon">
         <div class="button">
             <div :class="icon"></div>
         </div>

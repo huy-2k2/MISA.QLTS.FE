@@ -44,12 +44,13 @@
                 </MisaCombobox>
             </div>
             <div class="header__bottom__right">
-                <MisaButton @click="isShowPopup = true" text="Thêm tài sản" icon="icon-small-plus--white"></MisaButton>
+                <MisaButton @clickButton="isShowPopup = true" text="Thêm tài sản" icon="icon-small-plus--white">
+                </MisaButton>
                 <TheToolTip tooltip="Xuất khẩu">
-                    <MisaButtonIcon icon="icon-excel"></MisaButtonIcon>
+                    <MisaButtonIcon @clickButton="handleExportExcel" icon="icon-excel"></MisaButtonIcon>
                 </TheToolTip>
                 <TheToolTip tooltip="Xóa">
-                    <MisaButtonIcon :isDisable="isDiableRemove" @click="emitter.emit('multiDelete')" icon="icon-bin">
+                    <MisaButtonIcon :isDisable="isDiableRemove" @clickButton="emitter.emit('multiDelete')" icon="icon-bin">
                     </MisaButtonIcon>
                 </TheToolTip>
             </div>
@@ -69,6 +70,7 @@ import ThePopup from './ThePopup.vue'
 import TheForm from './TheForm.vue'
 import TheToolTip from './TheToolTip.vue'
 import MisaCombobox from '@/components/MisaCombobox.vue'
+import { getFixedAssetsExcelApi } from '@/js/api'
 export default {
     components: {
         MisaInputNumber,
@@ -125,7 +127,26 @@ export default {
                 this.$store.commit("setCurrentPage", 1)
                 this.$store.dispatch("getFilterFixedAsset")
             }, 500)
+        },
+
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: download file excel khi người dùng ấn vào nút xuất khẩu
+         */
+        handleExportExcel() {
+            getFixedAssetsExcelApi((data) => {
+                // khi có dữ liệu thì download file
+                const url = window.URL.createObjectURL(new Blob([data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'FixedAssets.xlsx');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link)
+            })
         }
+
     },
     watch: {
         departmentCode() {

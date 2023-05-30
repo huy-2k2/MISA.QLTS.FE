@@ -21,7 +21,9 @@ function getFilterFixedAssetApi(pageSize, currentPage, departmentId, fixedAssetC
     .then(({data}) => resolve(data))
     .catch(error => {
         defaultReject(error)
-        bonusReject(error)
+        if(bonusReject){
+            bonusReject(error)
+        }
     })   
 }
 
@@ -31,7 +33,9 @@ function getDepartmentsApi(resolve, bonusReject) {
     .then(({data}) => resolve(data))
     .catch(error => {
         defaultReject(error)
-        bonusReject(error)
+        if(bonusReject){
+            bonusReject(error)
+        }
     })
 }
 
@@ -41,7 +45,9 @@ function getFixedAssetCategorysApi(resolve, bonusReject) {
     .then(({data}) => resolve(data))
     .catch(error => {
         defaultReject(error)
-        bonusReject(error)
+        if(bonusReject){
+            bonusReject(error)
+        }
     })
 }
 
@@ -51,7 +57,9 @@ function getRecommendFixedAssetCodeApi(resolve, bonusReject) {
     .then(({data}) => resolve(data))
     .catch(error => {
         defaultReject(error)
-        bonusReject(error)
+        if(bonusReject){
+            bonusReject(error)
+        }
     })
 }
 
@@ -61,7 +69,9 @@ function editFixedAssetApi(fixedAssetId, body, resolve, bonusReject) {
     .then(({data}) => resolve(data))
     .catch(error => {
         defaultReject(error)
-        bonusReject(error)
+        if(bonusReject){
+            bonusReject(error)
+        }
     })
 }
 
@@ -71,7 +81,9 @@ function getFixedAssetApi(fixedAssetId, resolve, bonusReject) {
     .then(({data}) => resolve(data))
     .catch(error => {
         defaultReject(error)
-        bonusReject(error)
+        if(bonusReject){
+            bonusReject(error)
+        }
     })
 }
 
@@ -81,18 +93,22 @@ function postFixedAssetApi(body, resolve, bonusReject) {
     .then(({data}) => resolve(data))
     .catch(error => {
         defaultReject(error)
-        bonusReject(error)
+        if(bonusReject){
+            bonusReject(error)
+        }
     })
 }
 
 // kiểm tra mã tài sản bị trùng
 async function getFixedAssetCodeExistedApi(fixedAssetCode, fixedAssetId, bonusReject) {
     try {
-        let response = await axios.get(`${BASE_API_URL}fixedAsset/checkCodeExisted?fixedAssetCode=${fixedAssetCode}&fixedAssetId=${fixedAssetId}`)
+        let response = await axios.get(`${BASE_API_URL}fixedAsset/isCodeExisted?fixedAssetCode=${fixedAssetCode}&fixedAssetId=${fixedAssetId}`)
         return response.data
     } catch(error) {
         defaultReject(error)
-        bonusReject(error)
+        if(bonusReject){
+            bonusReject(error)
+        }
     }
 }
 
@@ -102,8 +118,22 @@ function deleteFixedAssetsApi(listFixedAsset, resolve, bonusReject) {
     .then(({data}) => resolve(data))
     .catch(error => {
         defaultReject(error)
-        bonusReject(error)
+        if(bonusReject){
+            bonusReject(error)
+        }
     })
 }
 
-export {getFilterFixedAssetApi, getDepartmentsApi, getFixedAssetCategorysApi, getRecommendFixedAssetCodeApi, editFixedAssetApi, getFixedAssetApi, postFixedAssetApi, getFixedAssetCodeExistedApi, deleteFixedAssetsApi}
+// xuất file excel
+function getFixedAssetsExcelApi(resolve, bonusReject) {
+    axios.get(`${BASE_API_URL}fixedAsset/excel`, {responseType: 'blob'})
+    .then(({data}) => resolve(data))
+    .catch(error => {
+        defaultReject(error)
+        if(bonusReject){
+            bonusReject(error)
+        }
+    })
+}
+
+export {getFilterFixedAssetApi, getDepartmentsApi, getFixedAssetCategorysApi, getRecommendFixedAssetCodeApi, editFixedAssetApi, getFixedAssetApi, postFixedAssetApi, getFixedAssetCodeExistedApi, deleteFixedAssetsApi, getFixedAssetsExcelApi}

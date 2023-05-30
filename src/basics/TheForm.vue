@@ -254,7 +254,7 @@ export default {
                 isGetFixedAssetSuccess = true
                 // nếu lấy mã code thành công thì load thành công
                 if (isGetAssetCodeSuccess) {
-                    this.isLoaded = true
+                    this.$nextTick(() => this.isLoaded = true)
                 }
             }, () => this.$emit('clickClose'))
         }
@@ -266,7 +266,7 @@ export default {
                 isGetAssetCodeSuccess = true
                 // nếu lấy tài sản thành công thì đánh dấu là load thành công
                 if (isGetFixedAssetSuccess) {
-                    this.isLoaded = true
+                    this.$nextTick(() => this.isLoaded = true)
                 }
             })
         }
@@ -786,7 +786,7 @@ export default {
         * description: tính giá trị của hao mòn năm khi tỷ lệ hao mòn thay đổi
         */
         depreciationRate() {
-            if (this.isLoaded || this.typeForm != this.$enum.typeForm.edit)
+            if (this.isLoaded)
                 this.form.depreciationAnnual = this.depreciationAnnualValue
         },
 
@@ -796,7 +796,7 @@ export default {
         * description: tính giá trị của hao mòn năm khi nguyên giá thay đổi
         */
         cost() {
-            if (this.isLoaded || this.typeForm != this.$enum.typeForm.edit) {
+            if (this.isLoaded) {
                 this.form.depreciationAnnual = this.depreciationAnnualValue
             }
         },
@@ -807,7 +807,7 @@ export default {
          * description: điền tên bộ phận sử dụng khi mã bộ phận sử dụng thay đổi
          */
         departmentCode() {
-            if (this.isLoaded || this.typeForm != this.$enum.typeForm.edit) {
+            if (this.isLoaded) {
                 this.form.departmentName = this.$store.getters.departmentByCode(this.departmentCode)?.departmentName || ""
             }
         },
@@ -818,7 +818,7 @@ export default {
          * description: điền tên mã loại tài sản, số năm sử dụng, tỷ lệ hoa mòn khi mã bộ phận sử dụng thay đổi
          */
         fixedAssetCategoryCode(newVal, oldVal) {
-            if (this.isLoaded || this.typeForm != this.$enum.typeForm.edit) {
+            if (this.isLoaded) {
                 if (newVal != oldVal) {
                     const fixedAssetCategory = this.$store.getters.fixedAssetCategoryByCode(newVal)
                     this.form.fixedAssetCategoryName = fixedAssetCategory?.fixedAssetCategoryName || ''
