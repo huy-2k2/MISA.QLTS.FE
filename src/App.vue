@@ -1,25 +1,25 @@
 <template>
   <div>
     <router-view></router-view>
-    <ToastMessage :text="toastMessageContent" :isShow="isShowToastMessage"></ToastMessage>
-    <ThePopup :isHasClose="false" :isShow="isShowDialog">
+    <ToastMessage :text="toastMessageContent" v-if="isShowToastMessage"></ToastMessage>
+    <MisaPopup :isHasClose="false" :isShow="isShowDialog">
       <MisaDialog :text="dialogMessage" @click1="isShowDialog = false" quantity="1" button1="Đóng">
       </MisaDialog>
-    </ThePopup>
+    </MisaPopup>
   </div>
 </template>
 
 <script>
 import ToastMessage from './components/MisaToastMessage.vue';
 import { RouterView } from 'vue-router';
-import ThePopup from './basics/ThePopup.vue';
+import MisaPopup from './components/MisaPopup.vue';
 import MisaDialog from './components/MisaDialog.vue';
 export default {
   name: 'App',
   components: {
     ToastMessage,
     RouterView,
-    ThePopup,
+    MisaPopup,
     MisaDialog
   },
   data() {
@@ -27,7 +27,7 @@ export default {
       isShowToastMessage: false,
       isShowDialog: false,
       dialogMessage: '',
-      toastMessageContent: ''
+      toastMessageContent: '',
     }
   },
 
@@ -39,8 +39,8 @@ export default {
   mounted() {
     // lắng nghe sự kiện hiện toast messaage
     this.emitter.on("setToastMessage", text => {
-      this.toastMessageContent = text;
       this.isShowToastMessage = true
+      this.toastMessageContent = text;
       setTimeout(() => this.isShowToastMessage = false, 3000)
     });
 
@@ -97,6 +97,10 @@ body {
   user-select: none;
 }
 
+.field__validate__label::first-letter {
+  text-transform: uppercase;
+}
+
 .label__required {
   color: rgb(227, 42, 42);
   margin-bottom: -5px;
@@ -114,10 +118,35 @@ body {
   border-radius: 8px;
 }
 
-.field__validate__error {
+.field__validate__error,
+.field__validate__error strong {
   font-size: 12px;
   font-weight: 400;
   font-family: mMisa Font;
   color: rgba(255, 0, 0, 0.673);
+  display: block;
+  margin-top: 2px;
+}
+
+.field__validate__error::first-letter {
+  text-transform: capitalize;
+}
+
+.field__validate__error strong {
+  display: inline;
+}
+
+.form__title {
+  font-size: 18px;
+  font-family: mMisa Font;
+}
+
+.upper_first::first-letter {
+  text-transform: capitalize;
+  display: block;
+}
+
+input {
+  color: #000;
 }
 </style>

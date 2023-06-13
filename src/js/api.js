@@ -1,16 +1,12 @@
 import { BASE_API_URL } from "@/config";
 import axios from "axios";
-import resource from "@/data/resource";
 import emitter from "@/common/emitter";
 
 // hàm xử lý lỗi mặc định
 function defaultReject(error) {
     const response = error.response.data
     // tạo message
-    const message = `
-        <p>${resource.errorMessage[response.errorCode]}</p>
-        <p>${response.userMessage}</p>
-    `
+    const message = response.userMessage + "."
     // bắn ra thông báo
     emitter.emit('setDialogMessage', message)
 }
@@ -114,7 +110,7 @@ async function getFixedAssetCodeExistedApi(fixedAssetCode, fixedAssetId, bonusRe
 
 // xóa tài sản
 function deleteFixedAssetsApi(listFixedAsset, resolve, bonusReject) {
-    axios.delete(`${BASE_API_URL}fixedAsset/multiple`, { data: listFixedAsset })
+    axios.delete(`${BASE_API_URL}fixedAsset`, { data: listFixedAsset })
     .then(({data}) => resolve(data))
     .catch(error => {
         defaultReject(error)
@@ -124,9 +120,9 @@ function deleteFixedAssetsApi(listFixedAsset, resolve, bonusReject) {
     })
 }
 
-// xuất file excel
-function getFixedAssetsExcelApi(resolve, bonusReject) {
-    axios.get(`${BASE_API_URL}fixedAsset/excel`, {responseType: 'blob'})
+// import dữ liệu từ file vào db
+function postImportFileApi(typeImport, formData, isSubmit, resolve, bonusReject) {
+    axios.post(`${BASE_API_URL}${typeImport}/file?isSubmit=${isSubmit}`, formData, {headers: { "Content-Type": "multipart/form-data",}})
     .then(({data}) => resolve(data))
     .catch(error => {
         defaultReject(error)
@@ -136,4 +132,4 @@ function getFixedAssetsExcelApi(resolve, bonusReject) {
     })
 }
 
-export {getFilterFixedAssetApi, getDepartmentsApi, getFixedAssetCategorysApi, getRecommendFixedAssetCodeApi, editFixedAssetApi, getFixedAssetApi, postFixedAssetApi, getFixedAssetCodeExistedApi, deleteFixedAssetsApi, getFixedAssetsExcelApi}
+export {getFilterFixedAssetApi, getDepartmentsApi, getFixedAssetCategorysApi, getRecommendFixedAssetCodeApi, editFixedAssetApi, getFixedAssetApi, postFixedAssetApi, getFixedAssetCodeExistedApi, deleteFixedAssetsApi, postImportFileApi}

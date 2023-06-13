@@ -1,10 +1,10 @@
 <template>
     <div class="header">
         <div class="header__top">
-            <h4 class="header__top__title">Danh sách tài sản</h4>
+            <h4 class="header__top__title">{{ resource.titlePage[1] }}</h4>
             <ul class="header__top__list">
                 <li class="header__top__item">
-                    Sở tài chính
+                    {{ resource.fixedAssetDetail.financialDepartment }}
                 </li>
                 <li class="header__top__item">
                     <MisaInputNumber></MisaInputNumber>
@@ -26,12 +26,16 @@
             </ul>
         </div>
         <div class="header__bottom">
-            <MisaTextField v-model="textSearch" icon="icon-search" placeholder="Tìm kiếm tài sản"></MisaTextField>
+            <div class="header__bottom__textfield">
+                <MisaTextField v-model="textSearch" icon="icon-search"
+                    :placeholder="resource.fixedAssetDetail.searchPlaceholder"></MisaTextField>
+            </div>
             <div ref="fixedAssetCategoryCode" class="header__bottom__select">
                 <MisaCombobox fieldText="fixedAssetCategoryName" fieldValue="fixedAssetCategoryCode"
                     :isLoading="$store.state.fixedAssetCategorys.isLoading" :data="$store.state.fixedAssetCategorys.data"
                     label="" :isBoldPlaceHolder="true" :typeCombobox="$enum.typeCombobox.tableOption"
-                    icon="icon-header-filter" v-model="fixedAssetCategoryCode" placeholder="Loại tài sản"
+                    icon="icon-header-filter" v-model="fixedAssetCategoryCode"
+                    :placeholder="resource.placeholder.combobox.format(resource.fieldName.fixedAssetCategory)"
                     @enter="handleEnterToTab('departmentCode')">
                 </MisaCombobox>
             </div>
@@ -39,25 +43,33 @@
                 <MisaCombobox fieldText="departmentName" fieldValue="departmentCode" label=""
                     :isLoading="$store.state.departments.isLoading" :data="$store.state.departments.data"
                     :isBoldPlaceHolder="true" :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter"
-                    v-model="departmentCode" placeholder="Bộ phận sử dụng"
+                    v-model="departmentCode"
+                    :placeholder="resource.placeholder.combobox.format(resource.fieldName.department)"
                     @enter="handleEnterToTab('fixedAssetCategoryCode')">
                 </MisaCombobox>
             </div>
             <div class="header__bottom__right">
-                <MisaButton @clickButton="isShowPopup = true" text="Thêm tài sản" icon="icon-small-plus--white">
+                <MisaButton @clickButton="isShowPopup = true" :text="resource.buttons.addFixedAsset"
+                    icon="icon-small-plus--white">
                 </MisaButton>
-                <TheToolTip tooltip="Xuất khẩu">
-                    <MisaButtonIcon @clickButton="handleExportExcel" icon="icon-excel"></MisaButtonIcon>
-                </TheToolTip>
-                <TheToolTip tooltip="Xóa">
+                <div class="header__bottom__right__file">
+                    <MisaToolTip :tooltip="resource.tooltip.import">
+                        <MisaButtonIcon @clickButton="isShowFormImport = true" icon="icon-excel">
+                        </MisaButtonIcon>
+                    </MisaToolTip>
+                </div>
+                <MisaToolTip :tooltip="resource.tooltip.delete">
                     <MisaButtonIcon :isDisable="isDiableRemove" @clickButton="emitter.emit('multiDelete')" icon="icon-bin">
                     </MisaButtonIcon>
-                </TheToolTip>
+                </MisaToolTip>
             </div>
         </div>
-        <ThePopup :isShow="isShowPopup" @close="isShowPopup = false">
+        <MisaPopup :isShow="isShowPopup" @close="isShowPopup = false">
             <TheForm :typeForm="$enum.typeForm.add" @clickClose="isShowPopup = false"></TheForm>
-        </ThePopup>
+        </MisaPopup>
+        <MisaPopup :isShow="isShowFormImport" @close="isShowFormImport = false">
+            <TheFormImport @clickClose="isShowFormImport = false"></TheFormImport>
+        </MisaPopup>
     </div>
 </template>
 
@@ -66,21 +78,22 @@ import MisaInputNumber from '../components/MisaInputNumber.vue'
 import MisaTextField from '../components/MisaTextField.vue'
 import MisaButton from '../components/MisaButton.vue'
 import MisaButtonIcon from '../components/MisaButtonIcon.vue'
-import ThePopup from './ThePopup.vue'
+import MisaPopup from '../components/MisaPopup.vue'
 import TheForm from './TheForm.vue'
-import TheToolTip from './TheToolTip.vue'
+import MisaToolTip from '../components/MisaToolTip.vue'
 import MisaCombobox from '@/components/MisaCombobox.vue'
-import { getFixedAssetsExcelApi } from '@/js/api'
+import TheFormImport from './TheFormImport.vue'
 export default {
     components: {
         MisaInputNumber,
         MisaTextField,
         MisaButton,
         MisaButtonIcon,
-        ThePopup,
+        MisaPopup,
         TheForm,
-        TheToolTip,
-        MisaCombobox
+        MisaToolTip,
+        MisaCombobox,
+        TheFormImport
     },
     data() {
         return {
@@ -89,11 +102,11 @@ export default {
             departmentCode: null,
             fixedAssetCategoryCode: null,
             textSearch: "",
-            settTimeOutDebounce: null
+            settTimeOutDebounce: null,
+            isShowFormImport: false,
         }
     },
     methods: {
-
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
@@ -129,23 +142,6 @@ export default {
             }, 500)
         },
 
-        /**
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
-         * description: download file excel khi người dùng ấn vào nút xuất khẩu
-         */
-        handleExportExcel() {
-            getFixedAssetsExcelApi((data) => {
-                // khi có dữ liệu thì download file
-                const url = window.URL.createObjectURL(new Blob([data]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'FixedAssets.xlsx');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link)
-            })
-        }
 
     },
     watch: {
@@ -242,6 +238,52 @@ export default {
 }
 
 .header__bottom__select {
-    min-width: 280px;
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.header__bottom__textfield {
+    width: 230px;
+    flex-shrink: 0;
+}
+
+.header__bottom__right__file {
+    position: relative;
+}
+
+.header__bottom__right__file__input {
+    position: absolute;
+    inset: 0;
+    background-color: red;
+    /* opacity: 0; */
+    cursor: pointer;
+    opacity: 0;
+}
+
+.header__bottom__right__file__input::-webkit-file-upload-button {
+    cursor: pointer;
+}
+
+@media screen and (max-width: 1280px) {
+    .header__bottom__select {
+        width: 204px;
+    }
+
+    .header__bottom__textfield {
+        width: 160px;
+    }
+
+    .header__bottom {
+        column-gap: 8px;
+        padding: 8px;
+    }
+
+    .header__bottom__right {
+        column-gap: 4px;
+    }
+
+    .header__bottom__textfield input {
+        width: 100px;
+    }
 }
 </style>

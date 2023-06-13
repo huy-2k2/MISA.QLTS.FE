@@ -1,5 +1,5 @@
 <template>
-    <div class="toastmessage" :class="{ active: isShow }">
+    <div class="toastmessage">
         <div class="toastmessage__icon">
             <div class="icon-checked-green"></div>
         </div>
@@ -29,16 +29,12 @@ export default {
     right: 20px;
     top: 20px;
     border-radius: var(--radius-border);
-    display: none;
     align-items: center;
     justify-content: start;
     column-gap: 20px;
     padding: 12px 0 12px 20px;
     box-shadow: 0 4px 8px 0px rgba(0, 0, 0, 0.223);
     min-width: 300px;
-}
-
-.toastmessage.active {
     display: flex;
     animation: fadein 3s forwards;
 }
@@ -58,8 +54,6 @@ export default {
         transform: translateX(0);
     }
 
-    100% {
-        visibility: hidden;
-    }
+    100% {}
 }
 </style>

@@ -1,4 +1,4 @@
-const BASE_API_URL = 'https://localhost:44348/api/'
+const BASE_API_URL = 'https://localhost:7000/api/'
 
 const DEFAULT_PAGE_SIZE = 20;
 

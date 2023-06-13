@@ -110,4 +110,9 @@ export default {
     border-color: #1aa4c8;
     color: #1aa4c8;
 }
+
+.dialog__control .button--sub:nth-child(2):hover {
+    background-color: #1aa5c81d;
+    border-color: 1aa4c8;
+}
 </style>

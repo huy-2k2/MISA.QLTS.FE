@@ -1,6 +1,6 @@
 <template>
     <MainLayout>
-        Tài sản hệ thống đường bộ
+        {{ resource.titlePage[2] }}
     </MainLayout>
 </template>
 

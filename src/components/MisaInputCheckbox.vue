@@ -1,6 +1,6 @@
 <template>
     <div class="input_checkbox">
-        <input @change="$emit('changeChecked', $event.target.checked)" :checked="checked" :id="uuid" type="checkbox">
+        <input v-model="value" @change="$emit('changInput')" :id="uuid" type="checkbox">
         <label :for="uuid">
             <div class="input_checkbox__icon">
                 <div class="icon-checkbox"></div>
@@ -17,10 +17,19 @@ export default {
             uuid: uuid.v1()
         }
     },
+    computed: {
+        value: {
+            get() {
+                return this.modelValue
+            },
+            set(value) {
+                this.$emit('update:modelValue', value)
+            }
+        }
+    },
     props: {
-        checked: {
-            type: Boolean,
-            default: false
+        modelValue: {
+
         }
     }
 
@@ -43,11 +52,16 @@ export default {
     width: 16px;
     height: 16px;
     border: 1px solid var(--color-border);
-    border-radius: 3px;
+    border-radius: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #fff;
+    cursor: pointer;
+}
+
+.input_checkbox label:hover {
+    box-shadow: 0 0 0 3px #1aa5c859;
 }
 
 .input_checkbox .input_checkbox__icon {
@@ -56,6 +70,11 @@ export default {
 
 .input_checkbox input:checked+label {
     border-color: transparent;
+    background-color: transparent;
+}
+
+.input_checkbox input:checked+label:hover {
+    border-color: #1aa5c859;
 }
 
 .input_checkbox input:checked+label .input_checkbox__icon {

@@ -8,7 +8,7 @@
             <div class="input_date__value"></div>
             <input v-model="value" class="input_date__input" type="date">
         </div>
-        <span class="field__validate__error">{{ error }}</span>
+        <span v-html="error" class="field__validate__error"></span>
     </div>
 </template>
 

@@ -20,8 +20,8 @@ function toCurrency(num) {
  * created at: 30/04/2023
  * description: Hàm lấy ngày hiện tại về định dạng yyyy-mm-dd
  */
-function toCurrentDate() {
-    return new Date().toISOString().substring(0, 10)
+function toCurrentDate(date = new Date().toISOString()) {
+    return date.substring(0, 10)
 }
 
 
@@ -35,9 +35,23 @@ function toCurrentDate() {
  * description: Hàm làm tròn
  */
 function toRounded(num, decimal = 2) {
-    if(Number.isInteger(num))
+    if(Number.isInteger(num))   
         return num
     return Number.parseFloat(num).toFixed(decimal)
 }
 
-export default {toCurrency, toCurrentDate, toRounded}
+
+ /**
+ * 
+ * @param {String} string
+ * author: Nguyen Quoc Huy
+ * created at: 30/04/2023
+ * description: Hàm viết hoa chữ cái đầu
+ */
+function toUpperFirstChar(string) {
+    if(string)
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    return ""
+}
+
+export default {toCurrency, toCurrentDate, toRounded, toUpperFirstChar}

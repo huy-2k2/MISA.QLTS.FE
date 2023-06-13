@@ -1,11 +1,13 @@
 const getters = {
     // lấy ra phòng ban từ id phòng ban
     departmentById: (state) => (departmentId) => {
-        return state.departments.data.find(department => department.departmentId == departmentId)
+        const result =  state.departments.data.find(department => department.departmentId == departmentId)
+        return result
     },
     // lấy ra loại tài sản từ id loại tài sản
     fixedAssetCategoryById: (state) => (fixedAssetCategoryId) => {
-        return state.fixedAssetCategorys.data.find(fixedAssetCategory => fixedAssetCategory.fixedAssetCategoryId == fixedAssetCategoryId)
+        const result = state.fixedAssetCategorys.data.find(fixedAssetCategory => fixedAssetCategory.fixedAssetCategoryId == fixedAssetCategoryId)
+        return result
     },
     // tính tổng số trang
     totalPage(state) {

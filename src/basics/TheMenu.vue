@@ -22,7 +22,7 @@
                 <div class="menu__item__text menu__hidden">{{ resource.menu[2] }}</div>
                 <div class="menu__item__expand menu__hidden"></div>
             </RouterLink>
-            <TheToolTip :tooltip="resource.menu[3].tooltip">
+            <MisaToolTip :tooltip="resource.menu[3].tooltip">
                 <RouterLink to="/asset-htdb" class="menu__item">
                     <div class="menu__item__icon">
                         <div class="menu-item-icon-3"></div>
@@ -30,7 +30,7 @@
                     <div class="menu__item__text menu__hidden">{{ resource.menu[3].text }}</div>
                     <div class="menu__item__expand menu__hidden"></div>
                 </RouterLink>
-            </TheToolTip>
+            </MisaToolTip>
             <RouterLink to="/tool" class="menu__item">
                 <div class="menu__item__icon">
                     <div class="menu-item-icon-4"></div>
@@ -73,14 +73,14 @@
 
 <script scoped>
 import { RouterLink } from 'vue-router';
-import TheToolTip from './TheToolTip.vue';
+import MisaToolTip from '../components/MisaToolTip.vue';
 export default {
     data() {
         return {
             isActive: true
         }
     },
-    components: { RouterLink, TheToolTip }
+    components: { RouterLink, MisaToolTip }
 }
 </script>
 

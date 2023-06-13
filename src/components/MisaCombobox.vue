@@ -1,7 +1,7 @@
 <template>
     <div class="combobox" :class="{ isError: error }">
         <label v-if="label" :for="uuid" class="label">
-            <span>{{ label }}</span>
+            <span class="field__validate__label">{{ label }}</span>
             <span v-if="required" class="label__required">*</span>
         </label>
         <div ref="comboboxHead" class="combobox__head">
@@ -31,11 +31,11 @@
                 </div>
                 <div v-show="typeCombobox == $enum.typeCombobox.tableOption && !isLoading" class="combobox__table">
                     <table>
-                        <tr>
-                            <th>Mã</th>
-                            <th>Tên</th>
+                        <tr ref="comboboxThead">
+                            <th>{{ resource.combobox[0][0] }}</th>
+                            <th>{{ resource.combobox[0][1] }}</th>
                         </tr>
-                        <tr :class="{ active: option.value == value }" @click="handleSetItem(option)"
+                        <tr class="combobox__tr" :class="{ active: option.value == value }" @click="handleSetItem(option)"
                             v-for="( option ) in  filterOptions " :key="option.value">
                             <td>{{ option.value }}</td>
                             <td>{{ option.text }}</td>
@@ -44,7 +44,7 @@
                 </div>
             </div>
         </div>
-        <span class="field__validate__error">{{ error }}</span>
+        <span v-html="error" class="field__validate__error"></span>
     </div>
 </template>
 
@@ -90,9 +90,18 @@ export default {
                     index = index <= 0 ? this.filterOptions.length - 1 : index - 1
                     this.handleSetItem({ ...this.filterOptions[index] }, true)
                 }
+
                 // Xử lý scroll khi người dùng nhấn lên hoạc xuống
+
+                // height của phần combobox body (không tính phần thead)
+                const heightBody = this.$refs.comboboxOptions.clientHeight - this.$refs.comboboxThead.clientHeight
+                // height của thead
+                const heightOfTr = this.$refs.comboboxOptions.querySelector('.combobox__tr').clientHeight
+                // số dòng hiển thị của combobox
+                const numberOfTr = Math.floor(heightBody / heightOfTr)
+
                 this.$refs.comboboxOptions.scroll({
-                    top: index < 7 ? 0 : (index - 7) * 30,
+                    top: index < (numberOfTr - 1) ? 0 : (index - (numberOfTr - 1)) * 30,
                     left: 0,
                     behavior: 'smooth'
                 })

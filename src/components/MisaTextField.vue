@@ -38,6 +38,7 @@ export default {
 
 <style scoped>
 .textfield {
+    width: 100%;
     height: 36px;
     display: flex;
     align-items: center;
@@ -56,7 +57,9 @@ export default {
 .textfield__icon {
     width: 24px;
     height: 24px;
+    flex-shrink: 0;
     display: grid;
+    flex-grow: 1;
     place-items: center;
 }
 
@@ -65,15 +68,17 @@ export default {
     background-color: transparent;
     outline: none;
     flex-grow: 1;
-    width: 120px;
-}
-
-.textfield__input {
     font-size: 14px;
 }
 
 .textfield__input::placeholder {
     font-style: italic;
     font-size: 13px;
+}
+
+@media screen and (max-width: 1280px) {
+    .textfield__input {
+        width: 100px;
+    }
 }
 </style>

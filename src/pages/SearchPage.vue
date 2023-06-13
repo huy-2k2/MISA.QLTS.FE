@@ -1,6 +1,6 @@
 <template>
     <MainLayout>
-        Tra cứu
+        {{ resource.titlePage[5] }}
     </MainLayout>
 </template>
 

@@ -11,6 +11,7 @@
 import MainLayout from '../layouts/MainLayout.vue'
 import TheTable from '../basics/TheTable.vue'
 import TheHeader from '@/basics/TheHeader.vue';
+import { DEFAULT_PAGE_SIZE } from '@/config';
 
 export default {
     components: {
@@ -30,6 +31,17 @@ export default {
         this.$store.dispatch("getFilterFixedAsset")
         // this.$store.dispatch('resetState')
         // this.$store.dispatch('getAssets')
+    },
+
+    /**
+     * author: Nguyen Quoc Huy
+     * created at: 30/05/2023
+     * description: reset dữ liệu trang
+     */
+    unmounted() {
+        this.$store.commit('setPageSize', DEFAULT_PAGE_SIZE)
+        this.$store.commit('setCurrentPage', 1)
+        this.$store.commit('setFilter', {})
     }
 }
 </script>

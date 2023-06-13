@@ -2,7 +2,9 @@
     <div v-if="isShow" class="popup">
         <div class="popup__content">
             <div v-if="isHasClose" class="popup__close">
-                <div @click="$emit('close')" class="icon-close"></div>
+                <TheToolTip :tooltip="resource.tooltip.close">
+                    <div @click="$emit('close')" class="icon-close"></div>
+                </TheToolTip>
             </div>
             <slot></slot>
         </div>
@@ -10,6 +12,8 @@
 </template>
 
 <script>
+import TheToolTip from './MisaToolTip.vue';
+
 export default {
     props: {
         isShow: Boolean,
@@ -18,6 +22,7 @@ export default {
             default: true
         }
     },
+    components: { TheToolTip }
 }
 </script>
 
@@ -28,7 +33,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.274);
+    background-color: rgba(0, 0, 0, 0.1);
     z-index: 100;
 }
 

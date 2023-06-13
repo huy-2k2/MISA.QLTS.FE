@@ -15,6 +15,9 @@ import TheMenu from '../basics/TheMenu.vue'
 export default {
     components: {
         TheMenu,
+    },
+    mounted() {
+        console.log(123);
     }
 }
 </script>
@@ -45,5 +48,12 @@ export default {
     padding: 0 16px;
     background-color: #f4f7ff;
     max-width: 100%;
+}
+
+@media screen and (max-width: 1280px) {
+    .body {
+        padding: 0 8px;
+        height: calc(100vh - 110px);
+    }
 }
 </style>

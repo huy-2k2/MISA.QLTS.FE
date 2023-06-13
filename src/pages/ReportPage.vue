@@ -1,6 +1,6 @@
 <template>
     <MainLayout>
-        Báo cáo
+        {{ resource.titlePage[6] }}
     </MainLayout>
 </template>
 

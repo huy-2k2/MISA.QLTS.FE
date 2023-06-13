@@ -55,16 +55,23 @@ export default {
 }
 
 .button:focus {
-    border: 2px solid #61dbf985 !important;
     outline: none;
+    box-shadow: 0 0 1px 2px #33c3eb57;
 }
 
 .button.button--sub {
     color: #000;
     background-color: #fff;
+    border: 1px solid #aaa;
 }
 
 .button:hover {
-    opacity: 0.6;
+    background-color: #097998;
+}
+
+.button.button--sub:hover {
+    background-color: #1aa4c8;
+    border-color: transparent;
+    color: #fff;
 }
 </style>

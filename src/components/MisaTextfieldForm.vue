@@ -6,7 +6,7 @@
         </label>
         <input @blur="$emit('blur')" :disabled="disable" :placeholder="placeholder" v-model="value"
             class="textfield_form__input" type="text" :id="uuid">
-        <span class="field__validate__error">{{ error }}</span>
+        <span v-html="error" class="field__validate__error"></span>
     </div>
 </template>
 

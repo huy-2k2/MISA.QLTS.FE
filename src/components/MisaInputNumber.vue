@@ -1,6 +1,6 @@
 <template>
     <div class="input_number">
-        <p class="input_number__title">Năm</p>
+        <p class="input_number__title">{{ resource.fixedAssetDetail.year }}</p>
         <input class="input_number__input" type="text" value="2021">
         <div class="input_number__control">
             <div class="input_number__up">
@@ -14,6 +14,7 @@
 </template>
 
 <script>
+
 export default {
 
 }

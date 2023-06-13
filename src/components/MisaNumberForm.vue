@@ -6,8 +6,8 @@
         </label>
         <div class="number_form__textfield">
             <label :for="uuid" class="number_form__input">
-                <input @keydown.up.prevent="increase" @keydown.down.prevent="decrease" ref="input" :disabled="disable"
-                    @blur="$emit('blur')" v-model="value" :id="uuid" type="text">
+                <input :placeholder="placeholder" @keydown.up.prevent="increase" @keydown.down.prevent="decrease"
+                    ref="input" :disabled="disable" @blur="$emit('blur')" v-model="value" :id="uuid" type="text">
                 <span class="number_form__value">{{ currrency ? valueCurrenCy : value }}</span>
             </label>
             <label :for="uuid" v-if="icon" class="number_form__control">
@@ -19,7 +19,7 @@
                 </span>
             </label>
         </div>
-        <span class="field__validate__error">{{ error }}</span>
+        <span v-html="error" class="field__validate__error"></span>
     </div>
 </template>
 
@@ -170,6 +170,10 @@ export default {
         float: {
             type: Boolean,
             default: false
+        },
+        placeholder: {
+            type: String,
+            default: ""
         }
     }
 }
@@ -207,7 +211,8 @@ export default {
 .number_form__input {
     height: 100%;
     width: 100%;
-    padding-right: 20px;
+    padding-right: 19px;
+    margin-right: 1px;
     position: relative;
 }
 
@@ -219,7 +224,15 @@ export default {
     outline: none;
     background-color: transparent;
     color: transparent;
-    caret-color: black;
+    caret-color: #000;
+    position: relative;
+}
+
+.number_form__input input::placeholder {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 12px;
 }
 
 .number_form__input input::-webkit-inner-spin-button,

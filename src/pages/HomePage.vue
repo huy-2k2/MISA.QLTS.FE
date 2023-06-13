@@ -1,6 +1,6 @@
 <template>
     <MainLayout>
-        Tổng quan tài sản
+        {{ resource.titlePage[0] }}
     </MainLayout>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
     <MainLayout>
-        Công cụ
+        {{ resource.titlePage[3] }}
     </MainLayout>
 </template>
 
