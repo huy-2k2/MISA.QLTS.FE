@@ -7,7 +7,7 @@
             <div class="dialog__title" v-html="text"></div>
         </div>
         <div ref="dialogButtons" class="dialog__control">
-            <MisaButton @clickButton="$emit('click2')" v-if="quantity >= 2" :isSub="true" :text="button2"></MisaButton>
+            <MisaButton @clickButton="$emit('click2')" v-if="quantity >= 2" :isOutline="true" :text="button2"></MisaButton>
             <MisaButton @clickButton="$emit('click3')" v-if="quantity >= 3" :isSub="true" :text="button3"></MisaButton>
             <MisaButton @clickButton="$emit('click1')" :text="button1"></MisaButton>
         </div>
@@ -52,7 +52,7 @@ export default {
     */
     mounted() {
         const buttons = [...this.$refs.dialogButtons.querySelectorAll('button')]
-        buttons[0].focus()
+        buttons[buttons.length - 1].focus()
         this.handleKeyDown = (event) => {
             if (event.key == 'Tab') {
                 let index = buttons.findIndex(button => button == this.$refs.dialogButtons.querySelector('button:focus'))
@@ -92,6 +92,14 @@ export default {
     font-weight: 400;
     font-size: 13px;
     line-height: 1.6;
+    flex-grow: 1;
+    overflow-wrap: normal;
+    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.dialog__title * {
+    color: red;
 }
 
 .dialog__control {
@@ -100,19 +108,5 @@ export default {
     justify-content: flex-end;
     column-gap: 8px;
     margin-top: 20px;
-}
-
-.dialog__control .button--sub {
-    border: 1px solid var(--color-border);
-}
-
-.dialog__control .button--sub:nth-child(2) {
-    border-color: #1aa4c8;
-    color: #1aa4c8;
-}
-
-.dialog__control .button--sub:nth-child(2):hover {
-    background-color: #1aa5c81d;
-    border-color: 1aa4c8;
 }
 </style>

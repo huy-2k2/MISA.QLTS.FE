@@ -4,7 +4,10 @@ import emitter from "@/common/emitter";
 
 // hàm xử lý lỗi mặc định
 function defaultReject(error) {
-    const response = error.response.data
+    console.log(error);
+    const response = error?.response?.data
+    if(!response)
+        return
     // tạo message
     const message = response.userMessage + "."
     // bắn ra thông báo
@@ -24,27 +27,30 @@ function getFilterFixedAssetApi(pageSize, currentPage, departmentId, fixedAssetC
 }
 
 // lấy tất cả phòng ban
-function getDepartmentsApi(resolve, bonusReject) {
-    axios.get(`${BASE_API_URL}department`)
-    .then(({data}) => resolve(data))
-    .catch(error => {
+async function getDepartmentsApi(bonusReject) {
+    try {
+        const response =  await axios.get(`${BASE_API_URL}department`)
+        return response.data
+    } catch(error) {
         defaultReject(error)
-        if(bonusReject){
+        if(bonusReject) {
             bonusReject(error)
         }
-    })
+    } 
 }
 
 // lấy tất cả loại tài sản
-function getFixedAssetCategorysApi(resolve, bonusReject) {
-    axios.get(`${BASE_API_URL}fixedAssetCategory`)
-    .then(({data}) => resolve(data))
-    .catch(error => {
+async function getFixedAssetCategorysApi(bonusReject) {
+    try {
+        const response = await axios.get(`${BASE_API_URL}fixedAssetCategory`)
+        return response.data
+    } catch(error) {
         defaultReject(error)
         if(bonusReject){
             bonusReject(error)
         }
-    })
+    }
+   
 }
 
 // lấy gợi ý mã tài sản

@@ -25,7 +25,7 @@ const resource = {
         interger: "{0} phải là số nguyên",
         positive: "{0} phải lớn hơn 0",
         realNumber: "{0} hải là số thực",
-        equal: "{0} phải bằng {1}"
+        equal: "{0} phải bằng {1}",
     },
     // menu
     menu: ["MISA QLTS", "Tổng quan", "Tài sản", {text: "Tài sản HT-ĐB", tooltip: "Tài sản hệ thống đường bộ"}, "Công cụ dụng cụ", "Danh mục", "Tra cứu", "Báo cáo"],

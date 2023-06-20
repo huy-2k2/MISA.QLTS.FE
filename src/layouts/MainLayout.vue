@@ -4,21 +4,20 @@
             <TheMenu></TheMenu>
         </div>
         <div class="app__right">
-            <slot></slot>
+            <RouterView></RouterView>
         </div>
     </div>
 </template>
 
 <script>
 import TheMenu from '../basics/TheMenu.vue'
+import { RouterView } from 'vue-router';
 
 export default {
     components: {
         TheMenu,
+        RouterView
     },
-    mounted() {
-        console.log(123);
-    }
 }
 </script>
 

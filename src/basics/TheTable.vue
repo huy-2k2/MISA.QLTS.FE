@@ -98,7 +98,6 @@
                         <div class="table__footer__left">
                             <p class="table__footer__total"
                                 v-html="resource.fixedAssetDetail.totalFixedAsset.format(`<strong>${convert.toCurrency($store.state.totalAsset)}</strong>`)">
-
                             </p>
                             <div class="table__footer__select">
                                 <div ref="selectPageSizeHead" @click="isShowPageSizeList = !isShowPageSizeList"
@@ -470,7 +469,7 @@ export default {
             isShowRemove: false,
             isCheckedAll: false,
             tbody: [],
-            pageSizeList: [10, 20, 50, 100],
+            pageSizeList: [10, 20, 50, 300],
             isShowPageSizeList: false,
             isShowContextMenu: false,
             eventCloseExtentComponent: null,
@@ -502,12 +501,16 @@ export default {
     watch: {
         fixedAssets(newVal) {
             // lấy thêm các thông tin về department, fixed asset category
-            this.tbody = newVal.map(fixedAsset => ({
-                isChecked: false,
-                ...fixedAsset,
-                fixedAssetCategoryName: this.$store.getters.fixedAssetCategoryById(fixedAsset.fixedAssetCategoryId)?.fixedAssetCategoryName,
-                departmentName: this.$store.getters.departmentById(fixedAsset.departmentId)?.departmentName
-            }))
+            this.tbody = newVal.map(fixedAsset => {
+                const fixedAssetCategory = this.$store.getters.fixedAssetCategoryById(fixedAsset.fixedAssetCategoryId)
+                const department = this.$store.getters.departmentById(fixedAsset.departmentId)
+                return {
+                    isChecked: false,
+                    ...fixedAsset,
+                    fixedAssetCategoryName: fixedAssetCategory?.fixedAssetCategoryName,
+                    departmentName: department?.departmentName
+                }
+            })
             this.isCheckedAll = false
             this.indexActive = -1
         },
@@ -661,8 +664,8 @@ export default {
     visibility: visible;
 }
 
-.table td:not(:nth-child(3))::first-letter,
-.table td:not(:nth-child(3)) *::first-letter {
+.table td::first-letter,
+.table td *::first-letter {
     text-transform: capitalize;
 }
 
@@ -672,7 +675,7 @@ export default {
 
 .table td:nth-child(n+3):nth-child(-n+6) .text {
     display: block;
-    max-width: 200px;
+    max-width: 300px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -729,12 +732,13 @@ export default {
 
 .table__footer__left {
     position: absolute;
+    height: 100%;
     display: flex;
     align-items: center;
-    column-gap: 24px;
+    top: 0;
     left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
+    column-gap: 16px;
+    height: 100%;
     width: max-content;
 }
 

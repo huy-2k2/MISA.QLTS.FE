@@ -15,53 +15,62 @@
 
 <script>
 export default {
+    components: {
+    },
 
     data() {
         return {
             sizeDisplay: 2
         }
     },
-    /**
-    * author: Nguyen Quoc Huy
-    * created at: 30/04/2023
-    * description: tạo ra array để render số trang
-    */
     computed: {
+        /**
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: tạo ra array để render số trang
+        * @return dữ liệu phân trang
+        */
         paginates() {
-            let result = []
-            for (let i = 1; i <= this.totalPage; i++)
-                if (i <= this.sizeDisplay || i > this.totalPage - this.sizeDisplay || i == this.currentPage)
+            const result = []
+            for (let i = 1; i <= this.totalPage; i++) {
+                if (i <= this.sizeDisplay || i > this.totalPage - this.sizeDisplay || i == this.currentPage) {
                     result.push(i)
-            if (result.length == 2 * this.sizeDisplay + 1) {
-                // trong trường hợp 1 2...
-                if (this.currentPage > this.sizeDisplay + 1) {
-                    result.splice(this.sizeDisplay, 0, '...')
                 }
-                // trong trường hợp ...89
-                if (this.currentPage < this.totalPage - this.sizeDisplay) {
-                    result.splice(result.length - this.sizeDisplay, 0, '...')
-                }
-            } else if (result.length == 2 * this.sizeDisplay) {
-                // trong trường hợp 1 2 ... 8 9
-                if (this.totalPage > 2 * this.sizeDisplay)
-                    result.splice(this.sizeDisplay, 0, '...')
             }
-            return result
+
+            if (this.currentPage > this.sizeDisplay + 1) {
+                result.splice(this.sizeDisplay, 0, '...')
+            }
+
+            if (this.currentPage < this.totalPage - this.sizeDisplay) {
+                result.splice(result.length - this.sizeDisplay, 0, '...')
+            }
+
+            return result;
         },
+
+        /**
+         * @return giá trị page hiện tại
+         */
         currentPage() {
             return this.$store.state.currentPage
         },
+
+        /**
+         * @return tổng số page
+         */
         totalPage() {
             return this.$store.getters.totalPage
         }
     },
 
-    /**
-    * author: Nguyen Quoc Huy
-    * created at: 30/04/2023
-    * description: set page
-    */
     methods: {
+        /**
+        * author: Nguyen Quoc Huy
+        * created at: 30/04/2023
+        * description: set page
+        * @param {Number} page giá trị page muốn set 
+        */
         setPage(page) {
             if (Number.isInteger(page) && page >= 1 && page <= this.$store.getters.totalPage) {
                 this.$store.commit('setCurrentPage', page)

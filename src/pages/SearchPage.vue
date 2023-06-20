@@ -1,15 +1,11 @@
 <template>
-    <MainLayout>
-        {{ resource.titlePage[5] }}
-    </MainLayout>
+    {{ resource.titlePage[5] }}
 </template>
 
 <script>
-import MainLayout from '../layouts/MainLayout.vue'
 
 export default {
     components: {
-        MainLayout,
     }
 }
 </script>

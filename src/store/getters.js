@@ -7,7 +7,10 @@ const getters = {
     // lấy ra loại tài sản từ id loại tài sản
     fixedAssetCategoryById: (state) => (fixedAssetCategoryId) => {
         const result = state.fixedAssetCategorys.data.find(fixedAssetCategory => fixedAssetCategory.fixedAssetCategoryId == fixedAssetCategoryId)
-        return result
+        if(!result) {
+            console.log(state.fixedAssetCategorys.data);
+        }
+        return result;
     },
     // tính tổng số trang
     totalPage(state) {

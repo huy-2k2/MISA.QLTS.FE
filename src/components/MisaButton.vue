@@ -1,6 +1,6 @@
 <template>
     <button :disabled="disabled" @click="$emit('clickButton')" :type="type" class="button"
-        :class="{ ['button--sub']: isSub }">
+        :class="{ ['button--sub']: isSub, ['button--outline']: isOutline }">
         <div class="button__icon">
             <div :class="icon"></div>
         </div>
@@ -19,6 +19,10 @@ export default {
             default: ''
         },
         isSub: {
+            type: Boolean,
+            default: false
+        },
+        isOutline: {
             type: Boolean,
             default: false
         },
@@ -47,31 +51,44 @@ export default {
     border-radius: 3px;
     border: none;
     user-select: none;
+    border: 1px solid transparent;
 }
 
 .button:disabled {
-    opacity: 0.5;
+    opacity: 0.4 !important;
     cursor: not-allowed;
 }
 
+.button:hover {
+    background-color: #107f9b;
+}
+
 .button:focus {
+    box-shadow: 0 0 0 2px #86d4e899;
     outline: none;
-    box-shadow: 0 0 1px 2px #33c3eb57;
+}
+
+.button.button--outline {
+    background-color: #fff;
+    color: #000;
+    border-color: var(--color-border);
+}
+
+.button.button--outline:hover,
+.button.button--outline:focus {
+    background-color: #1aa4c8;
+    color: #fff;
+    border-color: transparent;
+
 }
 
 .button.button--sub {
-    color: #000;
     background-color: #fff;
-    border: 1px solid #aaa;
+    color: #1aa4c8;
+    border-color: #1aa4c8;
 }
 
-.button:hover {
-    background-color: #097998;
-}
-
-.button.button--sub:hover {
-    background-color: #1aa4c8;
-    border-color: transparent;
-    color: #fff;
+.button.button.button--sub:hover {
+    background-color: #107f9b36;
 }
 </style>

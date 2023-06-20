@@ -97,7 +97,7 @@
             </div>
         </div>
         <div class="form__bottom">
-            <MisaButton type="button" @click="handleCancel" :isSub="true" :text="resource.buttons.cancel"></MisaButton>
+            <MisaButton type="button" @click="handleCancel" :isOutline="true" :text="resource.buttons.cancel"></MisaButton>
             <div ref="submitButton">
                 <MisaToolTip tooltip="Ctrl S">
                     <MisaButton :disabled="isSubmiting" @click="handleSubmit" :text="resource.buttons.save">
@@ -113,8 +113,8 @@
         </MisaPopup>
         <MisaPopup :isShow="isShowStore" :isHasClose="false">
             <MisaDialog :text="this.resource.dialogMessages.cancelSaveChanged" @click1="handleSubmit"
-                @click3="$emit('clickClose')" @click2="handleCloseStore" quantity="3" :button1="this.resource.buttons.save"
-                :button2="this.resource.buttons.notConfirm" :button3="this.resource.buttons.discard">
+                @click2="$emit('clickClose')" @click3="handleCloseStore" quantity="3" :button1="this.resource.buttons.save"
+                :button3="this.resource.buttons.noSave" :button2="this.resource.buttons.discard">
             </MisaDialog>
         </MisaPopup>
         <MisaPopup :isShow="isShowError" :isHasClose="false">
@@ -319,12 +319,13 @@ export default {
                 }
             }
             // kiểm tra nếu người dùng ấn ctrl s thì submimt form
-            else if (event.key == 's') {
+            else if (event.key == 's' || event.key == 'S') {
                 if (event.ctrlKey) {
                     this.handleSubmit()
                     event.preventDefault()
                 }
             }
+            console.log(event)
         }
         window.addEventListener('keydown', this.eventKeyDown)
     },
@@ -517,7 +518,7 @@ export default {
        * description: xử lý sự kiện khi người dùng ấn nút lưu
        */
         async handleSubmit() {
-            console.log(132)
+            console.log('submit form add');
             this.isSubmiting = true
             this.isShowStore = false
             this.errors = {}
@@ -562,11 +563,13 @@ export default {
             // gán lại cho error là rỗng
             this.errors.fixedAssetCode = ''
             // kiểm tra fixedAssetCode khác rỗng
-            if (!this.validateRequired(this.form.fixedAssetCode))
+            if (!this.validateRequired(this.form.fixedAssetCode)) {
                 this.errors.fixedAssetCode = this.resource.validateMessage.required.format(fieldName)
+            }
             // kiểm tra fixedAssetCode có length hợp lệ
-            else if (!this.validateLength(this.form.fixedAssetCode, length.min, length.max))
+            else if (!this.validateLength(this.form.fixedAssetCode, length.min, length.max)) {
                 this.errors.fixedAssetCode = this.resource.validateMessage.length.format(fieldName, length.min, length.max)
+            }
             else {
                 // nếu là form thêm thêm hoạc nhân bản thì id không cần thiết
                 const id = this.typeForm == this.$enum.typeForm.edit ? this.fixedAssetId : ''
@@ -588,11 +591,13 @@ export default {
             // gán lại error là rỗng
             this.errors.fixedAssetName = ''
             // kiểm tra  fixedAssetName khác rỗng
-            if (!this.validateRequired(this.form.fixedAssetName))
+            if (!this.validateRequired(this.form.fixedAssetName)) {
                 this.errors.fixedAssetName = this.resource.validateMessage.required.format(fieldName)
+            }
             // kiểm tra fixedAssetName có length hợp lệ
-            else if (!this.validateLength(this.form.fixedAssetName, length.min, length.max))
+            else if (!this.validateLength(this.form.fixedAssetName, length.min, length.max)) {
                 this.errors.fixedAssetName = this.resource.validateMessage.length.format(fieldName, length.min, length.max)
+            }
         },
 
         /**
@@ -605,8 +610,9 @@ export default {
             // gán lại error là rỗng
             this.errors.departmentCode = ''
             // kiểm tra  departmentcode khác rỗng
-            if (!this.validateRequired(this.form.departmentCode))
+            if (!this.validateRequired(this.form.departmentCode)) {
                 this.errors.departmentCode = this.resource.validateMessage.required.format(fieldName)
+            }
         },
 
         /**
@@ -619,8 +625,9 @@ export default {
             // gán lại error là rỗng
             this.errors.fixedAssetCategoryCode = ''
             // kiểm tra  fixedAssetCategorycode khác rỗng
-            if (!this.validateRequired(this.form.fixedAssetCategoryCode))
+            if (!this.validateRequired(this.form.fixedAssetCategoryCode)) {
                 this.errors.fixedAssetCategoryCode = this.resource.validateMessage.required.format(fieldName)
+            }
         },
 
         /**
@@ -633,8 +640,9 @@ export default {
             // gán lại error là rỗng
             this.errors.purchaseDate = ''
             // kiểm tra purchaseDate khác rỗng
-            if (!this.validateRequired(this.form.purchaseDate))
+            if (!this.validateRequired(this.form.purchaseDate)) {
                 this.errors.purchaseDate = this.resource.validateMessage.required.format(fieldName)
+            }
         },
 
         /**
@@ -647,11 +655,13 @@ export default {
             // gán lại error là rỗng
             this.errors.useDate = ''
             // kiểm tra usedate khác rỗng
-            if (!this.validateRequired(this.form.useDate))
+            if (!this.validateRequired(this.form.useDate)) {
                 this.errors.useDate = this.resource.validateMessage.required.format(fieldName)
+            }
             // kiểm tra use date phải sau purchaseDate
-            else if (this.form.purchaseDate && this.form.useDate && this.form.purchaseDate > this.form.useDate)
+            else if (this.form.purchaseDate && this.form.useDate && this.form.purchaseDate > this.form.useDate) {
                 this.errors.useDate = this.resource.validateMessage.higher.format(fieldName, this.resource.fieldName.purchaseDate)
+            }
         },
 
         /**
@@ -664,11 +674,13 @@ export default {
             // gán lại error là rỗng
             this.errors.quantity = ''
             // kiểm tra quantity khác rỗng
-            if (!this.validateRequired(this.form.quantity))
+            if (!this.validateRequired(this.form.quantity)) {
                 this.errors.quantity = this.resource.validateMessage.required.format(fieldName)
+            }
             // kiểm tra quantity phải là số nguyên
-            else if (!this.validateInterger(this.form.quantity))
+            else if (!this.validateInterger(this.form.quantity)) {
                 this.errors.quantity = this.resource.validateMessage.interger.format(fieldName)
+            }
         },
 
         /**
@@ -681,11 +693,13 @@ export default {
             // gán lại error là rỗng
             this.errors.cost = ''
             //kiểm tra cost khác rỗng
-            if (!this.validateRequired(this.form.cost))
+            if (!this.validateRequired(this.form.cost)) {
                 this.errors.cost = this.resource.validateMessage.required.format(fieldName)
+            }
             // kiểm tra cost là số nguyên
-            // else if (!this.validateInterger(this.form.cost))
-            //     this.errors.cost = 'Cần nhập nguyên giá là số nguyên'
+            else if (!this.validateInterger(this.form.cost)) {
+                this.errors.cost = this.resource.validateMessage.interger.format(fieldName)
+            }
         },
 
         /**
@@ -694,17 +708,25 @@ export default {
         * description: hàm validate trường lifeTime
         */
         validateLifeTime() {
+            const max = 10000
             const fieldName = this.resource.fieldName.lifeTime
             // gán lại error là rỗng
             this.errors.lifeTime = ''
             // kiểm tra lifeTime khác rỗng
-            if (!this.validateRequired(this.form.lifeTime))
+            if (!this.validateRequired(this.form.lifeTime)) {
                 this.errors.lifeTime = this.resource.validateMessage.required.format(fieldName)
+            }
             // kiểm tra lifeTime là số nguyên
-            else if (!this.validateInterger(this.form.lifeTime))
+            else if (!this.validateInterger(this.form.lifeTime)) {
                 this.errors.lifeTime = this.resource.validateMessage.interger.format(fieldName)
-            else if (this.form.lifeTime <= 0)
+            }
+            // kiểm tra là số dương
+            else if (this.form.lifeTime <= 0) {
                 this.errors.lifeTime = this.resource.validateMessage.positive.format(fieldName)
+            }
+            else if (this.form.lifeTime > max) {
+                this.errors.lifeTime = this.resource.validateMessage.lower.format(fieldName, max)
+            }
         },
 
         /**
@@ -714,18 +736,27 @@ export default {
          */
         validateDepreciationRate() {
             const fieldName = this.resource.fieldName.depreciationRate
+            const max = 100
             // gán lại error là rỗng
             this.errors.depreciationRate = ''
             // kiểm tra lifeTime khác rỗng
-            if (!this.validateRequired(this.form.depreciationRate))
+            if (!this.validateRequired(this.form.depreciationRate)) {
                 this.errors.depreciationRate = this.resource.validateMessage.required.format(fieldName)
+            }
             // kiểm tra lifeTime là số thực
-            else if (!this.validateRealNumber(this.form.depreciationRate))
+            else if (!this.validateRealNumber(this.form.depreciationRate)) {
                 this.errors.depreciationRate = this.resource.validateMessage.realNumber.format(fieldName)
+            }
+            else if (this.form.depreciationRate <= 0) {
+                this.errors.depreciationRate = this.resource.validateMessage.positive.format(fieldName)
+            }
+            else if (this.form.depreciationRate > max) {
+                this.errors.depreciationRate = this.resource.validateMessage.lower.format(fieldName, max)
+            }
+
             // kiểm tra Tỷ lệ hao mòn phải bằng 1/Số năm sử dụng
-            else if (this.form.lifeTime > 0) {
-                if (this.convert.toRounded(1 / this.form.lifeTime * 100) != this.convert.toRounded(this.form.depreciationRate))
-                    this.errors.depreciationRate = this.resource.validateMessage.equal.format(fieldName, `1 / ${this.resource.fieldName.lifeTime}`)
+            else if (this.convert.toRounded(1 / this.form.lifeTime * 100) != this.convert.toRounded(this.form.depreciationRate)) {
+                this.errors.depreciationRate = this.resource.validateMessage.equal.format(fieldName, `1 / ${this.resource.fieldName.lifeTime}`)
             }
         },
 
@@ -765,8 +796,10 @@ export default {
          */
         validateRequired(value) {
             // nếu là string thì value.trim() khác rỗng, các giá trị khác thì phải null hoạc undefined
-            if (typeof value == 'string' && !value.trim() || value == null || value == undefined)
+            if (typeof value == 'string' && !value.trim() || value == null || value == undefined) {
                 return false
+            }
+
             return true
         },
 
@@ -821,8 +854,9 @@ export default {
         * description: tính giá trị của hao mòn năm khi tỷ lệ hao mòn thay đổi
         */
         depreciationRate() {
-            if (this.isLoaded)
+            if (this.isLoaded) {
                 this.form.depreciationAnnual = this.depreciationAnnualValue
+            }
         },
 
         /**

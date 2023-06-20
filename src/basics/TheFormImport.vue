@@ -61,7 +61,7 @@
             </div>
         </div>
         <div class="import__bottom">
-            <MisaButton :isSub="true" @clickButton="$emit('clickClose')" :text="resource.buttons.cancel"></MisaButton>
+            <MisaButton :isOutline="true" @clickButton="$emit('clickClose')" :text="resource.buttons.cancel"></MisaButton>
             <MisaButton :disabled="!isPassed" type="submit" :text="resource.buttons.import">
             </MisaButton>
         </div>
@@ -158,6 +158,10 @@ export default {
                     this.isLoading = false
                     if (this.typeImport == "fixedAsset")
                         this.$store.dispatch("getFilterFixedAsset")
+                    else if (this.typeImport == 'fixedAssetCategory')
+                        this.$store.dispatch('getFixedAssetCategorys')
+                    else if (this.typeImport == 'department')
+                        this.$store.dispatch('getDepartments')
                     this.handleReset()
                 },
                 // trường hợp không thành công
@@ -217,7 +221,7 @@ export default {
 .table_wrapper {
     margin-top: 20px;
     max-height: 500px;
-    max-width: 1350px;
+    max-width: calc(100vw - 100px);
     overflow: auto;
     position: relative;
     border-left: 1px solid var(--color-border);
@@ -238,6 +242,7 @@ export default {
     background-color: #fff;
     border-spacing: 0;
     min-width: max-content;
+
 }
 
 .type_2,

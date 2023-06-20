@@ -7,15 +7,18 @@ const actions = {
      * created by: NQ Huy(25/05/2023)
      * @param {*} store 
      */
-    getDepartments(store) {
+    async getDepartments(store) {
         store.commit('setLoading', {isLoading: true, field: "departments"})
-        getDepartmentsApi((data) => {
+            const data = await getDepartmentsApi(() =>   store.commit('setLoading', {isLoading: false, field: "departments"})) 
+            if(!data)
+                return
             store.commit('setData', {
                 data: data.map(department => ({departmentId: department.department_id, departmentCode: department.department_code, departmentName: department.department_name})) ,
                 field: 'departments'
             })
             store.commit('setLoading', {isLoading: false, field: "departments"})
-        })
+  
+        
     },
 
     /**
@@ -23,15 +26,17 @@ const actions = {
      * create by: NQ Huy(25/05/2023)
      * @param {*} store 
      */
-    getFixedAssetCategorys(store) {
+    async getFixedAssetCategorys(store) {
         store.commit('setLoading', {isLoading: true, field: "fixedAssetCategorys"})
-        getFixedAssetCategorysApi((data) => {
-            store.commit('setData', {
-                data: data.map(fixedAssetCategory => ({fixedAssetCategoryId: fixedAssetCategory.fixed_asset_category_id, fixedAssetCategoryCode: fixedAssetCategory.fixed_asset_category_code, fixedAssetCategoryName: fixedAssetCategory.fixed_asset_category_name, lifeTime: fixedAssetCategory.life_time, depreciationRate: fixedAssetCategory.depreciation_rate})),
-                field: 'fixedAssetCategorys'
-            })
-            store.commit('setLoading', {isLoading: false, field: "fixedAssetCategorys"})
+        const data = await getFixedAssetCategorysApi(() =>   store.commit('setLoading', {isLoading: false, field: "fixedAssetCategorys"}))
+        if(!data)
+            return
+        store.commit('setData', {
+            data: data.map(fixedAssetCategory => ({fixedAssetCategoryId: fixedAssetCategory.fixed_asset_category_id, fixedAssetCategoryCode: fixedAssetCategory.fixed_asset_category_code, fixedAssetCategoryName: fixedAssetCategory.fixed_asset_category_name, lifeTime: fixedAssetCategory.life_time, depreciationRate: fixedAssetCategory.depreciation_rate})),
+            field: 'fixedAssetCategorys'
         })
+        store.commit('setLoading', {isLoading: false, field: "fixedAssetCategorys"})
+        
     },
 
     /**
@@ -66,7 +71,7 @@ const actions = {
             store.commit("setTotalQuantity", data.totalQuantity)
             store.commit("setTotalCost", data.totalCost)
             store.commit('setLoading', {isLoading: false, field: "fixedAssets"})
-        })
+        }, () => store.commit('setLoading', {isLoading: false, field: "fixedAssets"}))
     }
    
 }
