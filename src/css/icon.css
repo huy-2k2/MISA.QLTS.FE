@@ -83,6 +83,12 @@
 	height: 5px;
 }
 
+.icon-down-thin {
+	background: url('../assets/icon/qlts-icon.svg') no-repeat -158px -293px;
+	width: 11px;
+	height: 7px;
+}
+
 .icon-header-bell {
     background: url('../assets/icon/qlts-icon.svg') no-repeat -332px -109px;
 	width: 16px;
@@ -185,6 +191,17 @@
 	height: 16px;
 }
 
+.icon-eye {
+	background: url('../assets/icon/qlts-icon.svg') no-repeat -22px -377px;
+	width: 20px;
+	height: 15px;
+}
+
+.icon-eye-close {
+	background: url('../assets/icon/qlts-icon.svg') no-repeat -66px -375px;
+	width: 21px;
+	height: 17px;
+}
 
 /* icon for advance file */
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MainLayout></MainLayout>
+    <RouterView></RouterView>
     <ToastMessage :text="toastMessageContent" v-if="isShowToastMessage"></ToastMessage>
     <MisaPopup :isHasClose="false" :isShow="isShowDialog">
       <MisaDialog :text="dialogMessage" @click1="isShowDialog = false" quantity="1" button1="Đóng">
@@ -13,14 +13,15 @@
 import ToastMessage from './components/MisaToastMessage.vue';
 import MisaPopup from './components/MisaPopup.vue';
 import MisaDialog from './components/MisaDialog.vue';
-import MainLayout from './layouts/MainLayout.vue';
+// import MainLayout from './layouts/MainLayout.vue';
+import { RouterView } from 'vue-router';
 export default {
   name: 'App',
   components: {
     ToastMessage,
     MisaPopup,
     MisaDialog,
-    MainLayout
+    RouterView
   },
   data() {
     return {
@@ -152,5 +153,9 @@ body {
 
 input {
   color: #000;
+}
+
+a {
+  text-decoration: none;
 }
 </style>

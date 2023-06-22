@@ -4,7 +4,7 @@
             <TheMenu></TheMenu>
         </div>
         <div class="app__right">
-            <RouterView></RouterView>
+            <RouterView v-if="isLogined"></RouterView>
         </div>
     </div>
 </template>
@@ -12,11 +12,33 @@
 <script>
 import TheMenu from '../basics/TheMenu.vue'
 import { RouterView } from 'vue-router';
+import axios from 'axios';
+import { BASE_API_URL } from '@/config';
 
 export default {
     components: {
         TheMenu,
         RouterView
+    },
+    data() {
+        return {
+            isLogined: false
+        }
+    },
+
+    /**
+    * author: Nguyen Quoc Huy
+    * created at: 21/06/2023
+    * description: kiểm tra xem người dùng đã đăng nhập chưa, nếu chưa thì quay về trang đăng nhập
+    */
+    async beforeCreate() {
+        try {
+            const token = localStorage.getItem('bearer_token')
+            await axios.get(`${BASE_API_URL}auth`, { headers: { Authorization: `Bearer ${token}` } })
+            this.isLogined = true
+        } catch {
+            this.$router.push('/login')
+        }
     },
 }
 </script>

@@ -15,6 +15,7 @@ app.config.globalProperties.convert = convert
 app.config.globalProperties.emitter = emitter;
 app.config.globalProperties.$enum = _enum;
 app.config.globalProperties.resource = resource;
+app.config.globalProperties.$router = router;
 app.use(store)
 app.use(router)
 app.mount('#app')

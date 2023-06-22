@@ -19,9 +19,14 @@
                     <div class="icon-header-help"></div>
                 </li>
                 <li class="header__top__item">
-                    <div class="icon-header-user"></div>
-                    <div class="icon-down">
+                    <div ref="userHead" @click="isShowOptionUser = !isShowOptionUser" class="header__top__item__head">
+                        <div class="icon-header-user"></div>
+                        <div class="icon-down">
+                        </div>
                     </div>
+                    <ul ref="userOption" v-show="isShowOptionUser" class="header__top__item__options">
+                        <li @click="handleLogout">{{ resource.buttons.logout }}</li>
+                    </ul>
                 </li>
             </ul>
         </div>
@@ -104,9 +109,22 @@ export default {
             textSearch: "",
             settTimeOutDebounce: null,
             isShowFormImport: false,
+            isShowOptionUser: false,
+            eventWindowClick: null
         }
     },
     methods: {
+        /**
+        * author: Nguyen Quoc Huy
+        * created at: 21/06/2023
+        * description: xử lý sự kiện đăng xuất
+        */
+        handleLogout() {
+            // xóa token trên local storage
+            localStorage.setItem('bearer_token', '')
+            this.$router.push('/login')
+        },
+
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
@@ -165,8 +183,28 @@ export default {
             this.isDiableRemove = isDisable
         })
     },
-    unmounted() {
 
+    /**
+     * author: Nguyen Quoc Huy
+     * created at: 20/06/2023
+     * description: lắng nghe các sự kiện của window
+     */
+    beforeMount() {
+        this.eventWindowClick = (e) => {
+            if (!(this.$refs.userHead?.contains(e.target) || this.$refs.userOption?.contains(e.target))) {
+                this.isShowOptionUser = false
+            }
+        }
+        window.addEventListener('click', this.eventWindowClick)
+    },
+
+    /**
+     * author: Nguyen Quoc Huy
+     * created at: 20/06/2023
+     * description: hủy bỏ lắng nghe sự kiện
+     */
+    beforeUnmount() {
+        window.removeEventListener('click', this.eventWindowClick)
     }
 }
 </script>
@@ -200,6 +238,42 @@ export default {
     font-family: mMisa Font;
 }
 
+.header__top__item {
+    cursor: pointer;
+    position: relative;
+}
+
+.header__top__item__head {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    column-gap: 4px;
+}
+
+.header__top__item__options {
+    position: absolute;
+    font-size: 13px;
+    font-weight: 400;
+    font-family: mMisa Font;
+    list-style: none;
+    top: calc(100% + 8px);
+    right: 0;
+    border-radius: var(--radius-border);
+    overflow: hidden;
+    box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.351);
+    background-color: #fff;
+    z-index: 100;
+}
+
+.header__top__item__options li {
+    white-space: nowrap;
+    padding: 8px 16px;
+}
+
+.header__top__item__options li:hover {
+    background-color: rgba(67, 195, 227, 0.668);
+}
+
 .header__top__item:nth-child(2) {
     height: 30px;
     display: flex;
@@ -207,12 +281,6 @@ export default {
     background-color: rgba(26, 164, 200, .2);
     border-radius: var(--radius-border);
     margin-right: 6px;
-}
-
-.header__top__item:last-child {
-    display: flex;
-    align-items: center;
-    column-gap: 8px;
 }
 
 .header__bottom {

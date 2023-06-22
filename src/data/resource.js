@@ -6,14 +6,17 @@ const resource = {
         [myEnum.typeForm.duplicate]: "Nhân bản dữ liệu thành công.",
         [myEnum.typeForm.add]: "Lưu dữ liệu thành công.",
         [myEnum.typeForm.edit]: "thay đổi dữ liệu thành công.",
-        import: "Nhập khẩu dữ liệu thành công"
+        import: "Nhập khẩu dữ liệu thành công",
+        credentialInvalid: "Tên đăng nhập hoạc mật khẩu không đúng",
+        credentialRequired: "Vui lòng nhập đầy đủ thông tin đăng nhập"
     },
     // tiêu đề của form
     formTitle: {
         [myEnum.typeForm.duplicate]: "Nhân bản tài sản",
         [myEnum.typeForm.add]: "Thêm tài sản",
         [myEnum.typeForm.edit]: "Sửa tài sản",
-        import: "Nhập khẩu tài sản"
+        import: "Nhập khẩu tài sản",
+        login: "Đăng nhập để làm việc với <strong>MISA QLTS</strong>"
     },
     // thông báo lỗi khi validate dữ liệu
     validateMessage: {
@@ -26,6 +29,7 @@ const resource = {
         positive: "{0} phải lớn hơn 0",
         realNumber: "{0} hải là số thực",
         equal: "{0} phải bằng {1}",
+       
     },
     // menu
     menu: ["MISA QLTS", "Tổng quan", "Tài sản", {text: "Tài sản HT-ĐB", tooltip: "Tài sản hệ thống đường bộ"}, "Công cụ dụng cụ", "Danh mục", "Tra cứu", "Báo cáo"],
@@ -59,10 +63,12 @@ const resource = {
         purchaseDate: 'ngày mua',
         useDate: 'ngày bắt đầu sử dụng',
         fileImport: 'file nhập khẩu',
-        dataType: 'loại dữ liệu'
+        dataType: 'loại dữ liệu',
+        username: "Username, email hoạc số điện thoại",
+        password: "Mật khẩu"
     },
     // text ở các button
-    buttons: {addFixedAsset: 'Thêm tài sản', cancel: 'Hủy', save: 'Lưu', close: 'Đóng', noSave: 'Không lưu', discard: 'Hủy bỏ', notConfirm: 'Không', delete: 'Xóa', import: "Nhập khẩu"},
+    buttons: {addFixedAsset: 'Thêm tài sản', cancel: 'Hủy', save: 'Lưu', close: 'Đóng', noSave: 'Không lưu', discard: 'Hủy bỏ', notConfirm: 'Không', delete: 'Xóa', import: "Nhập khẩu", login: "Đăng nhập", logout: 'Đăng xuất', forgotPassword: "Quên mật khẩu?"},
     // thống báo ở dialog khi thêm sửa xóa
     dialogMessages: {
         cancelSave: 'Bạn có muốn hủy bỏ khai báo tài sản này?',

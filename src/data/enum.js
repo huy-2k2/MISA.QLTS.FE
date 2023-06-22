@@ -16,7 +16,9 @@ const errorCode = {
     businessValidate: 3,
     notFound: 4,
     invalidData: 5,
-    fileInvalid: 6
+    fileInvalid: 6,
+    credentialNotValid: 7,
+    InvalidToken: 8
 }
 
 const dataType = {
