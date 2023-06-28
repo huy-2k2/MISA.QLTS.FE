@@ -116,7 +116,6 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #b0b0b0;
   background-clip: padding-box;
-  border-radius: 8px;
 }
 
 .field__validate__error,
@@ -157,5 +156,17 @@ input {
 
 a {
   text-decoration: none;
+}
+
+
+td *,
+th * {
+  display: block;
+}
+
+
+th *::first-letter,
+td *::first-letter {
+  text-transform: capitalize !important;
 }
 </style>

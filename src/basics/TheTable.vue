@@ -76,13 +76,12 @@
                     <td class="no_action">
                         <div class="table__function">
                             <MisaToolTip :tooltip="resource.tooltip.edit">
-                                <button @click="handleEdit(tr)" class="table__function__button table__function__edit">
+                                <button @click="handleEdit(tr)" class="table__function__button">
                                     <div class="icon-pen-edit"></div>
                                 </button>
                             </MisaToolTip>
                             <MisaToolTip :tooltip="resource.tooltip.duplicate">
-                                <button @click="handleDuplicate(tr)"
-                                    class="table__function__button table__function__detail">
+                                <button @click="handleDuplicate(tr)" class="table__function__button">
                                     <div class="icon-file-detail"></div>
                                 </button>
                             </MisaToolTip>
@@ -110,13 +109,15 @@
                                 </div>
                                 <div ref="selectPageSizeOption" v-show="isShowPageSizeList"
                                     class="table__footer__select__options">
-                                    <div @click="handleSetPageSize(pageSize)" v-for=" pageSize  in  pageSizeList "
+                                    <div @click="handleSetPageSize(pageSize)" v-for=" pageSize in  pageSizeList "
                                         :key="pageSize" class="table__footer__select__option">
                                         {{ pageSize }}
                                     </div>
                                 </div>
                             </div>
-                            <MisaPaginate></MisaPaginate>
+                            <MisaPaginate :totalData="$store.state.totalAsset" :pageSize="$store.state.pageSize"
+                                :currentPage="$store.state.currentPage" @setPage="setPage">
+                            </MisaPaginate>
                         </div>
                     </td>
                     <td></td>
@@ -168,6 +169,11 @@ import MisaLoading from '@/components/MisaLoading.vue'
 import { deleteFixedAssetsApi } from '@/js/api'
 export default {
     methods: {
+        setPage(page) {
+            this.$store.commit('setCurrentPage', page)
+            this.$store.dispatch("getFilterFixedAsset")
+        },
+
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/05/2023
@@ -492,6 +498,9 @@ export default {
             return this.tbody.reduce((total, tr) => total + (tr.isChecked ? 1 : 0), 0)
         }
     },
+
+
+
 
     /**
     * author: Nguyen Quoc Huy

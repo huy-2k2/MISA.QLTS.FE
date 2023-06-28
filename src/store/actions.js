@@ -49,7 +49,7 @@ const actions = {
         // lấy dữ liệu tài rồi lưu vào state
         getFilterFixedAssetApi(store.state.pageSize, store.state.currentPage, store.state.filterDepartmentId || "", store.state.filterFixedAssetCategoryId || "", store.state.filterTextSearch || "", (data) => {
             store.commit("setData", {
-                data: data.listFixedAsset.map(fixedAsset => ( {
+                data: data.list_fixed_asset.map(fixedAsset => ( {
                     fixedAssetId: fixedAsset.fixed_asset_id,
                     fixedAssetCode: fixedAsset.fixed_asset_code,
                     fixedAssetName: fixedAsset.fixed_asset_name,
@@ -67,9 +67,9 @@ const actions = {
                 field: "fixedAssets"
             })
             // lưu các dữ liệu về tổng tài sản, tổng số lượng, tổng nguyên giá
-            store.commit("setTotalAsset", data.totalAsset)
-            store.commit("setTotalQuantity", data.totalQuantity)
-            store.commit("setTotalCost", data.totalCost)
+            store.commit("setTotalAsset", data.total_asset)
+            store.commit("setTotalQuantity", data.total_quantity)
+            store.commit("setTotalCost", data.total_cost)
             store.commit('setLoading', {isLoading: false, field: "fixedAssets"})
         }, () => store.commit('setLoading', {isLoading: false, field: "fixedAssets"}))
     }

@@ -3,7 +3,9 @@
         <div class="textfield__icon">
             <div :class="icon"></div>
         </div>
-        <input :id="uuid" v-model="value" class="textfield__input" type="text" :placeholder="placeholder">
+        <div class="textfield__input">
+            <input :id="uuid" v-model="value" type="text" :placeholder="placeholder">
+        </div>
     </label>
 </template>
 
@@ -38,16 +40,16 @@ export default {
 
 <style scoped>
 .textfield {
-    width: 100%;
-    height: 36px;
     display: flex;
     align-items: center;
     justify-content: start;
-    column-gap: 8px;
-    border: 1px solid var(--color-border);
     padding: 0 12px;
+    height: 36px;
+    column-gap: 12px;
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-border);
     background-color: #fff;
+    width: 100%;
 }
 
 .textfield:has(input:focus) {
@@ -55,30 +57,23 @@ export default {
 }
 
 .textfield__icon {
-    width: 24px;
-    height: 24px;
     flex-shrink: 0;
-    display: grid;
-    flex-grow: 1;
-    place-items: center;
 }
 
 .textfield__input {
-    border: none;
-    background-color: transparent;
-    outline: none;
+    display: flex;
+    align-items: center;
     flex-grow: 1;
-    font-size: 14px;
 }
 
-.textfield__input::placeholder {
+.textfield__input input {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    width: 100%;
+}
+
+.textfield__input input::placeholder {
     font-style: italic;
-    font-size: 13px;
-}
-
-@media screen and (max-width: 1280px) {
-    .textfield__input {
-        width: 100px;
-    }
 }
 </style>

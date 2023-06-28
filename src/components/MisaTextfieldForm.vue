@@ -1,6 +1,6 @@
 <template>
     <div :class="{ isError: error }" class="textfield_form">
-        <label class="label" :for="uuid">
+        <label v-if="label" class="label" :for="uuid">
             <span class="field__validate__label">{{ label }}</span>
             <span v-if="required" class="label__required">*</span>
         </label>

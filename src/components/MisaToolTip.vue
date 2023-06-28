@@ -1,6 +1,6 @@
 <template>
     <div class="ms-tooltip" @mousemove="onMouseOver" @mouseleave="onMouseLeave" @mousedown="onMouseDown">
-        <span v-html="tooltip" v-show="tooltip" class="ms-tooltip__text" ref="tooltip" :class="isShow ? 'show' : ''">
+        <span v-show="tooltip != ''" v-html="tooltip" class="ms-tooltip__text" ref="tooltip" :class="isShow ? 'show' : ''">
 
         </span>
         <slot></slot>
@@ -11,7 +11,8 @@
 export default {
     props: {
         tooltip: {
-            type: String,
+            type: [String, Number],
+            default: ''
         },
         top: {
             type: Number,

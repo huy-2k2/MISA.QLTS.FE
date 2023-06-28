@@ -50,19 +50,16 @@ export default {
         },
 
         /**
-         * @return giá trị page hiện tại
-         */
-        currentPage() {
-            return this.$store.state.currentPage
-        },
-
-        /**
-         * @return tổng số page
-         */
+       * author: Nguyen Quoc Huy
+       * created at: 30/04/2023
+       * description: tính tổng số trang
+       * @return tổng số trang
+       */
         totalPage() {
-            return this.$store.getters.totalPage
+            return Math.ceil(this.totalData / this.pageSize)
         }
     },
+
 
     methods: {
         /**
@@ -73,9 +70,20 @@ export default {
         */
         setPage(page) {
             if (Number.isInteger(page) && page >= 1 && page <= this.$store.getters.totalPage) {
-                this.$store.commit('setCurrentPage', page)
-                this.$store.dispatch("getFilterFixedAsset")
+                this.$emit('setPage', page)
+
             }
+        }
+    },
+    props: {
+        totalData: {
+            type: Number
+        },
+        currentPage: {
+            type: Number
+        },
+        pageSize: {
+            type: Number
         }
     }
 }

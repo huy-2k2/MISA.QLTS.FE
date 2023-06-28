@@ -18,7 +18,7 @@ import { BASE_API_URL } from '@/config';
 export default {
     components: {
         TheMenu,
-        RouterView
+        RouterView,
     },
     data() {
         return {
@@ -65,8 +65,8 @@ export default {
 }
 
 .body {
-    height: calc(100vh - 126px);
-    padding: 0 16px;
+    height: calc(100vh - 120px);
+    padding: 0 12px;
     background-color: #f4f7ff;
     max-width: 100%;
 }
@@ -74,7 +74,7 @@ export default {
 @media screen and (max-width: 1280px) {
     .body {
         padding: 0 8px;
-        height: calc(100vh - 110px);
+        height: calc(100vh - 98px);
     }
 }
 </style>

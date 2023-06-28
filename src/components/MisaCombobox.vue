@@ -9,8 +9,8 @@
                 <div class="icon-header-filter"></div>
             </div>
             <input ref="input" :id="uuid" @focus="this.isShow = true" @keydown="handleControll" @input="handleFilterOptions"
-                v-model="item.value" :class="{ isBoldPlaceHolder }" class="combobox__input" type="text"
-                :placeholder="placeholder">
+                v-model="item[isDisplayValue ? 'value' : 'text']" :class="{ isBoldPlaceHolder }" class="combobox__input"
+                type="text" :placeholder="placeholder">
             <div class="combobox__icon">
                 <div class="icon-down"></div>
             </div>
@@ -44,8 +44,8 @@
                 </div>
             </div>
         </div>
-        <span v-html="error" class="field__validate__error"></span>
     </div>
+    <span v-html="error" class="field__validate__error"></span>
 </template>
 
 <script>
@@ -53,6 +53,7 @@ import { uuid } from 'vue-uuid'
 import MyLoading from './MisaLoading.vue'
 export default {
     components: { MyLoading },
+    emits: ['enter', 'blurcombobox', 'update:modelValue'],
     data() {
         return {
             // lưu value của thẻ input, và value của item người dùng chọn
@@ -229,7 +230,7 @@ export default {
                 this.handleBlur()
             }
         }
-        window.addEventListener('click', this.eventWindowClick)
+        window.addEventListener('mousedown', this.eventWindowClick)
         // convert data sang options 
         this.convertDataToOptions()
     },
@@ -240,7 +241,7 @@ export default {
     * description: khi component unmounted thì bỏ lắng nghe sự kiện phía trên
     */
     beforeUnmount() {
-        window.removeEventListener('click', this.eventWindowClick)
+        window.removeEventListener('mousedown', this.eventWindowClick)
     },
     props: {
         icon: {
@@ -280,6 +281,10 @@ export default {
         isBoldPlaceHolder: {
             type: Boolean,
             default: false
+        },
+        isDisplayValue: {
+            type: Boolean,
+            default: true
         }
     },
 }
@@ -387,15 +392,11 @@ export default {
     border-radius: var(--radius-border);
     overflow: hidden;
     position: absolute;
-    top: 100%;
+    top: calc(100% + 10px);
     left: 0;
     min-width: 100%;
     z-index: 100;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.178);
-}
-
-.combobox.isError .combobox__options {
-    top: calc(100% - 18px);
 }
 
 .combobox__options.isLoading {

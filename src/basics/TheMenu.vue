@@ -24,7 +24,7 @@
                         </div>
                         <div class="menu__item__text menu__hidden">
                             <span>
-                                {{ resource.menu[2] }}
+                                {{ resource.menu[2].parent }}
                             </span>
                             <div class="menu__item__text__icon">
                                 <span class="icon-down-thin">
@@ -34,14 +34,15 @@
                     </div>
                 </RouterLink>
                 <div class="menu__child">
-                    <RouterLink class="menu__child__item menu__hidden" to="/write-asset">Ghi tăng</RouterLink>
-                    <li class="menu__child__item menu__hidden">Thay đổi thông tin</li>
-                    <li class="menu__child__item menu__hidden">Đánh giá lại</li>
-                    <li class="menu__child__item menu__hidden">Tính hao mòn</li>
-                    <li class="menu__child__item menu__hidden">Điều chuyển tài sản</li>
-                    <li class="menu__child__item menu__hidden">Ghi giảm</li>
-                    <li class="menu__child__item menu__hidden">Kiểm kê</li>
-                    <li class="menu__child__item menu__hidden">Khác</li>
+                    <RouterLink class="menu__child__item menu__hidden" to="/write-asset">{{ resource.menu[2].children[0] }}
+                    </RouterLink>
+                    <li class="menu__child__item menu__hidden">{{ resource.menu[2].children[1] }}</li>
+                    <li class="menu__child__item menu__hidden">{{ resource.menu[2].children[2] }}</li>
+                    <li class="menu__child__item menu__hidden">{{ resource.menu[2].children[3] }}</li>
+                    <li class="menu__child__item menu__hidden">{{ resource.menu[2].children[4] }}</li>
+                    <li class="menu__child__item menu__hidden">{{ resource.menu[2].children[5] }}</li>
+                    <li class="menu__child__item menu__hidden">{{ resource.menu[2].children[6] }}</li>
+                    <li class="menu__child__item menu__hidden">{{ resource.menu[2].children[7] }}</li>
                 </div>
             </div>
             <MisaToolTip :tooltip="resource.menu[3].tooltip">

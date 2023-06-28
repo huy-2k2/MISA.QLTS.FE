@@ -1,8 +1,8 @@
 <template>
-    <div :class="{ isError: error }" class="input_date field__validate" types="required date">
+    <div :class="{ isError: error }" class="input_date field__validate" types="date">
         <label class="label" for="">
             <span class="field__validate__label">{{ label }}</span>
-            <span class="label__required">*</span>
+            <span v-if="required" class="label__required">*</span>
         </label>
         <div class="input_date__textfield">
             <div class="input_date__value"></div>
@@ -18,7 +18,7 @@ export default {
         label: String,
         required: {
             type: Boolean,
-            default: false
+            default: true
         },
         modelValue: {
 
@@ -49,6 +49,10 @@ export default {
     border-radius: var(--radius-border);
     overflow: hidden;
     position: relative;
+}
+
+.input_date__textfield:has(input:focus) {
+    border-color: #1aa4c8;
 }
 
 .input_date.isError .input_date__textfield {
