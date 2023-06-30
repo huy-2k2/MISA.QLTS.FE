@@ -1,4 +1,4 @@
-import {getFilterFixedAssetApi, getDepartmentsApi, getFixedAssetCategorysApi} from '../js/api'
+import {getFilterFixedAssetApi, getDepartmentsApi, getFixedAssetCategorysApi} from '../../js/api'
 
 
 const actions = {

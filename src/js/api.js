@@ -169,4 +169,33 @@ function getTokenApi(email, passoword, resolve, reject) {
     .catch(error => reject(error))
 } 
 
-export {getFilterFixedAssetApi, getDepartmentsApi, getFixedAssetCategorysApi, getRecommendFixedAssetCodeApi, editFixedAssetApi, getFixedAssetApi, postFixedAssetApi, getFixedAssetCodeExistedApi, deleteFixedAssetsApi, postImportFileApi, getIsLoginedApi, getTokenApi}
+function getFilterLicensesApi(pageSize, currentPage, textSearch, resolve, reject) {
+    axios.get(`${BASE_API_URL}license/filter?pageSize=${pageSize}&currentPage=${currentPage}&textSearch=${textSearch}`)
+    .then(({data}) => resolve(data))
+    .catch(error => {
+        if(reject)
+            reject(error)
+    })
+}
+
+function getRecommendLicenseCodeApi(resolve, reject) {
+    axios.get(`${BASE_API_URL}license/recommendLicenseCode`)
+    .then(({data}) => resolve(data))
+    .catch(error => {
+        if(reject)
+            reject(error)
+    })
+}
+
+function getFilterFixedAssetNoLicenseApi(pageSize, currentPage, listIdSelected, textSearch, resolve, reject) {
+    axios.post(`${BASE_API_URL}fixedAsset/filterNoLicense`, {
+        pageSize, currentPage, listIdSelected, textSearch        
+    })
+    .then(({data}) => resolve(data))
+    .catch(error => {
+        if(reject)
+            reject(error)
+    })
+}
+
+export {getFilterFixedAssetApi, getDepartmentsApi, getFixedAssetCategorysApi, getRecommendFixedAssetCodeApi, editFixedAssetApi, getFixedAssetApi, postFixedAssetApi, getFixedAssetCodeExistedApi, deleteFixedAssetsApi, postImportFileApi, getIsLoginedApi, getTokenApi, getFilterLicensesApi, getRecommendLicenseCodeApi, getFilterFixedAssetNoLicenseApi}

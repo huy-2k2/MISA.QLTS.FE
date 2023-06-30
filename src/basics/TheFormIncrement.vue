@@ -8,7 +8,7 @@
             <div class="form__top__body">
                 <div class="form__top__fields">
                     <div class="form__top__field">
-                        <MisaTextfieldForm
+                        <MisaTextfieldForm v-model="form.licenseCode"
                             :placeholder="resource.placeholder.input.format(resource.fieldName.incrementCode)"
                             :label="resource.fieldName.incrementCode"></MisaTextfieldForm>
                     </div>
@@ -32,23 +32,25 @@
             <h4 class="form__bottom__title">{{ resource.formTitle.detailIncrement }}</h4>
             <div class="form__bottom__head">
                 <div class="form__bottom__field">
-                    <MisaTextField icon="icon-search" :placeholder="resource.placeholder.searchFixedAsset"></MisaTextField>
+                    <MisaTextField v-model="textSearch" @keyupinput="handleSearch" icon="icon-search"
+                        :placeholder="resource.placeholder.searchFixedAsset"></MisaTextField>
                 </div>
-                <MisaButton @clickButton="isShowChoseFixedAssetForm = true" :text="resource.buttons.choseFixedAsset"
-                    :isOutline="true"></MisaButton>
+                <MisaButton @clickButton="isShowChoseFixedAssetForm = true" :shadow="true"
+                    :text="resource.buttons.choseFixedAsset" :isOutline="true"></MisaButton>
             </div>
             <div class="form__bottom__table">
-                <MisaTable @feature_0="isShowEditFixedAssetForm = true" :footer="footer" :bodyData="bodyData"
-                    :headData="headData"></MisaTable>
+                <MisaTable @setPage="handleSetPage" @setPageSize="handleSetPageSize" :isDisplayFeature="false"
+                    @feature_0="isShowEditFixedAssetForm = true" :footer="footer" :bodyData="bodyData" :headData="headData">
+                </MisaTable>
             </div>
         </div>
         <div class="form__footer">
-            <MisaButton :text="resource.buttons.cancel" :isOutline="true"></MisaButton>
-            <MisaButton :text="resource.buttons.save"></MisaButton>
+            <MisaButton :shadow="true" :text="resource.buttons.cancel" :isOutline="true"></MisaButton>
+            <MisaButton :shadow="true" :text="resource.buttons.save"></MisaButton>
         </div>
     </div>
     <MisaPopup :isShow="isShowChoseFixedAssetForm" :isHasClose="true" @close="isShowChoseFixedAssetForm = false">
-        <TheFormSelectIncrement></TheFormSelectIncrement>
+        <TheFormSelectIncrement @clickClose="isShowChoseFixedAssetForm = false"></TheFormSelectIncrement>
     </MisaPopup>
     <MisaPopup :isShow="isShowEditFixedAssetForm" :isHasClose="true" @close="isShowEditFixedAssetForm = false">
         <TheFormEditFixedAsset></TheFormEditFixedAsset>
@@ -64,12 +66,16 @@ import MisaTable from '@/components/MisaTable.vue';
 import MisaPopup from '@/components/MisaPopup.vue';
 import TheFormSelectIncrement from '@/basics/TheFormSelectIncrement.vue';
 import TheFormEditFixedAsset from '@/basics/TheFormEditFixedAsset.vue';
+import { getRecommendLicenseCodeApi } from '@/js/api';
+import { DEFAULT_PAGE_SIZE } from '@/config';
 export default {
     components: { MisaTextfieldForm, MisaInputDate, MisaTextField, MisaButton, MisaTable, MisaPopup, TheFormSelectIncrement, TheFormEditFixedAsset },
     data() {
         return {
             isShowChoseFixedAssetForm: false,
             isShowEditFixedAssetForm: false,
+            textSearch: "",
+            form: {},
             headData: [
                 {
                     data: this.resource.tHead[1],
@@ -108,35 +114,67 @@ export default {
                     }
                 ],
                 body: [
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
-                    ["Ts0001", "Xe Toyota", "Hành chính sự nghiệp", "1000000", "0", "0"],
                 ]
             },
             footer: {
                 paging: {
                     totalData: 0,
-                    pageSize: 20,
+                    pageSize: DEFAULT_PAGE_SIZE,
                     currentPage: 1,
                 },
                 data: [
-                    '', '', '', '',
-                    { type: this.$enum.dataType.double, data: this.convert.toCurrency(1000000) },
-                    { type: this.$enum.dataType.double, data: 0 },
-                    { type: this.$enum.dataType.double, data: 0 },
-                    ''
-
                 ]
             }
         }
+    },
+    methods: {
+        handleSetPage(page) {
+            this.$store.commit("setSelectedFixedAssets", ["currentPage", page])
+        },
+        handleSetPageSize(pageSize) {
+            this.$store.commit("setSelectedFixedAssets", ["currentPage", 1])
+            this.$store.commit("setSelectedFixedAssets", ["pageSize", pageSize])
+        },
+        handleSearch(event) {
+            if (event.key == "Enter") {
+                this.$store.commit("setSelectedFixedAssets", ["currentPage", 1])
+                this.$store.commit("setSelectedFixedAssets", ["filterTextSearch", this.textSearch])
+            }
+        }
+    },
+    computed: {
+        paginateSelectedFixedAsset() {
+            return this.$store.getters.paginateSelectedFixedAsset()
+        }
+    },
+    watch: {
+        paginateSelectedFixedAsset(newVal) {
+            this.bodyData.body = newVal.listPaginated.map(fixedAsset => {
+                const department = this.$store.getters.departmentById(fixedAsset.department_id)
+                return [fixedAsset.fixed_asset_code, fixedAsset.fixed_asset_name, department.departmentName, fixedAsset.cost, fixedAsset.depreciation_annual, fixedAsset.cost]
+            })
+            this.footer.data = ["", "", "", "",
+                { type: this.$enum.dataType.double, data: this.convert.toCurrency(newVal.totalCost) },
+                { type: this.$enum.dataType.double, data: this.convert.toCurrency(newVal.totalDepreciationAnnual) },
+                { type: this.$enum.dataType.double, data: this.convert.toCurrency(newVal.totalCost) },
+            ]
+            this.footer.paging = {
+                totalData: newVal.totalData,
+                pageSize: this.$store.state.ls.selectedFixedAssets.pageSize,
+                currentPage: this.$store.state.ls.selectedFixedAssets.currentPage,
+            }
+        },
+        textSearch(newVal) {
+            if (!newVal) {
+                this.$store.commit("setSelectedFixedAssets", ["currentPage", 1])
+                this.$store.commit("setSelectedFixedAssets", ["filterTextSearch", ""])
+            }
+        }
+    },
+    beforeMount() {
+        getRecommendLicenseCodeApi((data) => {
+            this.form.licenseCode = data
+        })
     }
 }
 </script>

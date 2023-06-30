@@ -1,13 +1,11 @@
 <template>
     <div class="wrapper">
-        <div ref="tableWrapper" :class="{ isHasFooter: footer?.data && body?.length }"
+        <div ref="tableWrapper" :class="{ isHasFooter: footer?.data && body?.length, isLoading }"
             class="table-wrapper custom-scrollbar">
-            <div v-show="isNoData && !isLoading" class="table__nodata">
+            <div v-show="!body?.length && !isLoading" class="table__nodata">
                 <img src="../assets/image/nodata.png" alt="">
             </div>
-            <MisaPopup :isHasClose="false" :isShow="isLoading">
-                <MisaLoading></MisaLoading>
-            </MisaPopup>
+            <MisaLoading v-if="isLoading"></MisaLoading>
             <table class="table" v-if="!isLoading && bodyData">
                 <thead ref="tableHead">
                     <tr>
@@ -26,7 +24,7 @@
                             </MisaToolTip>
                             <div v-else>{{ th.data }}</div>
                         </th>
-                        <th v-if="bodyData.features">{{ resource.tHead[9] }}</th>
+                        <th v-if="bodyData.features && isDisplayFeature">{{ resource.tHead[9] }}</th>
                     </tr>
                 </thead>
                 <tbody class="tbody" ref="tbody">
@@ -38,15 +36,28 @@
                         </td>
                         <td>{{ index + baseIndex + 1 }}</td>
                         <td v-for=" (td, i) in tr" :key="td" :class="`type-${headData[i].type}`">
-                            <MisaToolTip :tooltip="td">
-                                <span
-                                    v-if="headData[i].type == $enum.dataType.interger || headData[i].type == $enum.dataType.double">
-                                    {{ convert.toCurrency(td) }}
-                                </span>
-                                <span v-else>{{ td }}</span>
+                            <MisaToolTip :tooltip="bodyData.features && !isDisplayFeature && isHoverFeature ? '' : td">
+                                <div class="td__content">
+                                    <span class="text"
+                                        v-if="headData[i].type == $enum.dataType.interger || headData[i].type == $enum.dataType.double">
+                                        {{ convert.toCurrency(td) }}
+                                    </span>
+                                    <span class="text" v-else>{{ td }}</span>
+                                    <div class="table__function table__function--abs"
+                                        v-if="bodyData.features && !isDisplayFeature && i == tr.length - 1">
+                                        <MisaToolTip @mouseover="isHoverFeature = true" @mouseout="isHoverFeature = false"
+                                            v-for="(feature, j) in bodyData.features" :key="feature"
+                                            :tooltip="feature.tooltip">
+                                            <button @click="$emit(`feature_${j}`, index)" class=" table__function__button">
+                                                <div :class="feature.icon"></div>
+                                            </button>
+                                        </MisaToolTip>
+                                    </div>
+
+                                </div>
                             </MisaToolTip>
                         </td>
-                        <td v-if="bodyData.features" class="no_action">
+                        <td v-if="bodyData.features && isDisplayFeature" class="no_action">
                             <div class="table__function">
                                 <MisaToolTip v-for="(feature, j) in bodyData.features" :key="feature"
                                     :tooltip="feature.tooltip">
@@ -107,17 +118,12 @@
 <script>
 import MisaToolTip from './MisaToolTip.vue'
 import MisaLoading from './MisaLoading.vue';
-import MisaPopup from './MisaPopup.vue';
 import MisaPaginate from './MisaPaginate.vue';
 import MisaInputCheckbox from './MisaInputCheckbox.vue';
 import { uuid } from 'vue-uuid';
 export default {
-    components: { MisaToolTip, MisaLoading, MisaPopup, MisaPaginate, MisaInputCheckbox },
+    components: { MisaToolTip, MisaLoading, MisaPaginate, MisaInputCheckbox },
     props: {
-        isNoData: {
-            type: Boolean,
-            default: false
-        },
         isLoading: {
             type: Boolean,
             default: false
@@ -142,6 +148,10 @@ export default {
         },
         contextMenu: {
             type: [Array, Boolean]
+        },
+        isDisplayFeature: {
+            type: Boolean,
+            default: true
         }
     },
     emits: ["setPageSize", "setPage", "dbClickTr", "changeCheckboxData", "feature_0", "feature_1", "context_0", "context_1", "context_2", "context_3"],
@@ -150,6 +160,7 @@ export default {
             pageSizeList: [10, 20, 50, 300],
             isShowPageSizeList: false,
             isCheckedAll: false,
+            isHoverFeature: false,
             checkboxData: [],
             indexActive: -1,
             eventCloseExtentComponent: null,
@@ -388,6 +399,27 @@ export default {
     cursor: pointer;
 }
 
+.td__content {
+    position: relative;
+}
+
+.table__function--abs {
+    position: absolute;
+    right: 0;
+    top: calc(50% - 12px);
+}
+
+.table__function--abs button {
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0 0 3px 0 rgba(56, 148, 241, 0.4);
+}
+
 .table__border {
     height: 2px;
     width: 100%;
@@ -408,9 +440,18 @@ export default {
 
 .table__nodata {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table__nodata img {
+    max-height: 100%;
+    object-fit: cover;
 }
 
 .table__paginate__select__options {
@@ -463,7 +504,6 @@ export default {
 
 
 .table-wrapper {
-    position: relative;
     height: calc(100% - 38px);
     max-width: 100%;
     overflow-x: auto;
@@ -480,8 +520,6 @@ export default {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    height: 100%;
-    width: 100%;
 }
 
 .table {
@@ -517,6 +555,14 @@ export default {
     white-space: nowrap;
     user-select: none;
     text-align: center;
+}
+
+.table td .text {
+    display: block;
+    max-width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .table .tbody tr:hover {
@@ -583,6 +629,7 @@ tr:hover .table__function {
     position: sticky;
     background-color: #eee;
     top: 0;
+    z-index: 10;
 }
 
 .table-wrapper::-webkit-scrollbar-button:single-button:vertical:decrement,

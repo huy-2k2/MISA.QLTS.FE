@@ -202,6 +202,7 @@ export default {
     justify-content: flex-end;
     overflow: hidden;
     position: relative;
+    cursor: pointer;
 }
 
 .number_form.isError .number_form__textfield {
@@ -214,6 +215,7 @@ export default {
     padding-right: 19px;
     margin-right: 1px;
     position: relative;
+    cursor: text;
 }
 
 .number_form__input input {

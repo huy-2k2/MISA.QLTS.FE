@@ -4,7 +4,7 @@
             <div :class="icon"></div>
         </div>
         <div class="textfield__input">
-            <input :id="uuid" v-model="value" type="text" :placeholder="placeholder">
+            <input :id="uuid" v-model="value" @keyup="$emit('keyupinput', $event)" type="text" :placeholder="placeholder">
         </div>
     </label>
 </template>
@@ -13,6 +13,7 @@
 import { uuid } from 'vue-uuid'
 
 export default {
+    emits: ["keyupinput", "update:modelValue"],
     data() {
         return {
             uuid: uuid.v1()

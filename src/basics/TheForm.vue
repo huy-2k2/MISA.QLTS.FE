@@ -19,7 +19,7 @@
                 </div>
                 <div ref="departmentCode" class="form__body__item form__body__item--1">
                     <MisaCombobox fieldText="departmentName" fieldValue="departmentCode"
-                        :isLoading="$store.state.departments.isLoading" :data="$store.state.departments.data"
+                        :isLoading="$store.state.fa.departments.isLoading" :data="$store.state.fa.departments.data"
                         :typeCombobox="$enum.typeCombobox.tableOption" @blurcombobox="validateDepartmentCode"
                         :error="errors.departmentCode" v-model="form.departmentCode"
                         :label="resource.fieldName.departmentCode"
@@ -35,11 +35,12 @@
                 </div>
                 <div ref="fixedAssetCategoryCode" class="form__body__item form__body__item--1">
                     <MisaCombobox fieldText="fixedAssetCategoryName" fieldValue="fixedAssetCategoryCode"
-                        :isLoading="$store.state.fixedAssetCategorys.isLoading"
-                        :data="$store.state.fixedAssetCategorys.data" :typeCombobox="$enum.typeCombobox.tableOption"
+                        :isLoading="$store.state.fa.fixedAssetCategorys.isLoading"
+                        :data="$store.state.fa.fixedAssetCategorys.data" :typeCombobox="$enum.typeCombobox.tableOption"
                         @blurcombobox="validateFixedAssetCategoryCode" :error="errors.fixedAssetCategoryCode"
                         v-model="form.fixedAssetCategoryCode" :label="resource.fieldName.fixedAssetCategoryCode"
-                        :placeholder="resource.placeholder.combobox.format(resource.fieldName.fixedAssetCategoryCode)">
+                        :placeholder="resource.placeholder.combobox.format(resource.fieldName.fixedAssetCategoryCode)"
+                        @enter="handleEnterToTab('quantity')">
                     </MisaCombobox>
                 </div>
                 <div class="form__body__item form__body__item--2">

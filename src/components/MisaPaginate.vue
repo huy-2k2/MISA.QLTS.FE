@@ -38,13 +38,16 @@ export default {
                 }
             }
 
-            if (this.currentPage > this.sizeDisplay + 1) {
-                result.splice(this.sizeDisplay, 0, '...')
+            if (this.totalPage > 2 * this.sizeDisplay) {
+                if (this.currentPage > this.sizeDisplay + 1) {
+                    result.splice(this.sizeDisplay, 0, '...')
+                }
+
+                if (this.currentPage < this.totalPage - this.sizeDisplay) {
+                    result.splice(result.length - this.sizeDisplay, 0, '...')
+                }
             }
 
-            if (this.currentPage < this.totalPage - this.sizeDisplay) {
-                result.splice(result.length - this.sizeDisplay, 0, '...')
-            }
 
             return result;
         },
@@ -69,7 +72,7 @@ export default {
         * @param {Number} page giá trị page muốn set 
         */
         setPage(page) {
-            if (Number.isInteger(page) && page >= 1 && page <= this.$store.getters.totalPage) {
+            if (Number.isInteger(page) && page >= 1 && page <= this.totalPage) {
                 this.$emit('setPage', page)
 
             }

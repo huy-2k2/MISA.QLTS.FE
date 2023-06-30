@@ -7,7 +7,7 @@
         </div>
         <div ref="fixedAssetCategoryCode" class="header__bottom__select">
             <MisaCombobox fieldText="fixedAssetCategoryName" fieldValue="fixedAssetCategoryCode"
-                :isLoading="$store.state.fixedAssetCategorys.isLoading" :data="$store.state.fixedAssetCategorys.data"
+                :isLoading="$store.state.fa.fixedAssetCategorys.isLoading" :data="$store.state.fa.fixedAssetCategorys.data"
                 label="" :isBoldPlaceHolder="true" :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter"
                 v-model="fixedAssetCategoryCode"
                 :placeholder="resource.placeholder.combobox.format(resource.fieldName.fixedAssetCategory)"
@@ -16,14 +16,15 @@
         </div>
         <div ref="departmentCode" class="header__bottom__select">
             <MisaCombobox fieldText="departmentName" fieldValue="departmentCode" label=""
-                :isLoading="$store.state.departments.isLoading" :data="$store.state.departments.data"
+                :isLoading="$store.state.fa.departments.isLoading" :data="$store.state.fa.departments.data"
                 :isBoldPlaceHolder="true" :typeCombobox="$enum.typeCombobox.tableOption" icon="icon-header-filter"
                 v-model="departmentCode" :placeholder="resource.placeholder.combobox.format(resource.fieldName.department)"
                 @enter="handleEnterToTab('fixedAssetCategoryCode')">
             </MisaCombobox>
         </div>
         <div class="header__bottom__right">
-            <MisaButton @clickButton="handleAdd" :text="resource.buttons.addFixedAsset" icon="icon-small-plus--white">
+            <MisaButton :shadow="true" @clickButton="handleAdd" :text="resource.buttons.addFixedAsset"
+                icon="icon-small-plus--white">
             </MisaButton>
             <div class="header__bottom__right__file">
                 <MisaToolTip :tooltip="resource.tooltip.import">
@@ -55,8 +56,8 @@
     </MisaPopup>
     <div class="body">
         <MisaTable :headData="headData" :isHasCheckbox="true"
-            :baseIndex="($store.state.currentPage - 1) * $store.state.pageSize" :isNoData="$store.state.totalAsset == 0"
-            :isLoading="$store.state.fixedAssets.isLoading" :bodyData="bodyData" :footer="footer"
+            :baseIndex="($store.state.fa.currentPage - 1) * $store.state.fa.pageSize"
+            :isLoading="$store.state.fa.fixedAssets.isLoading" :bodyData="bodyData" :footer="footer"
             :contextMenu="[resource.contextMenu.add, resource.contextMenu.edit, resource.contextMenu.delete, resource.contextMenu.duplicate]"
             @setPageSize="handleSetPageSize" @setPage="handleSetPage" @feature_0="handleEdit" @feature_1="handleDuplicate"
             @changeCheckboxData="(checkboxData) => this.checkboxData = checkboxData" @dbClickTr="handleEdit"
@@ -199,21 +200,21 @@ export default {
     computed: {
         // danh sánh tài sản
         fixedAssets() {
-            return this.$store.state.fixedAssets.data
+            return this.$store.state.fa.fixedAssets.data
         },
 
         // footer của table
         footer() {
             return {
                 paging: {
-                    totalData: this.$store.state.totalAsset,
-                    pageSize: this.$store.state.pageSize,
-                    currentPage: this.$store.state.currentPage,
+                    totalData: this.$store.state.fa.totalAsset,
+                    pageSize: this.$store.state.fa.pageSize,
+                    currentPage: this.$store.state.fa.currentPage,
                 },
                 data: [
                     '', '', '', '', '', '',
-                    { type: this.$enum.dataType.interger, data: this.convert.toCurrency(this.$store.state.totalQuantity) },
-                    { type: this.$enum.dataType.double, data: this.convert.toCurrency(this.$store.state.totalCost) },
+                    { type: this.$enum.dataType.interger, data: this.convert.toCurrency(this.$store.state.fa.totalQuantity) },
+                    { type: this.$enum.dataType.double, data: this.convert.toCurrency(this.$store.state.fa.totalCost) },
                     { type: this.$enum.dataType.double, data: 0 },
                     { type: this.$enum.dataType.double, data: 0 },
                     ''
@@ -240,9 +241,9 @@ export default {
                 this.isShowRemove = false
                 this.isShowRemoveContextMenu = false
                 // tính lại giá trị tổng số trang
-                const newTotalPage = Math.ceil((this.$store.state.totalAsset - removeFixedAssetIdList.length) / this.$store.state.pageSize)
+                const newTotalPage = Math.ceil((this.$store.state.fa.totalAsset - removeFixedAssetIdList.length) / this.$store.state.fa.pageSize)
                 // nếu trang hiện tại lớn hơn tổng số trang mới thì currentPage = newTotalPage
-                if (this.$store.state.currentPage > newTotalPage) {
+                if (this.$store.state.fa.currentPage > newTotalPage) {
                     this.$store.commit("setCurrentPage", newTotalPage || 1)
                 }
                 this.$store.dispatch("getFilterFixedAsset")
@@ -294,7 +295,7 @@ export default {
         */
         handleEdit(index) {
             this.isShowForm = true
-            this.fixedAssetId = this.$store.state.fixedAssets.data[index].fixedAssetId
+            this.fixedAssetId = this.$store.state.fa.fixedAssets.data[index].fixedAssetId
             this.typeForm = this.$enum.typeForm.edit
         },
 
@@ -306,7 +307,7 @@ export default {
         */
         handleDuplicate(index) {
             this.isShowForm = true
-            this.fixedAssetId = this.$store.state.fixedAssets.data[index].fixedAssetId
+            this.fixedAssetId = this.$store.state.fa.fixedAssets.data[index].fixedAssetId
             this.typeForm = this.$enum.typeForm.duplicate
         },
 
@@ -329,6 +330,7 @@ export default {
        * description: Hàm xử lý sự kiện khi người dùng thay đổi size của page
        */
         handleSetPageSize(pageSize) {
+
             this.$store.commit("setPageSize", pageSize)
             this.$store.commit("setCurrentPage", 1)
             this.$store.dispatch("getFilterFixedAsset")
@@ -365,6 +367,7 @@ export default {
             this.settTimeOutDebounce = setTimeout(() => {
                 this.$store.commit("setFilter", { departmentId, fixedAssetCategoryId, textSearch: this.textSearch })
                 this.$store.commit("setCurrentPage", 1)
+
                 this.$store.dispatch("getFilterFixedAsset")
             }, 500)
         },
@@ -378,6 +381,7 @@ export default {
     async mounted() {
         await this.$store.dispatch('getDepartments')
         await this.$store.dispatch('getFixedAssetCategorys')
+
         this.$store.dispatch("getFilterFixedAsset")
     },
 

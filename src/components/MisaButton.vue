@@ -1,6 +1,6 @@
 <template>
     <button :disabled="disabled" @click="$emit('clickButton')" :type="type" class="button"
-        :class="{ ['button--sub']: isSub, ['button--outline']: isOutline }">
+        :class="{ ['button--sub']: isSub, ['button--outline']: isOutline, hasShadow: shadow }">
         <div class="button__icon">
             <div :class="icon"></div>
         </div>
@@ -10,6 +10,7 @@
 
 <script>
 export default {
+    emits: ["clickButton"],
     name: 'MyButton',
     props: {
         text: String,
@@ -27,6 +28,10 @@ export default {
             default: false
         },
         disabled: {
+            type: Boolean,
+            default: false
+        },
+        shadow: {
             type: Boolean,
             default: false
         }
@@ -90,5 +95,9 @@ export default {
 
 .button.button.button--sub:hover {
     background-color: #107f9b36;
+}
+
+.button.hasShadow {
+    box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.15);
 }
 </style>

@@ -4,7 +4,7 @@
             <span class="field__validate__label">{{ label }}</span>
             <span v-if="required" class="label__required">*</span>
         </label>
-        <div ref="comboboxHead" class="combobox__head">
+        <label :for="uuid" ref="comboboxHead" class="combobox__head">
             <div v-if="icon" class="combobox__head__icon">
                 <div class="icon-header-filter"></div>
             </div>
@@ -14,7 +14,7 @@
             <div class="combobox__icon">
                 <div class="icon-down"></div>
             </div>
-        </div>
+        </label>
         <div class="combobox__options__wrapper">
             <div ref="comboboxOptions" v-show="isShow" :class="{ isLoading }" class="combobox__options custom-scrollbar">
                 <MyLoading v-show="isLoading"></MyLoading>
@@ -114,6 +114,7 @@ export default {
             if (event.code == "Enter") {
                 this.$emit('enter')
                 this.handleBlur()
+                this.$refs.input.blur()
             }
         },
 

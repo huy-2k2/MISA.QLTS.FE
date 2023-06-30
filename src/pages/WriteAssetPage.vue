@@ -7,7 +7,8 @@
             <div class="header__bottom">
                 <h3 class="header__bottom__title">{{ resource.titlePage[7] }}</h3>
                 <div class="header__bottom__right">
-                    <MisaButton @clickButton="isShowFormIncrement = true" :text="resource.buttons.add"></MisaButton>
+                    <MisaButton :shadow="true" @clickButton="isShowFormIncrement = true" :text="resource.buttons.add">
+                    </MisaButton>
                     <div class="header__bottom__right__select">
                         <div ref="directHead" @click="isShowDirectionDisplay = !isShowDirectionDisplay"
                             class="header__bottom__right__icon">
@@ -34,10 +35,14 @@
                 <div ref="pageTop" class="page__top">
                     <div class="page__top__head">
                         <div class="page__top__field">
-                            <MisaTextField icon="icon-search" :placeholder="resource.placeholder.searchCertificate">
+                            <MisaTextField @keyupinput="handleSearchLicenses" v-model="textSearch" icon="icon-search"
+                                :placeholder="resource.placeholder.searchCertificate">
                             </MisaTextField>
                         </div>
                         <div class="page__top__right">
+                            <MisaToolTip v-if="totalChecked > 1" :tooltip="resource.tooltip.delete">
+                                <div class="icon-bin"></div>
+                            </MisaToolTip>
                             <MisaToolTip :tooltip="resource.tooltip.print">
                                 <div class="icon-print"></div>
                             </MisaToolTip>
@@ -47,8 +52,11 @@
                         </div>
                     </div>
                     <div class="page__top__table">
-                        <MisaTable :headData="headDataTop" :bodyData="bodyDataTop" :isHasCheckbox="true"
-                            :footer="footerTop"></MisaTable>
+                        <MisaTable :isDisplayFeature="false" @changeCheckboxData="(data) => checkboxData = data"
+                            :isLoading="$store.state.ls.licenses.isLoading" :headData="headDataTop" :bodyData="bodyDataTop"
+                            :isHasCheckbox="true" :footer="footerTop" @setPageSize="handleSetPageSize"
+                            @setPage="handleSetPage">
+                        </MisaTable>
                     </div>
                 </div>
                 <div ref="pageBottom" class="page__bottom">
@@ -124,89 +132,14 @@ export default {
                         icon: 'icon-pen-edit',
                     },
                     {
-                        tooltip: this.resource.tooltip.duplicate,
-                        icon: 'icon-file-detail'
+                        tooltip: this.resource.tooltip.delete,
+                        icon: 'icon-bin'
                     }
                 ],
                 body: [
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
-                    ['GT000001', '25/12/2021', '25/12/2021', '1000000000', 'Chứng từ của tài sản ABCXYZ'],
                 ]
             },
-            footerTop: {
-                paging: {
-                    totalData: 31,
-                    pageSize: 20,
-                    currentPage: 1,
-                },
-                data: [
-                    '', '', '', '', '',
-                    { type: this.$enum.dataType.double, data: this.convert.toCurrency(1000000) },
-                    '',
-                    ''
-                ]
-            },
+
             headDataBottom: [
                 {
                     data: this.resource.tHead[1],
@@ -235,51 +168,6 @@ export default {
             ],
             bodyDataBottom: {
                 body: [
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-                    ['TS1234', "Xe Toyota", "Hành chính sự nghiệp", "16000000", "0", "0"],
-
                 ]
             },
             isBottomFull: false,
@@ -289,7 +177,9 @@ export default {
             isShowDirectionDisplay: false,
             isShowVer: false,
             eventCloseExtentComponent: null,
-            eventMouseMove: null
+            eventMouseMove: null,
+            textSearch: "",
+            checkboxData: []
         }
     },
     beforeMount() {
@@ -316,6 +206,11 @@ export default {
         window.addEventListener('mousemove', this.eventMouseMove)
         window.addEventListener('click', this.eventCloseExtentComponent)
     },
+    async mounted() {
+        await this.$store.dispatch('getDepartments')
+        await this.$store.dispatch('getFixedAssetCategorys')
+        this.$store.dispatch("getFilterLicenses")
+    },
     beforeUnmount() {
         window.removeEventListener('mouseup', this.eventMouseUp)
         window.removeEventListener('mousemove', this.eventMouseMove)
@@ -328,6 +223,85 @@ export default {
                 pageTopHeight: this.$refs.pageTop.clientHeight,
                 pageBottomHeight: this.$refs.pageBottom.clientHeight
             }
+        },
+        handleSetPage(page) {
+            this.$store.commit("setLicenses", ["currentPage", page])
+            this.$store.dispatch("getFilterLicenses")
+        },
+        handleSetPageSize(pageSize) {
+            this.$store.commit("setLicenses", ["pageSize", pageSize])
+            this.$store.commit("setLicenses", ["currentPage", 1])
+            this.$store.dispatch("getFilterLicenses")
+        },
+        handleSearchLicenses(event) {
+            if (event.key == "Enter") {
+                this.$store.commit("setLicenses", ["filterTextSearch", this.textSearch])
+                this.$store.commit("setLicenses", ["currentPage", 1])
+                this.$store.dispatch("getFilterLicenses")
+            }
+        }
+    },
+    computed: {
+        footerTop() {
+            return {
+                paging: {
+                    totalData: this.$store.state.ls.licenses.totalLicense,
+                    pageSize: this.$store.state.ls.licenses.pageSize,
+                    currentPage: this.$store.state.ls.licenses.currentPage,
+                },
+                data: [
+                    '', '', '', '', '',
+                    { type: this.$enum.dataType.double, data: this.convert.toCurrency(this.$store.state.ls.licenses.totalCost) },
+                    '',
+                    ''
+                ]
+            }
+        },
+        licenses() {
+            return this.$store.state.ls.licenses.data
+        },
+        totalChecked() {
+            return this.checkboxData.reduce((total, isChecked) => total + (isChecked ? 1 : 0), 0)
+        }
+    },
+    watch: {
+        licenses(newVal) {
+            this.bodyDataTop.body = newVal.map(license => [
+                license.license_code,
+                this.convert.toCurrentDate(license.create_day),
+                this.convert.toCurrentDate(license.use_day),
+                license.fixed_assets.reduce((total, fixed_asset) => total + fixed_asset.cost, 0),
+                license.content
+            ])
+        },
+        textSearch(newVal) {
+            if (!newVal) {
+                this.$store.commit("setLicenses", ["filterTextSearch", newVal])
+                this.$store.commit("setLicenses", ["currentPage", 1])
+                this.$store.dispatch("getFilterLicenses")
+            }
+        },
+        checkboxData: {
+            handler(newVal) {
+                let body = []
+                for (let i = 0; i < newVal.length; i++) {
+                    if (!newVal[i])
+                        continue
+                    body = body.concat(this.licenses[i].fixed_assets.map(fixedAsset => {
+                        const department = this.$store.getters.departmentById(fixedAsset.department_id)
+                        return [
+                            fixedAsset.fixed_asset_code,
+                            fixedAsset.fixed_asset_name,
+                            department.departmentName,
+                            fixedAsset.cost,
+                            fixedAsset.depreciation_annual,
+                            "0"
+                        ]
+                    }))
+                }
+                this.bodyDataBottom.body = body
+            },
+            deep: true
         }
     }
 }
@@ -377,7 +351,7 @@ export default {
     top: 0;
     left: 50%;
     transform: translate(-50%, -5px);
-    cursor: pointer;
+    cursor: all-scroll;
 }
 
 .page.isBottomFull .page__bottom__move {
@@ -452,7 +426,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    column-gap: 16px;
+    column-gap: 20px;
 }
 
 .page__top__right * {
