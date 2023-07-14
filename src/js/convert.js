@@ -20,8 +20,19 @@ function toCurrency(num) {
  * created at: 30/04/2023
  * description: Hàm lấy ngày hiện tại về định dạng yyyy-mm-dd
  */
-function toCurrentDate(date = new Date().toISOString()) {
-    return date.substring(0, 10)
+function toCurrentDate(date = new Date().toISOString(), isInInput = true) {
+    
+    if(isInInput)
+        return date.substring(0, 10)
+    else  {
+        const datePart = date.split("-")
+        const year = datePart[0]
+        const month = datePart[1]
+        const day = datePart[2].substring(0, 2)
+        const result =  day + '/' + month + '/' +year
+        return result
+    }
+    
 }
 
 

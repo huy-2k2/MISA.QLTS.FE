@@ -18,7 +18,8 @@ const errorCode = {
     invalidData: 5,
     fileInvalid: 6,
     credentialNotValid: 7,
-    InvalidToken: 8
+    InvalidToken: 8,
+    deleteDetail: 9,
 }
 
 const dataType = {

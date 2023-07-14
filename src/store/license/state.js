@@ -24,8 +24,18 @@ function state() {
             pageSize: DEFAULT_PAGE_SIZE,
             currentPage: 1,
             filterTextSearch: ""
+        },
+        budgets: {
+            data: [],
+            isLoading: true
+        },
+        budgetDetails: [
+            
+        ],
+        listIdDeleted: {
+            licenseDetail: [],
+            budgetDetail: []
         }
-        
     }
 }
 

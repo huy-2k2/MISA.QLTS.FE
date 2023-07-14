@@ -246,8 +246,13 @@ export default {
 }
 
 .type_2,
-.type_3 {
+.type_3,
+.type_5 {
     text-align: right !important;
+}
+
+.type_0 {
+    text-align: left !important;
 }
 
 .table th {
@@ -264,8 +269,10 @@ export default {
     position: sticky;
     top: 0;
     border-top: 1px solid var(--color-border);
-    text-align: left;
+    text-align: center;
 }
+
+
 
 .table th:first-child {
     z-index: 1;
@@ -284,7 +291,7 @@ export default {
     white-space: nowrap;
     border-bottom: 1px solid var(--color-border);
     border-right: 1px solid var(--color-border);
-    text-align: left;
+    text-align: center;
 }
 
 .table td.error {

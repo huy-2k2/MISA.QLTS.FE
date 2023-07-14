@@ -33,7 +33,7 @@
                 </MisaToolTip>
             </div>
             <MisaToolTip :tooltip="resource.tooltip.delete">
-                <MisaButtonIcon :isDisable="!toatlChecked" @clickButton="handleMultipleDelete" icon="icon-bin">
+                <MisaButtonIcon :isDisable="!listIdSelected.length" @clickButton="handleMultipleDelete" icon="icon-bin">
                 </MisaButtonIcon>
             </MisaToolTip>
         </div>
@@ -60,8 +60,8 @@
             :isLoading="$store.state.fa.fixedAssets.isLoading" :bodyData="bodyData" :footer="footer"
             :contextMenu="[resource.contextMenu.add, resource.contextMenu.edit, resource.contextMenu.delete, resource.contextMenu.duplicate]"
             @setPageSize="handleSetPageSize" @setPage="handleSetPage" @feature_0="handleEdit" @feature_1="handleDuplicate"
-            @changeCheckboxData="(checkboxData) => this.checkboxData = checkboxData" @dbClickTr="handleEdit"
-            @context_0="handleAdd" @context_1="handleEdit" @context_3="handleDuplicate" @context_2="handleDelete">
+            @changeCheckboxData="(listId) => listIdSelected = listId" @dbClickTr="handleEdit" @context_0="handleAdd"
+            @context_1="handleEdit" @context_3="handleDuplicate" @context_2="handleDelete" :selectedList="listIdSelected">
         </MisaTable>
     </div>
 </template>
@@ -102,13 +102,13 @@ export default {
             isShowForm: false,
             isShowRemoveContextMenu: false,
             departmentCode: null,
+            listIdSelected: [],
             fixedAssetCategoryCode: null,
             textSearch: "",
             settTimeOutDebounce: null,
             isShowFormImport: false,
             typeForm: null,
             fixedAssetId: null,
-            checkboxData: [],
             isShowRemove: false,
             dialogText: '',
             bodyData: {
@@ -121,7 +121,8 @@ export default {
                         tooltip: this.resource.tooltip.duplicate,
                         icon: 'icon-file-detail'
                     }
-                ]
+                ],
+                body: []
             },
             headData: [
                 {
@@ -187,12 +188,14 @@ export default {
                     fixedAsset.fixedAssetName,
                     fixedAssetCategory.fixedAssetCategoryName,
                     department.departmentName,
-                    fixedAsset.quantity,
-                    fixedAsset.cost,
+                    this.convert.toCurrency(fixedAsset.quantity),
+                    this.convert.toCurrency(fixedAsset.cost),
                     '0',
-                    '0'
+                    this.convert.toCurrency(fixedAsset.cost),
+
                 ]
             })
+            this.bodyData.listId = newVal.map(fixedAsset => fixedAsset.fixedAssetId)
         },
 
     },
@@ -221,28 +224,22 @@ export default {
                 ]
             }
         },
-        toatlChecked() {
-            return this.checkboxData.reduce((total, checkbox) => total + (checkbox ? 1 : 0), 0)
-        },
-        listFixedAssetRemove() {
-            const result = []
-            for (let i in this.checkboxData) {
-                if (this.checkboxData[i])
-                    result.push(this.fixedAssets[i])
-            }
-            return result
-        }
+
     },
 
     methods: {
         handleRemove(isContextMenu) {
-            const removeFixedAssetIdList = isContextMenu ? [this.fixedAssetId] : this.listFixedAssetRemove.map(fixedAsset => fixedAsset.fixedAssetId)
+            const removeFixedAssetIdList = isContextMenu ? [this.fixedAssetId] : this.listIdSelected
             deleteFixedAssetsApi(removeFixedAssetIdList, () => {
                 this.isShowRemove = false
                 this.isShowRemoveContextMenu = false
                 // tính lại giá trị tổng số trang
                 const newTotalPage = Math.ceil((this.$store.state.fa.totalAsset - removeFixedAssetIdList.length) / this.$store.state.fa.pageSize)
                 // nếu trang hiện tại lớn hơn tổng số trang mới thì currentPage = newTotalPage
+                if (isContextMenu)
+                    this.listIdSelected = this.listIdSelected.filter(id => id != this.fixedAssetId)
+                else
+                    this.listIdSelected = []
                 if (this.$store.state.fa.currentPage > newTotalPage) {
                     this.$store.commit("setCurrentPage", newTotalPage || 1)
                 }
@@ -263,14 +260,17 @@ export default {
 
         handleMultipleDelete() {
             // nếu chưa có checkbox nào được chọn thì kết thúc hàm
-            if (!this.listFixedAssetRemove.length)
+            if (!this.listIdSelected.length)
                 return
             // tạo thông báo khi bản xóa 1 bản
-            else if (this.listFixedAssetRemove.length == 1)
-                this.dialogText = `${this.resource.dialogMessages.removeFixedAsset.format(`<strong>${this.listFixedAssetRemove[0].fixedAssetCode} - ${this.listFixedAssetRemove[0].fixedAssetName}</strong>`)}`
+            else if (this.listIdSelected.length == 1) {
+                console.log(this.listIdSelected);
+                const fixedAsset = this.fixedAssets.find(fa => fa.fixedAssetId == this.listIdSelected[0])
+                this.dialogText = `${this.resource.dialogMessages.removeFixedAsset.format(`<strong>${fixedAsset.fixedAssetCode} - ${fixedAsset.fixedAssetName}</strong>`)}`
+            }
             // tạo thông báo khi xóa nhiều bản
             else {
-                this.dialogText = this.resource.dialogMessages.removeMultiFixedAsset.format(`<strong>${this.listFixedAssetRemove.length < 10 ? '0' + this.listFixedAssetRemove.length : this.listFixedAssetRemove.length}</strong>`)
+                this.dialogText = this.resource.dialogMessages.removeMultiFixedAsset.format(`<strong>${this.listIdSelected.length < 10 ? '0' + this.listIdSelected.length : this.listIdSelected.length}</strong>`)
             }
             this.isShowRemove = true
         },

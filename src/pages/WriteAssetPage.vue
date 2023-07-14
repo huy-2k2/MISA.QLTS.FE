@@ -7,7 +7,7 @@
             <div class="header__bottom">
                 <h3 class="header__bottom__title">{{ resource.titlePage[7] }}</h3>
                 <div class="header__bottom__right">
-                    <MisaButton :shadow="true" @clickButton="isShowFormIncrement = true" :text="resource.buttons.add">
+                    <MisaButton :shadow="true" @clickButton="handleAddLicense" :text="resource.buttons.add">
                     </MisaButton>
                     <div class="header__bottom__right__select">
                         <div ref="directHead" @click="isShowDirectionDisplay = !isShowDirectionDisplay"
@@ -40,8 +40,8 @@
                             </MisaTextField>
                         </div>
                         <div class="page__top__right">
-                            <MisaToolTip v-if="totalChecked > 1" :tooltip="resource.tooltip.delete">
-                                <div class="icon-bin"></div>
+                            <MisaToolTip v-if="checkboxData.length > 1" :tooltip="resource.tooltip.delete">
+                                <div @click="handleRemoveByListId" class="icon-bin"></div>
                             </MisaToolTip>
                             <MisaToolTip :tooltip="resource.tooltip.print">
                                 <div class="icon-print"></div>
@@ -52,10 +52,11 @@
                         </div>
                     </div>
                     <div class="page__top__table">
-                        <MisaTable :isDisplayFeature="false" @changeCheckboxData="(data) => checkboxData = data"
+                        <MisaTable @activeTr="handleActiveTableBottomTr" :isDisplayFeature="false"
+                            @changeCheckboxData="(data) => checkboxData = data"
                             :isLoading="$store.state.ls.licenses.isLoading" :headData="headDataTop" :bodyData="bodyDataTop"
                             :isHasCheckbox="true" :footer="footerTop" @setPageSize="handleSetPageSize"
-                            @setPage="handleSetPage">
+                            @feature_0="handleEditLicense" @feature_1="handleRemoveByIndex" @setPage="handleSetPage">
                         </MisaTable>
                     </div>
                 </div>
@@ -79,7 +80,13 @@
         </div>
     </div>
     <MisaPopup @close="isShowFormIncrement = false" :isShow="isShowFormIncrement" :isHasClose="true">
-        <TheFormIncrement></TheFormIncrement>
+        <TheFormIncrement :licenseId="licenseId" :typeForm="typeForm" @clickClose="isShowFormIncrement = false">
+        </TheFormIncrement>
+    </MisaPopup>
+    <MisaPopup :isShow="isShowRemove" :isHasClose="false">
+        <MisaDialog :text="textNofiti" quantity="2" :button2="this.resource.buttons.notConfirm"
+            :button1="this.resource.buttons.delete" @click2="isShowRemove = false" @click1="handleDeleteLicense">
+        </MisaDialog>
     </MisaPopup>
 </template>
 
@@ -91,6 +98,8 @@ import MisaToolTip from '@/components/MisaToolTip.vue';
 import MisaTable from '@/components/MisaTable.vue';
 import MisaPopup from '@/components/MisaPopup.vue';
 import TheFormIncrement from '@/basics/TheFormIncrement.vue';
+import MisaDialog from '@/components/MisaDialog.vue';
+import { deleteListLicenseApi } from '@/js/api';
 export default {
     components: {
         TheHeader,
@@ -100,6 +109,7 @@ export default {
         MisaTable,
         MisaPopup,
         TheFormIncrement,
+        MisaDialog
     },
     data() {
         return {
@@ -168,17 +178,23 @@ export default {
             ],
             bodyDataBottom: {
                 body: [
-                ]
+                ],
+                listId: []
             },
             isBottomFull: false,
             isShowFormIncrement: false,
             boudingClient: null,
             eventMouseUp: null,
             isShowDirectionDisplay: false,
+            isShowRemove: false,
+            textNofiti: "",
             isShowVer: false,
+            listIdRemove: [],
             eventCloseExtentComponent: null,
             eventMouseMove: null,
+            typeForm: "",
             textSearch: "",
+            licenseId: "",
             checkboxData: []
         }
     },
@@ -210,6 +226,7 @@ export default {
         await this.$store.dispatch('getDepartments')
         await this.$store.dispatch('getFixedAssetCategorys')
         this.$store.dispatch("getFilterLicenses")
+        this.$store.dispatch('getBudgets')
     },
     beforeUnmount() {
         window.removeEventListener('mouseup', this.eventMouseUp)
@@ -217,6 +234,53 @@ export default {
         window.removeEventListener('click', this.eventCloseExtentComponent)
     },
     methods: {
+        handleRemoveByListId() {
+            this.isShowRemove = true
+            this.listIdRemove = this.checkboxData
+            const length = this.checkboxData.length < 10 ? `0${this.checkboxData.length}` : this.checkboxData.length
+            this.textNofiti = this.resource.dialogMessages.removeMultiLicense.format(`<strong>${length}</strong>`)
+        },
+        handleRemoveByIndex(index) {
+            const license = this.$store.state.ls.licenses.data[index]
+            this.listIdRemove = [license.license_id]
+            this.isShowRemove = true
+            this.textNofiti = this.resource.dialogMessages.removeLicense.format(`<strong>${license.license_code}</strong>`)
+        },
+        handleDeleteLicense() {
+            deleteListLicenseApi(this.listIdRemove, () => {
+                this.$store.dispatch("getFilterLicenses")
+                this.$store.commit("setLicenses", ["currentPage", 1])
+                this.isShowRemove = false
+            })
+        },
+        handleActiveTableBottomTr(index) {
+            if (index == -1) {
+                this.bodyDataBottom.body = []
+            }
+            else {
+                this.bodyDataBottom.body = this.$store.state.ls.licenses.data[index].fixed_assets.map(fa => {
+                    const department = this.$store.getters.departmentById(fa.department_id)
+                    return [
+                        fa.fixed_asset_code,
+                        fa.fixed_asset_name,
+                        department.departmentName,
+                        this.convert.toCurrency(fa.cost),
+                        this.convert.toCurrency(fa.depreciation_annual),
+                        this.convert.toCurrency(fa.cost),
+                    ]
+                }
+                )
+            }
+        },
+        handleEditLicense(index) {
+            this.licenseId = this.$store.state.ls.licenses.data[index].license_id
+            this.typeForm = this.$enum.typeForm.edit
+            this.isShowFormIncrement = true
+        },
+        handleAddLicense() {
+            this.isShowFormIncrement = true
+            this.typeForm = this.$enum.typeForm.add
+        },
         handleMouseDown(event) {
             this.boudingClient = {
                 coordinateMouseY: event.y,
@@ -253,26 +317,26 @@ export default {
                     '', '', '', '', '',
                     { type: this.$enum.dataType.double, data: this.convert.toCurrency(this.$store.state.ls.licenses.totalCost) },
                     '',
-                    ''
                 ]
             }
         },
         licenses() {
             return this.$store.state.ls.licenses.data
         },
-        totalChecked() {
-            return this.checkboxData.reduce((total, isChecked) => total + (isChecked ? 1 : 0), 0)
-        }
     },
     watch: {
         licenses(newVal) {
-            this.bodyDataTop.body = newVal.map(license => [
-                license.license_code,
-                this.convert.toCurrentDate(license.create_day),
-                this.convert.toCurrentDate(license.use_day),
-                license.fixed_assets.reduce((total, fixed_asset) => total + fixed_asset.cost, 0),
-                license.content
-            ])
+            this.bodyDataTop.body = newVal.map(license => {
+                const totalCost = license.fixed_assets.reduce((total, fixed_asset) => total + fixed_asset.cost, 0)
+                return [
+                    license.license_code,
+                    this.convert.toCurrentDate(license.use_day, false),
+                    this.convert.toCurrentDate(license.create_day, false),
+                    this.convert.toCurrency(totalCost),
+                    license.content
+                ]
+            })
+            this.bodyDataTop.listId = newVal.map(license => license.license_id)
         },
         textSearch(newVal) {
             if (!newVal) {
@@ -281,28 +345,6 @@ export default {
                 this.$store.dispatch("getFilterLicenses")
             }
         },
-        checkboxData: {
-            handler(newVal) {
-                let body = []
-                for (let i = 0; i < newVal.length; i++) {
-                    if (!newVal[i])
-                        continue
-                    body = body.concat(this.licenses[i].fixed_assets.map(fixedAsset => {
-                        const department = this.$store.getters.departmentById(fixedAsset.department_id)
-                        return [
-                            fixedAsset.fixed_asset_code,
-                            fixedAsset.fixed_asset_name,
-                            department.departmentName,
-                            fixedAsset.cost,
-                            fixedAsset.depreciation_annual,
-                            "0"
-                        ]
-                    }))
-                }
-                this.bodyDataBottom.body = body
-            },
-            deep: true
-        }
     }
 }
 </script>

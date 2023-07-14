@@ -157,8 +157,8 @@ export default {
             form: {
                 quantity: '1',
                 trackedYear: new Date().getFullYear(),
-                purchaseDate: this.convert.toCurrentDate(),
-                useDate: this.convert.toCurrentDate(),
+                purchaseDate: new Date().toISOString().substring(0, 10),
+                useDate: new Date().toISOString().substring(0, 10),
                 cost: '0',
                 lifeTime: '0',
                 depreciationRate: '0',
@@ -270,8 +270,8 @@ export default {
                 this.form.depreciationRate = this.convert.toRounded(data.depreciation_rate)
                 this.form.depreciationAnnual = this.convert.toRounded(data.depreciation_annual)
                 this.form.trackedYear = data.tracked_year
-                this.form.purchaseDate = data.purchase_date.substring(0, 10)
-                this.form.useDate = data.use_date.substring(0, 10)
+                this.form.purchaseDate = this.convert.toCurrentDate(data.purchase_date)
+                this.form.useDate = this.convert.toCurrentDate(data.use_date)
                 if (this.typeForm == this.$enum.typeForm.edit)
                     this.form.fixedAssetCode = data.fixed_asset_code
                 // đánh dấu là đã lấy dữ liệu thành công
@@ -326,7 +326,6 @@ export default {
                     event.preventDefault()
                 }
             }
-            console.log(event)
         }
         window.addEventListener('keydown', this.eventKeyDown)
     },
@@ -564,11 +563,11 @@ export default {
             // gán lại cho error là rỗng
             this.errors.fixedAssetCode = ''
             // kiểm tra fixedAssetCode khác rỗng
-            if (!this.validateRequired(this.form.fixedAssetCode)) {
+            if (!this.validate.validateRequired(this.form.fixedAssetCode)) {
                 this.errors.fixedAssetCode = this.resource.validateMessage.required.format(fieldName)
             }
             // kiểm tra fixedAssetCode có length hợp lệ
-            else if (!this.validateLength(this.form.fixedAssetCode, length.min, length.max)) {
+            else if (!this.validate.validateLength(this.form.fixedAssetCode, length.min, length.max)) {
                 this.errors.fixedAssetCode = this.resource.validateMessage.length.format(fieldName, length.min, length.max)
             }
             else {
@@ -592,11 +591,11 @@ export default {
             // gán lại error là rỗng
             this.errors.fixedAssetName = ''
             // kiểm tra  fixedAssetName khác rỗng
-            if (!this.validateRequired(this.form.fixedAssetName)) {
+            if (!this.validate.validateRequired(this.form.fixedAssetName)) {
                 this.errors.fixedAssetName = this.resource.validateMessage.required.format(fieldName)
             }
             // kiểm tra fixedAssetName có length hợp lệ
-            else if (!this.validateLength(this.form.fixedAssetName, length.min, length.max)) {
+            else if (!this.validate.validateLength(this.form.fixedAssetName, length.min, length.max)) {
                 this.errors.fixedAssetName = this.resource.validateMessage.length.format(fieldName, length.min, length.max)
             }
         },
@@ -611,7 +610,7 @@ export default {
             // gán lại error là rỗng
             this.errors.departmentCode = ''
             // kiểm tra  departmentcode khác rỗng
-            if (!this.validateRequired(this.form.departmentCode)) {
+            if (!this.validate.validateRequired(this.form.departmentCode)) {
                 this.errors.departmentCode = this.resource.validateMessage.required.format(fieldName)
             }
         },
@@ -626,7 +625,7 @@ export default {
             // gán lại error là rỗng
             this.errors.fixedAssetCategoryCode = ''
             // kiểm tra  fixedAssetCategorycode khác rỗng
-            if (!this.validateRequired(this.form.fixedAssetCategoryCode)) {
+            if (!this.validate.validateRequired(this.form.fixedAssetCategoryCode)) {
                 this.errors.fixedAssetCategoryCode = this.resource.validateMessage.required.format(fieldName)
             }
         },
@@ -641,7 +640,7 @@ export default {
             // gán lại error là rỗng
             this.errors.purchaseDate = ''
             // kiểm tra purchaseDate khác rỗng
-            if (!this.validateRequired(this.form.purchaseDate)) {
+            if (!this.validate.validateRequired(this.form.purchaseDate)) {
                 this.errors.purchaseDate = this.resource.validateMessage.required.format(fieldName)
             }
         },
@@ -656,7 +655,7 @@ export default {
             // gán lại error là rỗng
             this.errors.useDate = ''
             // kiểm tra usedate khác rỗng
-            if (!this.validateRequired(this.form.useDate)) {
+            if (!this.validate.validateRequired(this.form.useDate)) {
                 this.errors.useDate = this.resource.validateMessage.required.format(fieldName)
             }
             // kiểm tra use date phải sau purchaseDate
@@ -675,11 +674,11 @@ export default {
             // gán lại error là rỗng
             this.errors.quantity = ''
             // kiểm tra quantity khác rỗng
-            if (!this.validateRequired(this.form.quantity)) {
+            if (!this.validate.validateRequired(this.form.quantity)) {
                 this.errors.quantity = this.resource.validateMessage.required.format(fieldName)
             }
             // kiểm tra quantity phải là số nguyên
-            else if (!this.validateInterger(this.form.quantity)) {
+            else if (!this.validate.validateInterger(this.form.quantity)) {
                 this.errors.quantity = this.resource.validateMessage.interger.format(fieldName)
             }
         },
@@ -694,11 +693,11 @@ export default {
             // gán lại error là rỗng
             this.errors.cost = ''
             //kiểm tra cost khác rỗng
-            if (!this.validateRequired(this.form.cost)) {
+            if (!this.validate.validateRequired(this.form.cost)) {
                 this.errors.cost = this.resource.validateMessage.required.format(fieldName)
             }
             // kiểm tra cost là số nguyên
-            else if (!this.validateInterger(this.form.cost)) {
+            else if (!this.validate.validateInterger(this.form.cost)) {
                 this.errors.cost = this.resource.validateMessage.interger.format(fieldName)
             }
         },
@@ -714,11 +713,11 @@ export default {
             // gán lại error là rỗng
             this.errors.lifeTime = ''
             // kiểm tra lifeTime khác rỗng
-            if (!this.validateRequired(this.form.lifeTime)) {
+            if (!this.validate.validateRequired(this.form.lifeTime)) {
                 this.errors.lifeTime = this.resource.validateMessage.required.format(fieldName)
             }
             // kiểm tra lifeTime là số nguyên
-            else if (!this.validateInterger(this.form.lifeTime)) {
+            else if (!this.validate.validateInterger(this.form.lifeTime)) {
                 this.errors.lifeTime = this.resource.validateMessage.interger.format(fieldName)
             }
             // kiểm tra là số dương
@@ -741,11 +740,11 @@ export default {
             // gán lại error là rỗng
             this.errors.depreciationRate = ''
             // kiểm tra lifeTime khác rỗng
-            if (!this.validateRequired(this.form.depreciationRate)) {
+            if (!this.validate.validateRequired(this.form.depreciationRate)) {
                 this.errors.depreciationRate = this.resource.validateMessage.required.format(fieldName)
             }
             // kiểm tra lifeTime là số thực
-            else if (!this.validateRealNumber(this.form.depreciationRate)) {
+            else if (!this.validate.validateRealNumber(this.form.depreciationRate)) {
                 this.errors.depreciationRate = this.resource.validateMessage.realNumber.format(fieldName)
             }
             else if (this.form.depreciationRate <= 0) {
@@ -771,7 +770,7 @@ export default {
             // gán lại error là rỗng
             this.errors.depreciationAnnual = ''
             // kiểm tra depreciationAnnual khác rỗng
-            if (!this.validateRequired(this.form.depreciationAnnual)) {
+            if (!this.validate.validateRequired(this.form.depreciationAnnual)) {
                 this.errors.depreciationAnnual = this.resource.validateMessage.required.format(fieldName)
                 return
             }
@@ -788,50 +787,6 @@ export default {
                 return
             }
         },
-
-
-        /**
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
-         * description: hàm kiểm tra khác rỗng
-         */
-        validateRequired(value) {
-            // nếu là string thì value.trim() khác rỗng, các giá trị khác thì phải null hoạc undefined
-            if (typeof value == 'string' && !value.trim() || value == null || value == undefined) {
-                return false
-            }
-
-            return true
-        },
-
-        /**
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
-         * description: kiểm tra một số có phải là số nguyên hay không
-         */
-        validateInterger(value) {
-            return Number.isInteger(Number.parseFloat(value))
-        },
-
-
-        /**
-         * author: Nguyen Quoc Huy
-         * created at: 07/05/2023
-         * description: kiểm tra một số có phải là số thực hay không
-         */
-        validateRealNumber(value) {
-            return !Number.isNaN(Number.parseFloat(value))
-        },
-
-        /**
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
-         * description: kiểm tra một số có phải là số nguyên hay không
-         */
-        validateLength(value, min, max) {
-            value = value.toString()
-            return value.length >= min && value.length <= max
-        }
 
     },
     watch: {

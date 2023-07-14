@@ -7,6 +7,15 @@ const mutations = {
     },
     setSelectedFixedAssets(state, [field, data]) {
         state.selectedFixedAssets[field] = data
+    },
+    setBudgets(state, [field, data]) {
+        state.budgets[field] = data
+    },
+    setBudgetDetails(state, data) {
+        state.budgetDetails = data
+    },
+    setListIdDeleted(state, [field, data]) {
+        state.listIdDeleted[field] = data
     }
 }
 

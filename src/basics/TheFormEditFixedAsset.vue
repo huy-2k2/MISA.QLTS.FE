@@ -1,11 +1,17 @@
 <template>
     <div class="main">
+        <MisaPopup :isShow="isLoading" :isHasClose="false">
+            <MisaLoading></MisaLoading>
+        </MisaPopup>
         <div class="form">
-            <h3 class="form__title">{{ resource.formTitle.editFixedAsset.format("Xe Toyota") }}</h3>
+            <h3 class="form__title">{{ resource.formTitle.editFixedAsset.format(this.fixedAsset?.fixed_asset_name || "") }}
+            </h3>
             <div class="form__body">
                 <div class="form__field">
-                    <MisaTextfieldForm :required="false" :disable="true" v-model="department"
-                        :label="resource.fieldName.department"></MisaTextfieldForm>
+                    <label class="label">
+                        {{ resource.fieldName.department }}
+                    </label>
+                    <MisaDisableField :text="departmentName"></MisaDisableField>
                 </div>
                 <div class="form__price">
                     <div class="form__price__title">{{ resource.fieldName.cost }}</div>
@@ -17,18 +23,26 @@
                             <div class="form__price__col">
                                 <div class="form__price__col__title">{{ resource.fieldName.value }}</div>
                             </div>
+                            <div @click="handleAddField(0)" v-if="!fields.length" class="form__price__add">
+                                <MisaToolTip :tooltip="resource.tooltip.addIncrement">
+                                    <div class="icon-add"></div>
+                                </MisaToolTip>
+                            </div>
                         </div>
                         <div class="form__fields custom-scrollbar">
                             <div v-for="(field, index) in fields" :key="field" class="form__price__row">
                                 <div class="form__price__col--big">
-                                    <MisaCombobox fieldText="sourceName" fieldValue="sourceCode" :data="source"
+                                    <MisaCombobox :error="errors[index]?.budgetId" fieldText="budget_name"
+                                        fieldValue="budget_id" :data="$store.state.ls.budgets.data"
                                         :typeCombobox="$enum.typeCombobox.listOption"
                                         :placeholder="resource.placeholder.combobox.format(resource.fieldName.source)"
-                                        v-model="field.combobox" :isLoading="false" :isDisplayValue="false">
+                                        v-model="field.budget_id" :isLoading="$store.state.ls.budgets.isLoading"
+                                        :isDisplayValue="false">
                                     </MisaCombobox>
                                 </div>
                                 <div class="form__price__col--small">
-                                    <MisaNumberForm :currrency="true" v-model="field.cost" :icon="false" :required="false">
+                                    <MisaNumberForm :error="errors[index]?.budgetValue" :float="true" :currrency="true"
+                                        v-model="field.budget_value" :icon="false" :required="false">
                                     </MisaNumberForm>
                                 </div>
                                 <div class="form__price__control">
@@ -47,63 +61,156 @@
                         </div>
                         <div class="form__price__row">
                             <div class="form__price__col--big">
-                                <MisaTextfieldForm :disable="true" :required="false" v-model="totalText">
-                                </MisaTextfieldForm>
+                                <MisaDisableField text="tổng"></MisaDisableField>
                             </div>
                             <div class="form__price__col--small">
-                                <MisaNumberForm :currrency="true" :icon="false" :disable="true" :required="false"
-                                    v-model="totalVale">
-                                </MisaNumberForm>
+                                <MisaDisableField :text="totalValue" :isRight="true"></MisaDisableField>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="form__bottom">
-                <MisaButton :isOutline="true" :text="resource.buttons.cancel"></MisaButton>
-                <MisaButton :text="resource.buttons.save"></MisaButton>
+                <MisaButton @clickButton="isShowCancel = true" :isOutline="true" :text="resource.buttons.cancel">
+                </MisaButton>
+                <MisaButton @clickButton="handleSubmit" :text="resource.buttons.save"></MisaButton>
             </div>
         </div>
     </div>
+    <MisaPopup :isShow="isShowCancel" :isHasClose="false">
+        <MisaDialog :text="this.resource.dialogMessages.cancelSave" @click1="$emit('clickClose')"
+            @click2="this.isShowCancel = false" quantity="2" :button1="this.resource.buttons.discard"
+            :button2="this.resource.buttons.notConfirm">
+        </MisaDialog>
+    </MisaPopup>
 </template>
 
 <script>
-import MisaTextfieldForm from '@/components/MisaTextfieldForm.vue';
 import MisaCombobox from '@/components/MisaCombobox.vue';
 import MisaNumberForm from '@/components/MisaNumberForm.vue';
 import MisaToolTip from '@/components/MisaToolTip.vue';
 import MisaButton from '@/components/MisaButton.vue';
-
+import MisaPopup from '@/components/MisaPopup.vue';
+import MisaDialog from '@/components/MisaDialog.vue';
+import MisaDisableField from '@/components/MisaDisableField.vue';
+import MisaLoading from '@/components/MisaLoading.vue';
+import { GetBudgetsByFixedAssetIdApi, getFixedAssetApi } from '@/js/api';
 export default {
-    components: { MisaTextfieldForm, MisaCombobox, MisaNumberForm, MisaToolTip, MisaButton },
+    emits: ["clickClose"],
+    components: { MisaCombobox, MisaNumberForm, MisaToolTip, MisaButton, MisaPopup, MisaDialog, MisaDisableField, MisaLoading },
     data() {
         return {
-            totalText: 'Tổng',
-            totalVale: '100000000',
-            department: "Trung tâm GDTX",
-            source: [
-                { sourceCode: "1", sourceName: 'Ngân sách Tỉnh' },
-                { sourceCode: "2", sourceName: 'Ngân sách Huyện' },
-                { sourceCode: "3", sourceName: 'Ngân sách Trung ương' },
-            ],
+            isShowCancel: false,
+            fixedAsset: null,
+            isLoading: false,
             fields: [
                 {
-                    combobox: "1",
-                    cost: "1000000"
+                    budget_id: "",
+                    budget_value: ""
                 },
-                {
-                    combobox: "1",
-                    cost: "1000000"
-                },
-            ]
+            ],
+            errors: [],
+            listIdRemove: [],
+        }
+    },
+    props: {
+        fixedAssetId: {
+            type: String
         }
     },
     methods: {
+        validateBudgetId(budgetId, index) {
+            if (!this.validate.validateRequired(budgetId)) {
+                return "không được bỏ trống"
+            }
+            const isExisted = this.fields.find((field, i) => field.budget_id == budgetId && i < index)
+            if (isExisted) {
+                return "Nguồn chi phí đã tồn tại"
+            }
+        },
+        validateBudgetValue(value) {
+            if (!this.validate.validateRequired(value)) {
+                return "không được bỏ trống"
+            }
+            if (Number.isNaN(value)) {
+                return "giá trị không hợp lệ"
+            }
+        },
+
         handleAddField(index) {
-            this.fields.splice(index + 1, 0, { combobox: null, cost: null })
+            this.fields.splice(index + 1, 0, { budget_id: null, budget_value: null })
         },
         handleRemoveField(index) {
+            const detailId = this.fields[index].budget_detail_id
+            if (detailId)
+                this.listIdRemove.push(detailId)
             this.fields.splice(index, 1)
+        },
+        handleSubmit() {
+            let isError = false
+            this.fields.forEach((field, index) => {
+                const budgetIdError = this.validateBudgetId(field.budget_id, index)
+                const budgetValueError = this.validateBudgetValue(field.budget_value)
+                const error = {
+                    budgetId: budgetIdError,
+                    budgetValue: budgetValueError
+                }
+                this.errors[index] = error
+                if (budgetValueError || budgetIdError)
+                    isError = true
+            })
+            if (!isError) {
+                const oldListId = this.$store.state.ls.listIdDeleted.budgetDetail
+                this.$store.commit("setListIdDeleted", ["budgetDetail", [...oldListId, ...this.listIdRemove]])
+                this.$store.dispatch("setBudgetDetails", { fixed_asset_id: this.fixedAssetId, budgets: this.fields })
+                this.$emit("clickClose")
+            }
+        }
+    },
+    computed: {
+        totalValue() {
+            const result = this.fields.reduce((total, field) => total + (field.budget_value ? Number.parseFloat(field.budget_value) : 0), 0)
+            return this.convert.toCurrency(result)
+        },
+        departmentName() {
+            if (this.fixedAsset) {
+                const department = this.$store.getters.departmentById(this.fixedAsset.department_id)
+                return department.departmentName
+            }
+            return ""
+        }
+    },
+    beforeMount() {
+        const budgetDetail = this.$store.getters.budgetDetailByFixedAssetId(this.fixedAssetId)
+        this.isLoading = true
+        let isLoadedFa = false
+        let isLoadedBudgets = !!budgetDetail
+        getFixedAssetApi(this.fixedAssetId, (data) => {
+            this.fixedAsset = data
+            isLoadedFa = true
+            if (isLoadedBudgets)
+                this.isLoading = false
+        })
+        if (!budgetDetail) {
+            GetBudgetsByFixedAssetIdApi(this.fixedAssetId, (data) => {
+                if (data.length) {
+                    this.fields = data.map((field) => ({ budget_detail_id: field.budget_detail.budget_detail_id, budget_id: field.budget_id, budget_value: field.budget_detail.budget_value }))
+                }
+                isLoadedBudgets = true
+                if (isLoadedFa)
+                    this.isLoading = false
+            })
+
+        } else {
+            if (budgetDetail.budgets.length)
+                this.fields = budgetDetail.budgets.map(b => b)
+            else
+                this.fields = [
+                    {
+                        budget_id: "",
+                        budget_value: ""
+                    }
+                ]
         }
     }
 }
@@ -121,13 +228,23 @@ export default {
     padding: 20px;
 }
 
+.form__price {
+    margin-top: 16px;
+}
+
+.form__price__add {
+    position: absolute;
+    left: calc(100% + 16px);
+    top: 0;
+    cursor: pointer;
+}
+
 .form__field {
     width: 500px;
 }
 
 .form__body {
     padding: 0 20px;
-    height: 500px;
 }
 
 .form__price__title::first-letter {
@@ -135,10 +252,18 @@ export default {
 }
 
 .form__price__body {
-    margin-top: 10px;
+    margin-top: 16px;
     display: flex;
     flex-direction: column;
-    row-gap: 2px;
+    row-gap: 10px;
+}
+
+.label {
+    display: block;
+}
+
+.label::first-letter {
+    text-transform: capitalize;
 }
 
 .form__price__row {
@@ -183,9 +308,12 @@ export default {
 }
 
 .form__fields {
-    height: 300px;
+    height: 320px;
     overflow-y: auto;
     scroll-behavior: auto;
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
 }
 
 .form__bottom {
@@ -196,5 +324,6 @@ export default {
     column-gap: 8px;
     padding: 8px 20px;
     border-radius: inherit;
+    margin-top: 20px;
 }
 </style>

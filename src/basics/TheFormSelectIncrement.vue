@@ -9,28 +9,37 @@
                 </div>
             </div>
             <div class="form__table">
-                <MisaTable @changeCheckboxData="handleChangeCheckboxData" @setPage="handleSetPage"
-                    @setPageSize="handleSetPageSize" :isLoading="$store.state.ls.selectFixedAssets.isLoading"
-                    :isDisplayFeature="false" :footer="footer" :isHasCheckbox="true" :bodyData="bodyData"
-                    :headData="headData"></MisaTable>
+                <MisaTable @setPage="handleSetPage" @setPageSize="handleSetPageSize"
+                    :isLoading="$store.state.ls.selectFixedAssets.isLoading" :isDisplayFeature="false" :footer="footer"
+                    :isHasCheckbox="true" :bodyData="bodyData" :headData="headData" :selectedList="listIdSelected"
+                    @changeCheckboxData="(listId) => listIdSelected = listId"></MisaTable>
             </div>
             <div class="form__bottom">
-                <MisaButton :shadow="true" :isOutline="true" :text="resource.buttons.discard">
+                <MisaButton @clickButton="isShowCancel = true" :shadow="true" :isOutline="true"
+                    :text="resource.buttons.discard">
                 </MisaButton>
                 <MisaButton @clickButton="handleSave" :shadow="true" :text="resource.buttons.confirm"></MisaButton>
             </div>
         </div>
-
     </div>
+    <MisaPopup :isShow="isShowCancel" :isHasClose="false">
+        <MisaDialog :text="this.resource.dialogMessages.cancelSave" @click1="$emit('clickClose')"
+            @click2="this.isShowCancel = false" quantity="2" :button1="this.resource.buttons.discard"
+            :button2="this.resource.buttons.notConfirm">
+        </MisaDialog>
+    </MisaPopup>
 </template>
 
 <script>
 import MisaTextField from '@/components/MisaTextField.vue';
 import MisaTable from '@/components/MisaTable.vue';
 import MisaButton from '@/components/MisaButton.vue';
+import MisaDialog from '@/components/MisaDialog.vue';
+import MisaPopup from '@/components/MisaPopup.vue';
 import { DEFAULT_PAGE_SIZE } from '@/config';
 export default {
-    components: { MisaTextField, MisaTable, MisaButton },
+    emits: ['clickClose'],
+    components: { MisaTextField, MisaTable, MisaButton, MisaDialog, MisaPopup },
     data() {
         return {
             headData: [
@@ -74,7 +83,14 @@ export default {
                 ]
             },
             textSearch: "",
-            seletedFixedAssets: []
+            listIdSelected: [],
+            selectedList: [],
+            isShowCancel: false
+        }
+    },
+    props: {
+        licenseId: {
+            type: String,
         }
     },
     computed: {
@@ -94,33 +110,23 @@ export default {
     methods: {
         handleSetPage(page) {
             this.$store.commit("setSelectFixedAssets", ['currentPage', page])
-            this.$store.dispatch("getFilterSelectFixedAsset")
+            this.$store.dispatch("getFilterSelectFixedAsset", this.licenseId)
         },
         handleSetPageSize(pageSize) {
             this.$store.commit("setSelectFixedAssets", ['pageSize', pageSize])
             this.$store.commit("setSelectFixedAssets", ['currentPage', 1])
-            this.$store.dispatch("getFilterSelectFixedAsset")
+            this.$store.dispatch("getFilterSelectFixedAsset", this.licenseId)
         },
         handleSearch(event) {
             if (event.key == "Enter") {
                 this.$store.commit("setSelectFixedAssets", ['filterTextSearch', this.textSearch])
                 this.$store.commit("setSelectFixedAssets", ['currentPage', 1])
-                this.$store.dispatch("getFilterSelectFixedAsset")
+                this.$store.dispatch("getFilterSelectFixedAsset", this.licenseId)
             }
-        },
-        handleChangeCheckboxData(checkboxData) {
-            const newList = []
-            checkboxData.forEach((isChecked, index) => {
-                if (isChecked) {
-                    const fixedAsset = this.$store.state.ls.selectFixedAssets.data[index]
-                    newList.push(fixedAsset)
-                }
-            })
-            this.seletedFixedAssets = newList
         },
         handleSave() {
             const oldList = this.$store.state.ls.selectedFixedAssets.allData
-            this.$store.commit("setSelectedFixedAssets", ["allData", oldList.concat(this.seletedFixedAssets)])
+            this.$store.commit("setSelectedFixedAssets", ["allData", oldList.concat(this.selectedList)])
             this.$emit("clickClose")
         }
     },
@@ -128,7 +134,7 @@ export default {
         this.$store.commit("setSelectFixedAssets", ['filterTextSearch', ""])
         this.$store.commit("setSelectFixedAssets", ['currentPage', 1])
         this.$store.commit("setSelectFixedAssets", ['pageSize', DEFAULT_PAGE_SIZE])
-        this.$store.dispatch("getFilterSelectFixedAsset")
+        this.$store.dispatch("getFilterSelectFixedAsset", this.licenseId)
     },
     watch: {
         fixedAssets(newVal) {
@@ -138,18 +144,36 @@ export default {
                     fixedAsset.fixed_asset_code,
                     fixedAsset.fixed_asset_name,
                     department.departmentName,
-                    fixedAsset.cost,
-                    fixedAsset.depreciation_annual,
-                    fixedAsset.cost
+                    this.convert.toCurrency(fixedAsset.cost),
+                    this.convert.toCurrency(fixedAsset.depreciation_annual),
+                    this.convert.toCurrency(fixedAsset.cost),
                 ]
             })
+            this.bodyData.listId = newVal.map(fixedAsset => fixedAsset.fixed_asset_id)
+        },
+        listIdSelected: {
+            handler(newList) {
+                this.bodyData.listId.forEach(id => {
+                    const isExisted = newList.includes(id)
+                    if (!isExisted) {
+                        this.selectedList = this.selectedList.filter(fa => fa.fixed_asset_id != id)
+                    } else {
+                        const isFixedAssetExisted = this.selectedList.find(fa => fa.fixed_asset_id == id)
+                        if (!isFixedAssetExisted) {
+                            const newFixedAsset = this.fixedAssets.find(fa => fa.fixed_asset_id == id)
+                            this.selectedList.push(newFixedAsset)
+                        }
+                    }
+                })
+            },
+            deep: true
         },
 
         textSearch(newVal) {
             if (!newVal) {
                 this.$store.commit("setSelectFixedAssets", ['filterTextSearch', ""])
                 this.$store.commit("setSelectFixedAssets", ['currentPage', 1])
-                this.$store.dispatch("getFilterSelectFixedAsset")
+                this.$store.dispatch("getFilterSelectFixedAsset", this.licenseId)
             }
         }
     }

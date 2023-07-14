@@ -38,8 +38,10 @@ export default {
          * description: Computed chuyển đổi value của input về dạng tiền tệ vnđ, sử dụng global function convert.toCurrency
          */
         valueCurrenCy() {
+            if (this.value === 0 || this.value === "0")
+                return "0"
             if (!this.value)
-                return ''
+                return ""
             const parts = this.value.toString().split('.')
             // trường hợp người dùng nhập số nguyên
             if (parts.length == 1)
@@ -120,10 +122,6 @@ export default {
                 // kiểm tra nếu đã tồn tại dấu . thì không ấn được . nữa
                 if (value && value.substring(0, value.length - 1).indexOf('.') != -1 && value[value.length - 1] == '.')
                     value = value.substring(0, value.length - 1)
-                // event.target.value = value
-            }
-            // nếu input là số thực thì chỉ lấy 2 số thập phân sau dấu .
-            if (this.float) {
                 const valueArray = value.split('.')
                 let [, decimal] = valueArray
                 if (decimal?.length > 2) {

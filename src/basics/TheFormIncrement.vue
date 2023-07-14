@@ -1,27 +1,30 @@
 <template>
     <div v-show="!isShowChoseFixedAssetForm" class="form">
         <div class="form__head">
-            <h3 class="form__title">{{ resource.formTitle.addIncrement }}</h3>
+            <h3 v-if="typeForm == $enum.typeForm.add" class="form__title">{{ resource.formTitle.addIncrement }}</h3>
+            <h3 v-if="typeForm == $enum.typeForm.edit" class="form__title">{{ resource.formTitle.editIncrement }}</h3>
         </div>
         <div class="form__top">
             <h4 class="form__top__title">{{ resource.formTitle.infoIncrement }}</h4>
             <div class="form__top__body">
                 <div class="form__top__fields">
-                    <div class="form__top__field">
-                        <MisaTextfieldForm v-model="form.licenseCode"
+                    <div ref="licenseCode" class="form__top__field">
+                        <MisaTextfieldForm :error="errors.licenseCode" v-model="form.license_code"
                             :placeholder="resource.placeholder.input.format(resource.fieldName.incrementCode)"
                             :label="resource.fieldName.incrementCode"></MisaTextfieldForm>
                     </div>
-                    <div class="form__top__field">
-                        <MisaInputDate :label="resource.fieldName.useDate"></MisaInputDate>
+                    <div ref="useDay" class="form__top__field">
+                        <MisaInputDate :error="errors.useDay" v-model="form.use_day" :label="resource.fieldName.useDate">
+                        </MisaInputDate>
                     </div>
-                    <div class="form__top__field">
-                        <MisaInputDate :label="resource.fieldName.incrementDay"></MisaInputDate>
+                    <div ref="createDay" class="form__top__field">
+                        <MisaInputDate :error="errors.createDay" v-model="form.create_day"
+                            :label="resource.fieldName.incrementDay"></MisaInputDate>
                     </div>
                 </div>
                 <div class="form__top__fields">
                     <div class="form__top__field">
-                        <MisaTextfieldForm :required="false"
+                        <MisaTextfieldForm :required="false" v-model="form.content"
                             :placeholder="resource.placeholder.input.format(resource.fieldName.note)"
                             :label="resource.fieldName.note"></MisaTextfieldForm>
                     </div>
@@ -40,20 +43,39 @@
             </div>
             <div class="form__bottom__table">
                 <MisaTable @setPage="handleSetPage" @setPageSize="handleSetPageSize" :isDisplayFeature="false"
-                    @feature_0="isShowEditFixedAssetForm = true" :footer="footer" :bodyData="bodyData" :headData="headData">
+                    @feature_0="handleEditFixedAsset" @feature_1="handleRemoveFixedAsset" :footer="footer"
+                    :bodyData="bodyData" :headData="headData">
                 </MisaTable>
             </div>
         </div>
         <div class="form__footer">
-            <MisaButton :shadow="true" :text="resource.buttons.cancel" :isOutline="true"></MisaButton>
-            <MisaButton :shadow="true" :text="resource.buttons.save"></MisaButton>
+            <MisaButton @clickButton="isShowCancel = true" :shadow="true" :text="resource.buttons.cancel" :isOutline="true">
+            </MisaButton>
+            <MisaButton @clickButton="handleSubmit" :shadow="true" :text="resource.buttons.save"></MisaButton>
         </div>
     </div>
     <MisaPopup :isShow="isShowChoseFixedAssetForm" :isHasClose="true" @close="isShowChoseFixedAssetForm = false">
-        <TheFormSelectIncrement @clickClose="isShowChoseFixedAssetForm = false"></TheFormSelectIncrement>
+        <TheFormSelectIncrement :licenseId="typeForm != $enum.typeForm.edit ? null : licenseId"
+            @clickClose="isShowChoseFixedAssetForm = false">
+        </TheFormSelectIncrement>
     </MisaPopup>
     <MisaPopup :isShow="isShowEditFixedAssetForm" :isHasClose="true" @close="isShowEditFixedAssetForm = false">
-        <TheFormEditFixedAsset></TheFormEditFixedAsset>
+        <TheFormEditFixedAsset :fixedAssetId="fixedAssetId" @clickClose="isShowEditFixedAssetForm = false">
+        </TheFormEditFixedAsset>
+    </MisaPopup>
+    <MisaPopup :isShow="isShowCancel" :isHasClose="false">
+        <MisaDialog :text="this.resource.dialogMessages.cancelSave" @click1="$emit('clickClose')"
+            @click2="this.isShowCancel = false" quantity="2" :button1="this.resource.buttons.discard"
+            :button2="this.resource.buttons.notConfirm">
+        </MisaDialog>
+    </MisaPopup>
+    <MisaPopup :isShow="isShowError" :isHasClose="false">
+        <MisaDialog :text="errorNotifi" :isHasClose="false" @click1="handleCloseError" quantity="1"
+            :button1="this.resource.buttons.close">
+        </MisaDialog>
+    </MisaPopup>
+    <MisaPopup :isShow="isLoading" :isHasClose="false">
+        <MisaLoading></MisaLoading>
     </MisaPopup>
 </template>
 
@@ -66,16 +88,36 @@ import MisaTable from '@/components/MisaTable.vue';
 import MisaPopup from '@/components/MisaPopup.vue';
 import TheFormSelectIncrement from '@/basics/TheFormSelectIncrement.vue';
 import TheFormEditFixedAsset from '@/basics/TheFormEditFixedAsset.vue';
-import { getRecommendLicenseCodeApi } from '@/js/api';
+import { getLicenseByIdApi, getLicenseCodeExistedApi, getListFixedAssetByLicenseId, getRecommendLicenseCodeApi, postLicenseApi, putLicenseApi } from '@/js/api';
 import { DEFAULT_PAGE_SIZE } from '@/config';
+import MisaDialog from '@/components/MisaDialog.vue';
+import MisaLoading from '@/components/MisaLoading.vue';
 export default {
-    components: { MisaTextfieldForm, MisaInputDate, MisaTextField, MisaButton, MisaTable, MisaPopup, TheFormSelectIncrement, TheFormEditFixedAsset },
+    emits: ['clickClose'],
+    components: { MisaTextfieldForm, MisaInputDate, MisaTextField, MisaButton, MisaTable, MisaPopup, MisaDialog, TheFormSelectIncrement, TheFormEditFixedAsset, MisaLoading },
+    props: {
+        typeForm: {
+            type: String
+        },
+        licenseId: {
+            type: String
+        }
+    },
     data() {
         return {
             isShowChoseFixedAssetForm: false,
             isShowEditFixedAssetForm: false,
             textSearch: "",
-            form: {},
+            isShowCancel: false,
+            isShowError: false,
+            isLoading: false,
+            errors: {},
+            fixedAssetId: null,
+            budgetData: [],
+            form: {
+                use_day: this.convert.toCurrentDate(),
+                create_day: this.convert.toCurrentDate(),
+            },
             headData: [
                 {
                     data: this.resource.tHead[1],
@@ -114,7 +156,8 @@ export default {
                     }
                 ],
                 body: [
-                ]
+                ],
+                listId: []
             },
             footer: {
                 paging: {
@@ -128,6 +171,104 @@ export default {
         }
     },
     methods: {
+        handleCloseError() {
+            for (const p in this.errors) {
+                if (this.errors[p]) {
+                    this.$refs[p]?.querySelector("input")?.focus()
+                    break
+                }
+            }
+            this.isShowError = false
+        },
+        async handleSubmit() {
+            const licenseCodeError = await this.validateLicenseCode()
+            const useDayError = this.validateUseDay()
+            const createDayError = this.validateCreateDay()
+            const selectedFixedAssetsError = this.validateSelectedFixedAssets()
+            this.errors = {
+                licenseCode: licenseCodeError,
+                useDay: useDayError,
+                createDay: createDayError,
+                selectedFixedAssets: selectedFixedAssetsError
+            }
+            if (this.errorNotifi) {
+                this.isShowError = true
+            } else {
+                const list_fixed_asset = this.$store.state.ls.selectedFixedAssets.allData.map(fa => {
+                    return {
+                        fixed_asset_id: fa.fixed_asset_id,
+                        license_detail_id: fa.license_detail_id,
+                        budgets: this.$store.getters.budgetDetailByFixedAssetId(fa.fixed_asset_id)?.budgets
+                    }
+                })
+                const bodyRequest = {
+                    list_fixed_asset,
+                    license: this.form,
+                    list_fixed_asset_id_delete: this.$store.state.ls.listIdDeleted.licenseDetail,
+                    list_budget_detail_id_delete: this.$store.state.ls.listIdDeleted.budgetDetail,
+                }
+                if (this.typeForm == this.$enum.typeForm.add) {
+                    postLicenseApi(bodyRequest, () => {
+                        // emit sự kiện đóng form cho component cha
+                        this.$emit('clickClose')
+                        // hiện thông báo
+                        this.emitter.emit("setToastMessage", this.resource.toastMessage[this.typeForm]);
+                        // tải lại danh sách tài sản
+                        this.$store.dispatch("getFilterLicenses")
+                    })
+                } else if (this.typeForm == this.$enum.typeForm.edit) {
+                    console.log(this.$store.state.ls.listIdDeleted);
+                    putLicenseApi(this.licenseId, bodyRequest, () => {
+                        this.$emit('clickClose')
+                        // hiện thông báo
+                        this.emitter.emit("setToastMessage", this.resource.toastMessage[this.typeForm]);
+                        // tải lại danh sách tài sản
+                        this.$store.dispatch("getFilterLicenses")
+                    })
+                }
+            }
+        },
+        async validateLicenseCode() {
+            const fieldName = this.resource.fieldName.incrementCode
+            const length = { min: 0, max: 100 }
+            if (!this.validateRequired(this.form.license_code)) {
+                return this.resource.validateMessage.required.format(fieldName)
+            }
+            if (!this.validate.validateLength(this.form.license_code, length.min, length.max)) {
+                return this.resource.validateMessage.length.format(fieldName, length.min, length.max)
+            }
+            const licenseId = this.typeForm == this.$enum.typeForm.edit ? this.licenseId : ""
+            const isCodeExisted = await getLicenseCodeExistedApi(this.form.license_code, licenseId)
+            if (isCodeExisted) {
+                return this.resource.validateMessage.duplicate.format(fieldName)
+            }
+        },
+        validateUseDay() {
+            const fieldName = this.resource.fieldName.useDate
+            if (!this.validateRequired(this.form.use_day)) {
+                return this.resource.validateMessage.required.format(fieldName)
+            }
+        },
+        validateCreateDay() {
+            const fieldName = this.resource.fieldName.incrementDay
+            if (!this.validateRequired(this.form.create_day)) {
+                return this.resource.validateMessage.required.format(fieldName)
+            }
+        },
+        validateSelectedFixedAssets() {
+            const selectedFixedAssets = this.$store.state.ls.selectedFixedAssets.allData
+            if (!selectedFixedAssets.length) {
+                return this.resource.validateMessage.seletedFixedAssets;
+            }
+        },
+        handleRemoveFixedAsset(index) {
+            const fixedAsset = this.paginateSelectedFixedAsset.listPaginated[index]
+            if (fixedAsset.license_detail_id) {
+                const oldListId = this.$store.state.ls.listIdDeleted.licenseDetail
+                this.$store.commit("setListIdDeleted", ["licenseDetail", [...oldListId, fixedAsset.license_detail_id]])
+            }
+            this.$store.dispatch("removeSelectedFixedAsset", fixedAsset.fixed_asset_id)
+        },
         handleSetPage(page) {
             this.$store.commit("setSelectedFixedAssets", ["currentPage", page])
         },
@@ -140,18 +281,38 @@ export default {
                 this.$store.commit("setSelectedFixedAssets", ["currentPage", 1])
                 this.$store.commit("setSelectedFixedAssets", ["filterTextSearch", this.textSearch])
             }
-        }
+        },
+        handleEditFixedAsset(index) {
+            this.fixedAssetId = this.paginateSelectedFixedAsset.listPaginated[index].fixed_asset_id
+            this.isShowEditFixedAssetForm = true
+        },
+
+        validateRequired(value) {
+            // nếu là string thì value.trim() khác rỗng, các giá trị khác thì phải null hoạc undefined
+            if (typeof value == 'string' && !value.trim() || value == null || value == undefined) {
+                return false
+            }
+            return true
+        },
     },
     computed: {
         paginateSelectedFixedAsset() {
             return this.$store.getters.paginateSelectedFixedAsset()
+        },
+        errorNotifi() {
+            return Object.values(this.errors).map(error => error ? `<p>- ${this.convert.toUpperFirstChar(error)}.</p>` : '').join('')
         }
     },
     watch: {
         paginateSelectedFixedAsset(newVal) {
             this.bodyData.body = newVal.listPaginated.map(fixedAsset => {
                 const department = this.$store.getters.departmentById(fixedAsset.department_id)
-                return [fixedAsset.fixed_asset_code, fixedAsset.fixed_asset_name, department.departmentName, fixedAsset.cost, fixedAsset.depreciation_annual, fixedAsset.cost]
+                return [
+                    fixedAsset.fixed_asset_code, fixedAsset.fixed_asset_name, department.departmentName,
+                    this.convert.toCurrency(fixedAsset.cost),
+                    this.convert.toCurrency(fixedAsset.depreciation_annual),
+                    this.convert.toCurrency(fixedAsset.cost),
+                ]
             })
             this.footer.data = ["", "", "", "",
                 { type: this.$enum.dataType.double, data: this.convert.toCurrency(newVal.totalCost) },
@@ -172,10 +333,42 @@ export default {
         }
     },
     beforeMount() {
-        getRecommendLicenseCodeApi((data) => {
-            this.form.licenseCode = data
-        })
-    }
+        if (this.typeForm == this.$enum.typeForm.add) {
+            getRecommendLicenseCodeApi((data) => {
+                this.form.license_code = data
+                this.$store.commit("setSelectedFixedAssets", ["allData", []])
+            })
+        } else if (this.typeForm == this.$enum.typeForm.edit) {
+            let isLoadedLicense = true
+            let isLoadedFixedAsset = false
+            this.isLoading = false
+            getLicenseByIdApi(this.licenseId, (data) => {
+                isLoadedLicense = true
+                if (isLoadedFixedAsset) {
+                    this.isLoading = false
+                }
+                this.form = {
+                    license_code: data.license_code,
+                    use_day: this.convert.toCurrentDate(data.use_day),
+                    create_day: this.convert.toCurrentDate(data.create_day),
+                    content: data.content
+                }
+            })
+            getListFixedAssetByLicenseId(this.licenseId, (data) => {
+                isLoadedFixedAsset = true
+                if (isLoadedLicense)
+                    this.isLoading = false
+                this.$store.commit("setSelectedFixedAssets", ["allData", data])
+            })
+        }
+
+        this.$store.commit("setSelectedFixedAssets", ["currentPage", 1])
+        this.$store.commit("setSelectedFixedAssets", ["pageSize", DEFAULT_PAGE_SIZE])
+        this.$store.commit("setSelectedFixedAssets", ["filterTextSearch", ""])
+        this.$store.commit("setBudgetDetails", [])
+        this.$store.commit("setListIdDeleted", ["licenseDetail", []])
+        this.$store.commit("setListIdDeleted", ["budgetDetail", []])
+    },
 }
 </script>
 

@@ -28,22 +28,20 @@
                     </tr>
                 </thead>
                 <tbody class="tbody" ref="tbody">
-                    <tr @click="handleClickTr($event, index)" @dblclick="handleDbClickTr($event, index)" class="table__tr"
-                        v-for="(tr, index) in body" :key="tr" :class="{ isActive: index == indexActive }">
-                        <td v-if="isHasCheckbox" class="no_action">
-                            <MisaInputCheckbox v-model="checkboxData[index]">
-                            </MisaInputCheckbox>
+                    <tr @click="handleClickTr($event, index + baseIndex)" @dblclick="handleDbClickTr($event, index)"
+                        class="table__tr" v-for="(tr, index) in body" :key="tr" :class="{ isActive: index == indexActive }">
+                        <td v-if="isHasCheckbox">
+                            <div class="no_action">
+                                <MisaInputCheckbox v-model="checkboxData[index + baseIndex]">
+                                </MisaInputCheckbox>
+                            </div>
                         </td>
                         <td>{{ index + baseIndex + 1 }}</td>
                         <td v-for=" (td, i) in tr" :key="td" :class="`type-${headData[i].type}`">
                             <MisaToolTip :tooltip="bodyData.features && !isDisplayFeature && isHoverFeature ? '' : td">
                                 <div class="td__content">
-                                    <span class="text"
-                                        v-if="headData[i].type == $enum.dataType.interger || headData[i].type == $enum.dataType.double">
-                                        {{ convert.toCurrency(td) }}
-                                    </span>
-                                    <span class="text" v-else>{{ td }}</span>
-                                    <div class="table__function table__function--abs"
+                                    <span class="text">{{ td }}</span>
+                                    <div class="table__function table__function--abs no_action"
                                         v-if="bodyData.features && !isDisplayFeature && i == tr.length - 1">
                                         <MisaToolTip @mouseover="isHoverFeature = true" @mouseout="isHoverFeature = false"
                                             v-for="(feature, j) in bodyData.features" :key="feature"
@@ -53,12 +51,11 @@
                                             </button>
                                         </MisaToolTip>
                                     </div>
-
                                 </div>
                             </MisaToolTip>
                         </td>
-                        <td v-if="bodyData.features && isDisplayFeature" class="no_action">
-                            <div class="table__function">
+                        <td v-if="bodyData.features && isDisplayFeature">
+                            <div class="table__function no_action">
                                 <MisaToolTip v-for="(feature, j) in bodyData.features" :key="feature"
                                     :tooltip="feature.tooltip">
                                     <button @click="$emit(`feature_${j}`, index)" class=" table__function__button">
@@ -96,15 +93,14 @@
                     </div>
                 </div>
                 <div ref="selectPageSizeOption" v-show="isShowPageSizeList" class="table__paginate__select__options">
-                    <div @click="$emit('setPageSize', pageSize); isShowPageSizeList = false"
-                        v-for=" pageSize in pageSizeList " :key="pageSize"
+                    <div @click="handleSetPageSize(pageSize)" v-for=" pageSize in pageSizeList " :key="pageSize"
                         :class="{ active: pageSize == footer.paging.pageSize }" class="table__paginate__select__option">
                         {{ pageSize }}
                     </div>
                 </div>
             </div>
             <MisaPaginate :totalData="footer.paging.totalData" :currentPage="footer.paging.currentPage"
-                :pageSize="footer.paging.pageSize" @setPage="(page) => $emit('setPage', page)">
+                :pageSize="footer.paging.pageSize" @setPage="handleSetPage">
             </MisaPaginate>
         </div>
         <div v-if="!footer" class="table__bonus"></div>
@@ -152,16 +148,21 @@ export default {
         isDisplayFeature: {
             type: Boolean,
             default: true
+        },
+        selectedList: {
+            type: Array,
+            default: () => []
         }
     },
-    emits: ["setPageSize", "setPage", "dbClickTr", "changeCheckboxData", "feature_0", "feature_1", "context_0", "context_1", "context_2", "context_3"],
+    emits: ["setPageSize", "setPage", "dbClickTr", "changeCheckboxData", "feature_0", "feature_1", "context_0", "context_1", "context_2", "context_3", "activeTr"],
     data() {
         return {
-            pageSizeList: [10, 20, 50, 300],
+            pageSizeList: [10, 20, 50, 3000],
             isShowPageSizeList: false,
             isCheckedAll: false,
             isHoverFeature: false,
             checkboxData: [],
+            listIdTable: [],
             indexActive: -1,
             eventCloseExtentComponent: null,
             eventControlTable: null,
@@ -172,6 +173,15 @@ export default {
     },
 
     methods: {
+        handleSetPage(page) {
+            this.indexActive = -1
+            this.$emit('setPage', page)
+        },
+        handleSetPageSize(pageSize) {
+            this.indexActive = -1
+            this.$emit('setPageSize', pageSize);
+            this.isShowPageSizeList = false
+        },
         /**
         * author: Nguyen Quoc Huy
         * created at: 30/05/2023
@@ -194,8 +204,8 @@ export default {
             else if (event.shiftKey) {
                 if (this.indexActive != -1) {
                     // đánh dấu checked cho các phần tử nhầm trong khoảng shift
-                    const min = Math.min(this.indexActive, index)
-                    const max = Math.max(this.indexActive, index)
+                    const min = Math.min(this.indexActive + this.baseIndex, index)
+                    const max = Math.max(this.indexActive + this.baseIndex, index)
                     // nếu trong đoạn min đến max mã đã check thì bỏ checked, nếu có ít nhất 1 phần tử chưa checked thì checked = true cho tất cả
                     let checked = true
                     for (let i = min; i <= max; i++) {
@@ -213,8 +223,12 @@ export default {
             }
             // trường hợp click để active dòng dữ liệu
             else {
-                this.indexActive = this.indexActive == index ? -1 : index
-                this.emitter.emit('activeTableTr', this.uuid)
+                if (this.indexActive == index - this.baseIndex) {
+                    this.indexActive = -1
+                } else {
+                    this.indexActive = index - this.baseIndex
+                }
+
             }
         },
 
@@ -233,8 +247,9 @@ export default {
         * description: Hàm xử lý sự kiện khi người dùng click vào checkbox ở thead 
         */
         handleCheckAll() {
-            // tất cả checkbox ở tr có cùng giá trị với checkbox ở thead
-            this.checkboxData = this.body.map(() => this.isCheckedAll)
+            for (let i = this.baseIndex; i < this.body.length + this.baseIndex; i++) {
+                this.checkboxData[i] = this.isCheckedAll
+            }
         },
     },
 
@@ -244,9 +259,11 @@ export default {
    * description: Hàm lắng nghe các global event, local event khi component được mounted
    */
     beforeMount() {
-        this.emitter.on("activeTableTr", id => {
-            if (this.uuid != id)
-                this.indexActive = -1
+        this.emitter.on("changeListIdTable", ([id, isAdd]) => {
+            this.listIdTable = this.listIdTable.filter(idTable => idTable != id)
+            if (isAdd) {
+                this.listIdTable.push(id)
+            }
         })
         // lắng nghe sự kiện ẩn select page size, context menu khi click vào màn hình
         this.eventCloseExtentComponent = (event) => {
@@ -264,7 +281,7 @@ export default {
         this.eventControlTable = (event) => {
 
             // nếu chưa có dòng nào được active hoạc con chuột đang focus vào ô input nào đó thì dừng hàm
-            if (this.indexActive == -1 || event.target.nodeName != "BODY")
+            if (this.indexActive == -1 || event.target.nodeName != "BODY" || this.listIdTable[this.listIdTable.length - 1] != this.uuid)
                 return
             if (event.key == 'ArrowUp' || event.key == 'ArrowDown') {
                 event.preventDefault()
@@ -337,6 +354,9 @@ export default {
         window.removeEventListener('contextmenu', this.eventContextMenu)
         // xóa sự kiện liên xuống dòng dữ liệu trong table
         window.removeEventListener('keydown', this.eventControlTable)
+
+        this.emitter.emit("changeListIdTable", [this.uuid, false])
+
     },
 
     computed: {
@@ -346,13 +366,30 @@ export default {
 
         // tổng số dòng được chọn
         totalTrChecked() {
-            return this.checkboxData.reduce((total, checkbox) => total + (checkbox ? 1 : 0), 0)
+            return this.checkboxData.reduce((total, checkbox) =>
+                total + (checkbox ? 1 : 0), 0)
+        },
+        totalTrCheckedPage() {
+            const checkBoxPage = this.checkboxData.slice(this.baseIndex, this.baseIndex + this.body.length)
+            return checkBoxPage.reduce((total, checkbox) =>
+                total + (checkbox ? 1 : 0), 0)
+        },
+        listId() {
+            return this.bodyData.listId
         }
     },
 
     watch: {
-        body(newVal) {
-            this.checkboxData = newVal?.map(() => false)
+        body() {
+            this.indexActive = -1
+            this.listId.forEach((id, i) => {
+                if (!this.selectedList.includes(id)) {
+                    this.checkboxData[i + this.baseIndex] = false
+                } else {
+                    this.checkboxData[i + this.baseIndex] = true
+                }
+            })
+            this.isCheckedAll = this.totalTrCheckedPage == this.body.length
         },
 
         /**
@@ -360,16 +397,41 @@ export default {
          * created at: 30/05/2023
          * description: mỗi khi tổng số bản ghi được chọn thay đổi thì emit sự kiện disableBtnRemove, gán lại biến isChecckedAll
          */
-        totalTrChecked(newVal) {
-            this.isCheckedAll = newVal != 0 && newVal == this.body.length
-            this.$emit('changeCheckboxData', this.checkboxData)
+        totalTrChecked() {
+            const checkBoxPage = this.checkboxData.slice(this.baseIndex, this.baseIndex + this.body.length)
+
+            this.isCheckedAll = this.totalTrCheckedPage == this.body.length
+            let tempSelectedList = this.selectedList
+            checkBoxPage.forEach((isChecked, index) => {
+                const isExisted = this.selectedList.includes(this.listId[index])
+                if (isChecked && !isExisted) {
+                    tempSelectedList.push(this.listId[index])
+                }
+                if (!isChecked) {
+                    tempSelectedList = tempSelectedList.filter(id => id != this.listId[index])
+                }
+            })
+            this.$emit('changeCheckboxData', tempSelectedList)
         },
+        indexActive(newVal, oldVal) {
+            this.$emit("activeTr", newVal)
+            if (newVal == -1)
+                this.emitter.emit("changeListIdTable", [this.uuid, false])
+            else {
+                if (oldVal == -1)
+                    this.emitter.emit("changeListIdTable", [this.uuid, true])
+            }
+        }
     },
 
 }
 </script>
 
 <style>
+.no_action {
+    width: min-content;
+}
+
 .table__paginate {
     display: flex;
     align-items: center;
@@ -647,7 +709,8 @@ tr:hover .table__function {
 }
 
 .type-2,
-.type-3 {
+.type-3,
+.type-5 {
     text-align: right !important;
 }
 </style>

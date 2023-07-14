@@ -74,7 +74,7 @@ export default {
 @media screen and (max-width: 1280px) {
     .body {
         padding: 0 8px;
-        height: calc(100vh - 98px);
+        height: calc(100vh - 100px);
     }
 }
 </style>

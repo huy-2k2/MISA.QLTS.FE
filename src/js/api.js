@@ -23,7 +23,6 @@ axios.interceptors.response.use(function(response) {
     const response = error?.response?.data
     if(!response)
         return
-        
     if(response.errorCode == _enum.errorCode.InvalidToken) {
         router.push('/login')
     }
@@ -121,11 +120,22 @@ function postFixedAssetApi(body, resolve, bonusReject) {
 // kiểm tra mã tài sản bị trùng
 async function getFixedAssetCodeExistedApi(fixedAssetCode, fixedAssetId, bonusReject) {
     try {
-        let response = await axios.get(`${BASE_API_URL}fixedAsset/isCodeExisted?fixedAssetCode=${fixedAssetCode}&fixedAssetId=${fixedAssetId}`)
+        let response = await axios.get(`${BASE_API_URL}fixedAsset/isCodeExisted?code=${fixedAssetCode}&id=${fixedAssetId}`)
         return response.data
     } catch(error) {
         if(bonusReject){
             bonusReject(error)
+        }
+    }
+}
+
+async function getLicenseCodeExistedApi(licenseCode, licenseId, reject) {
+    try {
+        let response = await axios.get(`${BASE_API_URL}license/isCodeExisted?code=${licenseCode}&id=${licenseId}`)
+        return response.data
+    } catch(error) {
+        if(reject){
+            reject(error)
         }
     }
 }
@@ -187,9 +197,9 @@ function getRecommendLicenseCodeApi(resolve, reject) {
     })
 }
 
-function getFilterFixedAssetNoLicenseApi(pageSize, currentPage, listIdSelected, textSearch, resolve, reject) {
+function getFilterFixedAssetNoLicenseApi(pageSize, currentPage, listIdSelected, textSearch, licenseId, resolve, reject) {
     axios.post(`${BASE_API_URL}fixedAsset/filterNoLicense`, {
-        pageSize, currentPage, listIdSelected, textSearch        
+        pageSize, currentPage, listIdSelected, textSearch, licenseId      
     })
     .then(({data}) => resolve(data))
     .catch(error => {
@@ -198,4 +208,74 @@ function getFilterFixedAssetNoLicenseApi(pageSize, currentPage, listIdSelected, 
     })
 }
 
-export {getFilterFixedAssetApi, getDepartmentsApi, getFixedAssetCategorysApi, getRecommendFixedAssetCodeApi, editFixedAssetApi, getFixedAssetApi, postFixedAssetApi, getFixedAssetCodeExistedApi, deleteFixedAssetsApi, postImportFileApi, getIsLoginedApi, getTokenApi, getFilterLicensesApi, getRecommendLicenseCodeApi, getFilterFixedAssetNoLicenseApi}
+function GetAllBudgetApi(resolve, reject) {
+    axios.get(`${BASE_API_URL}budget`)
+    .then(({data}) => resolve(data))
+    .catch(error => {
+        if(reject) {
+            reject(error)
+        }
+    })
+}
+
+function GetBudgetsByFixedAssetIdApi(fixedAssetId, resolve, reject) {
+    axios.get(`${BASE_API_URL}budget/listModel?fixedAssetId=${fixedAssetId}`)
+    .then(({data}) => resolve(data))
+    .catch(error => {
+        if(error)
+            reject(error)
+    })
+    
+}
+
+function getLicenseByIdApi(licenseId, resolve, reject) {
+    axios.get(`${BASE_API_URL}license/${licenseId}`)
+    .then(({data}) => resolve(data))
+    .catch(error => {
+        if(reject) {
+            reject(error)
+        }
+    })
+}
+
+function getListFixedAssetByLicenseId(licenseId, resolve, reject) {
+    axios.get(`${BASE_API_URL}fixedAsset/listByLicenseId?licenseId=${licenseId}`)
+    .then(({data}) => resolve(data))
+    .catch(error => {
+        if(reject) {
+            reject(error)
+        }
+    })
+}
+
+function postLicenseApi(licenseData, resolve, reject) {
+    axios.post(`${BASE_API_URL}license/model`, licenseData)
+    .then((data) => resolve(data))
+    .catch((error) => {
+        if(reject) {
+            reject(error)
+        }
+    })
+}
+
+function deleteListLicenseApi(listId, resolve, reject) {
+    axios.delete(`${BASE_API_URL}license`, {data: listId})
+    .then(({data}) => resolve(data))
+    .catch((error) => {
+        if(reject) {
+            reject(error)
+        }
+    })
+}
+
+function putLicenseApi(licenseId, licenseData, resolve, reject) {
+    axios.put(`${BASE_API_URL}license/model/${licenseId}`, licenseData)
+    .then((data) => resolve(data))
+    .catch((error) => {
+        if(reject) {
+            reject(error)
+        }
+    })
+}
+
+export {putLicenseApi, deleteListLicenseApi, getFilterFixedAssetApi, GetAllBudgetApi, postLicenseApi, getListFixedAssetByLicenseId, getLicenseCodeExistedApi, getLicenseByIdApi, getDepartmentsApi, GetBudgetsByFixedAssetIdApi, getFixedAssetCategorysApi, getRecommendFixedAssetCodeApi, editFixedAssetApi, getFixedAssetApi, postFixedAssetApi, getFixedAssetCodeExistedApi, deleteFixedAssetsApi, postImportFileApi, getIsLoginedApi, getTokenApi, getFilterLicensesApi, getRecommendLicenseCodeApi, getFilterFixedAssetNoLicenseApi}

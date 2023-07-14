@@ -125,7 +125,7 @@ export default {
         */
         handleFilterOptions() {
             this.filterOptions = this.options.filter(item => {
-                const value = this.item.value.toLowerCase()
+                const value = this.item[this.isDisplayValue ? "value" : "text"].toLowerCase()
                 return item.text.toLowerCase().includes(value) || item.value.toString().toLowerCase().includes(value)
             })
         },

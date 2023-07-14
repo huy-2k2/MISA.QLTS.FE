@@ -18,6 +18,7 @@ const resource = {
         import: "Nhập khẩu tài sản",
         login: "Đăng nhập để làm việc với <strong>MISA QLTS</strong>",
         addIncrement: "Thêm chứng từ ghi tăng",
+        editIncrement: "Sửa chứng từ ghi tăng",
         infoIncrement: "Thông tin chứng từ",
         detailIncrement: "Thông tin chi tiết",
         fixedAssetIncrement: "Chọn tài sản ghi tăng",
@@ -35,7 +36,7 @@ const resource = {
         positive: "{0} phải lớn hơn 0",
         realNumber: "{0} hải là số thực",
         equal: "{0} phải bằng {1}",
-       
+        seletedFixedAssets: "Chọn ít nhất 1 tài sản"
     },
     // menu
     menu: ["MISA QLTS", "Tổng quan", {parent: 'Tài sản', children: ['Ghi tăng', 'Thay đổi thông tin', 'Đánh giá lại', 'Tính hao mòn', 'Điều chuyển tài sản', 'Ghi giảm', 'Kiểm kê', 'Khác']}, {text: "Tài sản HT-ĐB", tooltip: "Tài sản hệ thống đường bộ"}, "Công cụ dụng cụ", "Danh mục", "Tra cứu", "Báo cáo"],
@@ -85,7 +86,9 @@ const resource = {
         cancelSave: 'Bạn có muốn hủy bỏ khai báo tài sản này?',
         cancelSaveChanged: 'Thông tin thay đổi sẽ không được cập nhật nếu bạn không lưu. Bạn có muốn lưu các thay đổi này?',
         removeFixedAsset: 'Bạn có muốn xóa tài sản {0} ?',
-        removeMultiFixedAsset: '{0} tài sản đã được chọn. Bạn có muốn xóa các tài sản này khỏi danh sách?'
+        removeMultiFixedAsset: '{0} tài sản đã được chọn. Bạn có muốn xóa các tài sản này khỏi danh sách?',
+        removeLicense: "Bạn có muốn xóa chứng từ có mã {0}?",
+        removeMultiLicense: "{0} chứng từ đã được chọn. Bạn có muốn xóa các chứng từ ngày khỏi danh sách?"
     },
     //context menu
     contextMenu: {
