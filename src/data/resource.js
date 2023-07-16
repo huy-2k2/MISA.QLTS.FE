@@ -1,14 +1,19 @@
 import myEnum from './enum'
 
 const resource = {
+    errorMessage: {
+        deleteFixedAssetDetail: "Tài sản có mã <strong>{0}</strong> đã phát sinh chứng từ<br/>ghi tăng có mã <strong>{1}</strong>.",
+        deleteFixedAssetDetailMulti: "<strong>{0}</strong> tài sản được chọn đã phát sinh chứng từ ghi tăng."
+    },
     // dữ liệu hiện thị trên toast message
     toastMessage: {
         [myEnum.typeForm.duplicate]: "Nhân bản dữ liệu thành công.",
         [myEnum.typeForm.add]: "Lưu dữ liệu thành công.",
         [myEnum.typeForm.edit]: "thay đổi dữ liệu thành công.",
         import: "Nhập khẩu dữ liệu thành công",
+        delete: "Xóa dữ liệu thành công",
         credentialInvalid: "Tên đăng nhập hoạc mật khẩu không đúng",
-        credentialRequired: "Vui lòng nhập đầy đủ thông tin đăng nhập"
+        credentialRequired: "Vui lòng nhập đầy đủ thông tin đăng nhập",
     },
     // tiêu đề của form
     formTitle: {
@@ -36,7 +41,8 @@ const resource = {
         positive: "{0} phải lớn hơn 0",
         realNumber: "{0} hải là số thực",
         equal: "{0} phải bằng {1}",
-        seletedFixedAssets: "Chọn ít nhất 1 tài sản"
+        seletedFixedAssets: "Chọn ít nhất 1 tài sản",
+        notEmpty: "Không được bỏ trống"
     },
     // menu
     menu: ["MISA QLTS", "Tổng quan", {parent: 'Tài sản', children: ['Ghi tăng', 'Thay đổi thông tin', 'Đánh giá lại', 'Tính hao mòn', 'Điều chuyển tài sản', 'Ghi giảm', 'Kiểm kê', 'Khác']}, {text: "Tài sản HT-ĐB", tooltip: "Tài sản hệ thống đường bộ"}, "Công cụ dụng cụ", "Danh mục", "Tra cứu", "Báo cáo"],
@@ -77,15 +83,19 @@ const resource = {
         incrementDay: "ngày ghi tăng",
         note: "ghi chú",
         source: "nguồn hình thành",
-        value: "giá trị"
+        value: "giá trị",
+        budget: "ngân sách"
     },
     // text ở các button
     buttons: {addFixedAsset: 'Thêm tài sản', cancel: 'Hủy', save: 'Lưu', close: 'Đóng', noSave: 'Không lưu', discard: 'Hủy bỏ', notConfirm: 'Không', confirm: "Đồng ý", delete: 'Xóa', import: "Nhập khẩu", login: "Đăng nhập", logout: 'Đăng xuất', forgotPassword: "Quên mật khẩu?", add: 'Thêm', choseFixedAsset: "Chọn tài sản"},
     // thống báo ở dialog khi thêm sửa xóa
     dialogMessages: {
-        cancelSave: 'Bạn có muốn hủy bỏ khai báo tài sản này?',
+        cancelSaveFixedAsset: 'Bạn có muốn hủy bỏ khai báo tài sản này?',
+        cancelSave: 'Bạn có muốn hủy bỏ khai báo này?',
+        cancelSaveLicense: "Bạn có muốn hủy bỏ khai báo chứng từ này?",
         cancelSaveChanged: 'Thông tin thay đổi sẽ không được cập nhật nếu bạn không lưu. Bạn có muốn lưu các thay đổi này?',
-        removeFixedAsset: 'Bạn có muốn xóa tài sản {0} ?',
+        cancelSaveEditLicense: "Bạn có muốn hủy bỏ thay đổi thông tin chứng từ này?",
+        removeFixedAsset: 'Bạn có muốn xóa tài sản {0}?',
         removeMultiFixedAsset: '{0} tài sản đã được chọn. Bạn có muốn xóa các tài sản này khỏi danh sách?',
         removeLicense: "Bạn có muốn xóa chứng từ có mã {0}?",
         removeMultiLicense: "{0} chứng từ đã được chọn. Bạn có muốn xóa các chứng từ ngày khỏi danh sách?"

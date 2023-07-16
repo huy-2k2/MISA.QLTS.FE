@@ -29,6 +29,8 @@ export default {
       isShowDialog: false,
       dialogMessage: '',
       toastMessageContent: '',
+      eventSetToastMessage: null,
+      eventSetDialogMessage: null,
     }
   },
 
@@ -39,18 +41,26 @@ export default {
    */
   mounted() {
     // lắng nghe sự kiện hiện toast messaage
-    this.emitter.on("setToastMessage", text => {
+    this.eventSetToastMessage = (text) => {
       this.isShowToastMessage = true
       this.toastMessageContent = text;
       setTimeout(() => this.isShowToastMessage = false, 3000)
-    });
+
+    }
+    this.emitter.on("setToastMessage", this.eventSetToastMessage);
 
     // lắng nghe sự kiện hiện dialog thông báo lỗi call api
-    this.emitter.on("setDialogMessage", text => {
+    this.eventSetDialogMessage = (text) => {
       this.dialogMessage = text;
       this.isShowDialog = true
-    });
+    }
+    this.emitter.on("setDialogMessage", this.eventSetDialogMessage);
   },
+
+  beforeUnmount() {
+    this.emitter.off("setToastMessage", this.eventSetToastMessage)
+    this.emitter.off("setDialogMessage", this.eventSetDialogMessage)
+  }
 }
 </script>
 

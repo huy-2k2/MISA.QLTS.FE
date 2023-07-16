@@ -43,7 +43,13 @@ export default {
     font-size: 13px;
     font-weight: 400;
     font-family: mMisa Font;
+    display: block;
 }
+
+.toastmessage__text::first-letter {
+    text-transform: capitalize;
+}
+
 
 @keyframes fadein {
     0% {

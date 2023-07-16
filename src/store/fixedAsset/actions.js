@@ -9,7 +9,8 @@ const actions = {
      */
     async getDepartments(store) {
         store.commit('setLoading', {isLoading: true, field: "departments"})
-            const data = await getDepartmentsApi(() =>   store.commit('setLoading', {isLoading: false, field: "departments"})) 
+        try {
+            const {data} = await getDepartmentsApi() 
             if(!data)
                 return
             store.commit('setData', {
@@ -17,8 +18,10 @@ const actions = {
                 field: 'departments'
             })
             store.commit('setLoading', {isLoading: false, field: "departments"})
-  
-        
+
+        } catch {
+         store.commit('setLoading', {isLoading: false, field: "departments"})
+        }
     },
 
     /**
@@ -28,15 +31,19 @@ const actions = {
      */
     async getFixedAssetCategorys(store) {
         store.commit('setLoading', {isLoading: true, field: "fixedAssetCategorys"})
-        const data = await getFixedAssetCategorysApi(() =>   store.commit('setLoading', {isLoading: false, field: "fixedAssetCategorys"}))
-        if(!data)
-            return
-        store.commit('setData', {
-            data: data.map(fixedAssetCategory => ({fixedAssetCategoryId: fixedAssetCategory.fixed_asset_category_id, fixedAssetCategoryCode: fixedAssetCategory.fixed_asset_category_code, fixedAssetCategoryName: fixedAssetCategory.fixed_asset_category_name, lifeTime: fixedAssetCategory.life_time, depreciationRate: fixedAssetCategory.depreciation_rate})),
-            field: 'fixedAssetCategorys'
-        })
-        store.commit('setLoading', {isLoading: false, field: "fixedAssetCategorys"})
-        
+        try {
+            const {data} = await getFixedAssetCategorysApi()
+            if(!data)
+                return
+            store.commit('setData', {
+                data: data.map(fixedAssetCategory => ({fixedAssetCategoryId: fixedAssetCategory.fixed_asset_category_id, fixedAssetCategoryCode: fixedAssetCategory.fixed_asset_category_code, fixedAssetCategoryName: fixedAssetCategory.fixed_asset_category_name, lifeTime: fixedAssetCategory.life_time, depreciationRate: fixedAssetCategory.depreciation_rate})),
+                field: 'fixedAssetCategorys'
+            })
+            store.commit('setLoading', {isLoading: false, field: "fixedAssetCategorys"})
+        }
+        catch {
+            store.commit('setLoading', {isLoading: false, field: "fixedAssetCategorys"})
+        }
     },
 
     /**
@@ -44,34 +51,38 @@ const actions = {
      * create by: NQ Huy(25/05/2023)
      * @param {*} store 
      */
-    getFilterFixedAsset(store) {
+    async getFilterFixedAsset(store) {
         store.commit('setLoading', {isLoading: true, field: "fixedAssets"})
         // lấy dữ liệu tài rồi lưu vào state
-        getFilterFixedAssetApi(store.state.pageSize, store.state.currentPage, store.state.filterDepartmentId || "", store.state.filterFixedAssetCategoryId || "", store.state.filterTextSearch || "", (data) => {
-            store.commit("setData", {
-                data: data.list_fixed_asset.map(fixedAsset => ( {
-                    fixedAssetId: fixedAsset.fixed_asset_id,
-                    fixedAssetCode: fixedAsset.fixed_asset_code,
-                    fixedAssetName: fixedAsset.fixed_asset_name,
-                    fixedAssetCategoryId: fixedAsset.fixed_asset_category_id,
-                    departmentId: fixedAsset.department_id,
-                    purchaseDate: fixedAsset.purchase_date,
-                    useDate: fixedAsset.use_date,
-                    cost: fixedAsset.cost,
-                    quantity: fixedAsset.quantity,
-                    depreciationRate: fixedAsset.depreciation_rate,
-                    depreciationAnnual: fixedAsset.depreciation_annual,
-                    trackedYear: fixedAsset.tracked_year,
-                    lifeTime: fixedAsset.life_time
-                })),
-                field: "fixedAssets"
-            })
-            // lưu các dữ liệu về tổng tài sản, tổng số lượng, tổng nguyên giá
-            store.commit("setTotalAsset", data.total_asset)
-            store.commit("setTotalQuantity", data.total_quantity)
-            store.commit("setTotalCost", data.total_cost)
+        try {
+            const {data} = await getFilterFixedAssetApi(store.state.pageSize, store.state.currentPage, store.state.filterDepartmentId || "", store.state.filterFixedAssetCategoryId || "", store.state.filterTextSearch || "")
+                store.commit("setData", {
+                    data: data.list_fixed_asset.map(fixedAsset => ( {
+                        fixedAssetId: fixedAsset.fixed_asset_id,
+                        fixedAssetCode: fixedAsset.fixed_asset_code,
+                        fixedAssetName: fixedAsset.fixed_asset_name,
+                        fixedAssetCategoryId: fixedAsset.fixed_asset_category_id,
+                        departmentId: fixedAsset.department_id,
+                        purchaseDate: fixedAsset.purchase_date,
+                        useDate: fixedAsset.use_date,
+                        cost: fixedAsset.cost,
+                        quantity: fixedAsset.quantity,
+                        depreciationRate: fixedAsset.depreciation_rate,
+                        depreciationAnnual: fixedAsset.depreciation_annual,
+                        trackedYear: fixedAsset.tracked_year,
+                        lifeTime: fixedAsset.life_time
+                    })),
+                    field: "fixedAssets"
+                })
+                // lưu các dữ liệu về tổng tài sản, tổng số lượng, tổng nguyên giá
+                store.commit("setTotalAsset", data.total_asset)
+                store.commit("setTotalQuantity", data.total_quantity)
+                store.commit("setTotalCost", data.total_cost)
+                store.commit('setLoading', {isLoading: false, field: "fixedAssets"})
+
+        } catch {
             store.commit('setLoading', {isLoading: false, field: "fixedAssets"})
-        }, () => store.commit('setLoading', {isLoading: false, field: "fixedAssets"}))
+        }
     }
    
 }

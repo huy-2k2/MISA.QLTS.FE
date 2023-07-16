@@ -20,6 +20,7 @@ const errorCode = {
     credentialNotValid: 7,
     InvalidToken: 8,
     deleteDetail: 9,
+    deleteDetailMulti: 10
 }
 
 const dataType = {

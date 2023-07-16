@@ -116,19 +116,24 @@ export default {
             headDataTop: [
                 {
                     data: this.resource.tHead[10],
-                    type: this.$enum.dataType.string
+                    type: this.$enum.dataType.string,
+                    isPrimary: true,
+                    width: '150px'
                 },
                 {
                     data: this.resource.tHead[11],
-                    type: this.$enum.dataType.dateTime
+                    type: this.$enum.dataType.dateTime,
+                    width: '150px'
                 },
                 {
                     data: this.resource.tHead[12],
-                    type: this.$enum.dataType.dateTime
+                    type: this.$enum.dataType.dateTime,
+                    width: '150px'
                 },
                 {
                     data: this.resource.tHead[13],
-                    type: this.$enum.dataType.double
+                    type: this.$enum.dataType.double,
+                    width: '220px'
                 },
                 {
                     data: this.resource.tHead[14],
@@ -153,27 +158,32 @@ export default {
             headDataBottom: [
                 {
                     data: this.resource.tHead[1],
-                    type: this.$enum.dataType.string
+                    type: this.$enum.dataType.string,
+                    width: '150px'
                 },
                 {
                     data: this.resource.tHead[2],
-                    type: this.$enum.dataType.string
+                    type: this.$enum.dataType.string,
+                    width: '400px'
                 },
                 {
                     data: this.resource.tHead[4],
-                    type: this.$enum.dataType.string
+                    type: this.$enum.dataType.string,
                 },
                 {
                     data: this.resource.tHead[6],
-                    type: this.$enum.dataType.double
+                    type: this.$enum.dataType.double,
+                    width: '180px'
                 },
                 {
                     data: this.resource.tHead[15],
-                    type: this.$enum.dataType.double
+                    type: this.$enum.dataType.double,
+                    width: '180px'
                 },
                 {
                     data: this.resource.tHead[8],
-                    type: this.$enum.dataType.double
+                    type: this.$enum.dataType.double,
+                    width: '180px'
                 },
             ],
             bodyDataBottom: {
@@ -246,12 +256,12 @@ export default {
             this.isShowRemove = true
             this.textNofiti = this.resource.dialogMessages.removeLicense.format(`<strong>${license.license_code}</strong>`)
         },
-        handleDeleteLicense() {
-            deleteListLicenseApi(this.listIdRemove, () => {
-                this.$store.dispatch("getFilterLicenses")
-                this.$store.commit("setLicenses", ["currentPage", 1])
-                this.isShowRemove = false
-            })
+        async handleDeleteLicense() {
+            await deleteListLicenseApi(this.listIdRemove)
+            await this.$store.dispatch("getFilterLicenses")
+            this.emitter.emit("setToastMessage", this.resource.toastMessage.delete);
+            this.$store.commit("setLicenses", ["currentPage", 1])
+            this.isShowRemove = false
         },
         handleActiveTableBottomTr(index) {
             if (index == -1) {
@@ -393,7 +403,7 @@ export default {
     top: 0;
     left: 50%;
     transform: translate(-50%, -5px);
-    cursor: all-scroll;
+    cursor: n-resize;
 }
 
 .page.isBottomFull .page__bottom__move {

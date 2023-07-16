@@ -228,9 +228,10 @@ export default {
     },
 
     methods: {
-        handleRemove(isContextMenu) {
+        async handleRemove(isContextMenu) {
             const removeFixedAssetIdList = isContextMenu ? [this.fixedAssetId] : this.listIdSelected
-            deleteFixedAssetsApi(removeFixedAssetIdList, () => {
+            try {
+                await deleteFixedAssetsApi(removeFixedAssetIdList)
                 this.isShowRemove = false
                 this.isShowRemoveContextMenu = false
                 // tính lại giá trị tổng số trang
@@ -243,12 +244,12 @@ export default {
                 if (this.$store.state.fa.currentPage > newTotalPage) {
                     this.$store.commit("setCurrentPage", newTotalPage || 1)
                 }
+                this.emitter.emit("setToastMessage", this.resource.toastMessage.delete);
                 this.$store.dispatch("getFilterFixedAsset")
-            }, () => {
+            } catch {
                 this.isShowRemove = false
                 this.isShowRemoveContextMenu = false
             }
-            )
         },
 
         handleDelete(index) {

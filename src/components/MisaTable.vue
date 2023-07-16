@@ -9,16 +9,17 @@
             <table class="table" v-if="!isLoading && bodyData">
                 <thead ref="tableHead">
                     <tr>
-                        <th ref="tHead" scope="col" v-if="isHasCheckbox" class="no_action">
+                        <th style="width: 50px;" ref="tHead" scope="col" v-if="isHasCheckbox" class="no_action">
                             <MisaInputCheckbox @changInput="handleCheckAll" v-model="isCheckedAll">
                             </MisaInputCheckbox>
                         </th>
-                        <th scope="col">
+                        <th style="width: 60px;" scope="col">
                             <MisaToolTip :tooltip="resource.tHead[0].tooltip">
                                 {{ resource.tHead[0].text }}
                             </MisaToolTip>
                         </th>
-                        <th v-for="th in headData" :key="th" :class="`type-${th.type}`">
+                        <th :style="{ width: th.width || 'unset' }" v-for="th in headData" :key="th"
+                            :class="`type-${th.type}`">
                             <MisaToolTip v-if="th.tooltip" :tooltip="th.tooltip">
                                 {{ th.data }}
                             </MisaToolTip>
@@ -37,7 +38,8 @@
                             </div>
                         </td>
                         <td>{{ index + baseIndex + 1 }}</td>
-                        <td v-for=" (td, i) in tr" :key="td" :class="`type-${headData[i].type}`">
+                        <td v-for=" (td, i) in tr" :key="td"
+                            :class="`type-${headData[i].type} ${headData[i].isPrimary ? 'is-primary' : ''}`">
                             <MisaToolTip :tooltip="bodyData.features && !isDisplayFeature && isHoverFeature ? '' : td">
                                 <div class="td__content">
                                     <span class="text">{{ td }}</span>
@@ -167,6 +169,7 @@ export default {
             eventCloseExtentComponent: null,
             eventControlTable: null,
             eventContextMenu: null,
+            eventChangeListIdTable: null,
             indexContextMenu: -1,
             uuid: uuid.v1()
         }
@@ -259,12 +262,13 @@ export default {
    * description: Hàm lắng nghe các global event, local event khi component được mounted
    */
     beforeMount() {
-        this.emitter.on("changeListIdTable", ([id, isAdd]) => {
+        this.eventChangeListIdTable = ([id, isAdd]) => {
             this.listIdTable = this.listIdTable.filter(idTable => idTable != id)
             if (isAdd) {
                 this.listIdTable.push(id)
             }
-        })
+        }
+        this.emitter.on("changeListIdTable", this.eventChangeListIdTable)
         // lắng nghe sự kiện ẩn select page size, context menu khi click vào màn hình
         this.eventCloseExtentComponent = (event) => {
             if (!(this.$refs.selectPageSizeHead?.contains(event.target) || this.$refs.selectPageSizeOption?.contains(event.target)))
@@ -341,7 +345,6 @@ export default {
         window.addEventListener('keydown', this.eventControlTable)
         window.addEventListener('contextmenu', this.eventContextMenu)
     },
-
     /**
      * author: Nguyen Quoc Huy
      * created at: 30/04/2023
@@ -355,8 +358,9 @@ export default {
         // xóa sự kiện liên xuống dòng dữ liệu trong table
         window.removeEventListener('keydown', this.eventControlTable)
 
-        this.emitter.emit("changeListIdTable", [this.uuid, false])
+        // this.emitter.off("changeListIdTable", this.eventChangeListIdTable)
 
+        this.emitter.emit("changeListIdTable", [this.uuid, false])
     },
 
     computed: {
@@ -376,12 +380,11 @@ export default {
         },
         listId() {
             return this.bodyData.listId
-        }
+        },
     },
-
     watch: {
+
         body() {
-            this.indexActive = -1
             this.listId.forEach((id, i) => {
                 if (!this.selectedList.includes(id)) {
                     this.checkboxData[i + this.baseIndex] = false
@@ -619,9 +622,13 @@ export default {
     text-align: center;
 }
 
+.table td.is-primary {
+    color: rgb(28, 90, 225);
+}
+
 .table td .text {
     display: block;
-    max-width: 400px;
+    /* max-width: 400px; */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

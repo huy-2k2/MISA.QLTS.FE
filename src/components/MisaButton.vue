@@ -69,7 +69,7 @@ export default {
 }
 
 .button:focus {
-    box-shadow: 0 0 0 2px #86d4e899;
+    box-shadow: 0 0 0 2px #86d4e899 !important;
     outline: none;
 }
 

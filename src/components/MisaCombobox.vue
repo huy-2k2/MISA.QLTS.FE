@@ -412,6 +412,7 @@ export default {
     right: 12px;
     top: 50%;
     transform: translateY(-50%);
+    cursor: pointer;
 }
 
 .combobox {

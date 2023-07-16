@@ -69,16 +69,6 @@ export default {
                 },
             ],
             bodyData: {
-                features: [
-                    {
-                        tooltip: this.resource.tooltip.edit,
-                        icon: 'icon-pen-edit',
-                    },
-                    {
-                        tooltip: this.resource.tooltip.duplicate,
-                        icon: 'icon-file-detail'
-                    }
-                ],
                 body: [
                 ]
             },
@@ -126,7 +116,7 @@ export default {
         },
         handleSave() {
             const oldList = this.$store.state.ls.selectedFixedAssets.allData
-            this.$store.commit("setSelectedFixedAssets", ["allData", oldList.concat(this.selectedList)])
+            this.$store.commit("setSelectedFixedAssets", ["allData", this.selectedList.concat(oldList)])
             this.$emit("clickClose")
         }
     },

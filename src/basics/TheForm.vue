@@ -107,7 +107,7 @@
             </div>
         </div>
         <MisaPopup :isShow="isShowCancel" :isHasClose="false">
-            <MisaDialog :text="this.resource.dialogMessages.cancelSave" @click1="$emit('clickClose')"
+            <MisaDialog :text="this.resource.dialogMessages.cancelSaveFixedAsset" @click1="$emit('clickClose')"
                 @click2="handleCloseCancel" quantity="2" :button1="this.resource.buttons.discard"
                 :button2="this.resource.buttons.notConfirm">
             </MisaDialog>
@@ -250,50 +250,38 @@ export default {
      * created at: 30/04/2023
      * description: Hàm khỏi tạo giá trị cho dữ liệu form trong trường hợp form là form eidt hoạc form nhân bản
      */
-    beforeMount() {
+    async beforeMount() {
         // dùng 2 biến bool để kiểm tra cả hai câu lệnh gọi api đề đã thực hiện xong
-        let isGetFixedAssetSuccess = !this.fixedAssetId
-        let isGetAssetCodeSuccess = this.typeForm == this.$enum.typeForm.edit
         // gọi api để lấy dữ liệu về tài sản được chọn
+        this.isLoaded = false
         if (this.fixedAssetId) {
-            getFixedAssetApi(this.fixedAssetId, (data) => {
-                const department = this.$store.getters.departmentById(data.department_id)
-                const fixedAssetCategory = this.$store.getters.fixedAssetCategoryById(data.fixed_asset_category_id)
-                this.form.fixedAssetName = data.fixed_asset_name
-                this.form.departmentCode = department.departmentCode
-                this.form.departmentName = department.departmentName
-                this.form.fixedAssetCategoryCode = fixedAssetCategory.fixedAssetCategoryCode
-                this.form.fixedAssetCategoryName = fixedAssetCategory.fixedAssetCategoryName
-                this.form.quantity = data.quantity
-                this.form.cost = this.convert.toRounded(data.cost)
-                this.form.lifeTime = data.life_time
-                this.form.depreciationRate = this.convert.toRounded(data.depreciation_rate)
-                this.form.depreciationAnnual = this.convert.toRounded(data.depreciation_annual)
-                this.form.trackedYear = data.tracked_year
-                this.form.purchaseDate = this.convert.toCurrentDate(data.purchase_date)
-                this.form.useDate = this.convert.toCurrentDate(data.use_date)
-                if (this.typeForm == this.$enum.typeForm.edit)
-                    this.form.fixedAssetCode = data.fixed_asset_code
-                // đánh dấu là đã lấy dữ liệu thành công
-                isGetFixedAssetSuccess = true
-                // nếu lấy mã code thành công thì load thành công
-                if (isGetAssetCodeSuccess) {
-                    this.$nextTick(() => this.isLoaded = true)
-                }
-            }, () => this.$emit('clickClose'))
+            const { data } = await getFixedAssetApi(this.fixedAssetId)
+            const department = this.$store.getters.departmentById(data.department_id)
+            const fixedAssetCategory = this.$store.getters.fixedAssetCategoryById(data.fixed_asset_category_id)
+            this.form.fixedAssetName = data.fixed_asset_name
+            this.form.departmentCode = department.departmentCode
+            this.form.departmentName = department.departmentName
+            this.form.fixedAssetCategoryCode = fixedAssetCategory.fixedAssetCategoryCode
+            this.form.fixedAssetCategoryName = fixedAssetCategory.fixedAssetCategoryName
+            this.form.quantity = data.quantity
+            this.form.cost = this.convert.toRounded(data.cost)
+            this.form.lifeTime = data.life_time
+            this.form.depreciationRate = this.convert.toRounded(data.depreciation_rate)
+            this.form.depreciationAnnual = this.convert.toRounded(data.depreciation_annual)
+            this.form.trackedYear = data.tracked_year
+            this.form.purchaseDate = this.convert.toCurrentDate(data.purchase_date)
+            this.form.useDate = this.convert.toCurrentDate(data.use_date)
+            if (this.typeForm == this.$enum.typeForm.edit)
+                this.form.fixedAssetCode = data.fixed_asset_code
         }
         // nếu là form thêm mới hoạc duplicate thì lấy gợi ý mã tài sản
         if (this.typeForm != this.$enum.typeForm.edit) {
-            getRecommendFixedAssetCodeApi((data) => {
-                this.form.fixedAssetCode = `${data}`
-                // đánh dấu lấy data thành công
-                isGetAssetCodeSuccess = true
-                // nếu lấy tài sản thành công thì đánh dấu là load thành công
-                if (isGetFixedAssetSuccess) {
-                    this.$nextTick(() => this.isLoaded = true)
-                }
-            }, () => this.$emit('clickClose'))
+            const { data: code } = await getRecommendFixedAssetCodeApi()
+            this.form.fixedAssetCode = `${code}`
+            // đánh dấu lấy data thành công
+            // nếu lấy tài sản thành công thì đánh dấu là load thành công
         }
+        this.$nextTick(() => this.isLoaded = true)
     },
 
     /**
@@ -453,7 +441,7 @@ export default {
          * created at: 30/04/2023
          * description: xử lý việc sửa dữ liệu, gọi api. hiện thông báo tương ứng ...
          */
-        handleEdit() {
+        async handleEdit() {
             // tạo query body
             const putBody = {
                 fixed_asset_code: this.form.fixedAssetCode,
@@ -470,14 +458,18 @@ export default {
                 depreciation_annual: this.form.depreciationAnnual
             }
             // submit
-            editFixedAssetApi(this.fixedAssetId, putBody, () => {
+            try {
+                await editFixedAssetApi(this.fixedAssetId, putBody)
                 // emit sự kiện đóng form cho component cha
                 this.$emit('clickClose')
                 // hiện thông báo
                 this.emitter.emit("setToastMessage", this.resource.toastMessage[this.typeForm]);
                 this.$store.dispatch("getFilterFixedAsset")
                 this.isSubmiting = false
-            }, () => this.isSubmiting = false)
+            } catch {
+                this.isSubmiting = false
+
+            }
         },
 
         /**
@@ -485,7 +477,7 @@ export default {
         * created at: 30/04/2023
         * description: xử lý việc nhân bản dữ liệu, gọi api. hiện thông báo tương ứng ...
         */
-        handleStore() {
+        async handleStore() {
             const postBody = {
                 fixed_asset_code: this.form.fixedAssetCode,
                 fixed_asset_name: this.form.fixedAssetName,
@@ -500,16 +492,18 @@ export default {
                 depreciation_rate: this.form.depreciationRate,
                 depreciation_annual: this.form.depreciationAnnual
             }
-            postFixedAssetApi(postBody, () => {
-                // emit sự kiện đóng form cho component cha
-                this.$emit('clickClose')
+            try {
+                await postFixedAssetApi(postBody)
                 // hiện thông báo
                 this.emitter.emit("setToastMessage", this.resource.toastMessage[this.typeForm]);
                 // tải lại danh sách tài sản
-                this.$store.dispatch("getFilterFixedAsset")
-
                 this.isSubmiting = false
-            }, () => this.isSubmiting = false)
+                this.$store.dispatch("getFilterFixedAsset")
+                this.$emit('clickClose')
+            }
+            catch {
+                this.isSubmiting = false
+            }
         },
 
         /**
@@ -573,8 +567,8 @@ export default {
             else {
                 // nếu là form thêm thêm hoạc nhân bản thì id không cần thiết
                 const id = this.typeForm == this.$enum.typeForm.edit ? this.fixedAssetId : ''
-                const response = await getFixedAssetCodeExistedApi(this.form.fixedAssetCode, id)
-                if (response) {
+                const { data: isCodeExisted } = await getFixedAssetCodeExistedApi(this.form.fixedAssetCode, id)
+                if (isCodeExisted) {
                     this.errors.fixedAssetCode = this.resource.validateMessage.duplicate.format(fieldName)
                 }
             }

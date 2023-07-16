@@ -78,7 +78,7 @@ export default {
     cursor: pointer;
     display: block;
     padding-left: 12px;
-
+    margin-top: 3px;
 }
 
 .input_date__value {

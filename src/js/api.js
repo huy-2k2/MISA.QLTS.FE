@@ -3,7 +3,7 @@ import ax from "axios";
 import emitter from "@/common/emitter";
 import router from '../router'
 import _enum from "@/data/enum";
-
+import resource from "@/data/resource";
 const axios = ax.create()
 
 // tạo header request trước khi gửi api
@@ -25,10 +25,23 @@ axios.interceptors.response.use(function(response) {
         return
     if(response.errorCode == _enum.errorCode.InvalidToken) {
         router.push('/login')
+        return
     }
-    
+    let message = "";
+    if(response.errorCode == _enum.errorCode.deleteDetail) {
+        const fixedAsset = response.data.fixedAsset
+        const license = response.data.license
+        message = resource.errorMessage.deleteFixedAssetDetail.format(fixedAsset.fixed_asset_code, license.license_code)
+    } 
+    else if(response.errorCode == _enum.errorCode.deleteDetailMulti) {
+        let length = response.data.length
+        length = length < 10? `0${length}` : length
+        message = resource.errorMessage.deleteFixedAssetDetailMulti.format(length)
+    }  
+    else {
+        message = response.userMessage + "."
+    }
     // tạo message
-    const message = response.userMessage + "."
     // bắn ra thông báo
     emitter.emit('setDialogMessage', message)
     return Promise.reject(error)
@@ -36,246 +49,114 @@ axios.interceptors.response.use(function(response) {
 
 
 // lấy dữ liệu danh sách tài sản đã được filter
-function getFilterFixedAssetApi(pageSize, currentPage, departmentId, fixedAssetCategoryId, textSearch, resolve, bonusReject) {
-    axios.get( `${BASE_API_URL}fixedAsset/filter?pageSize=${pageSize}&currentPage=${currentPage}&departmentId=${departmentId}&fixedAssetCategoryId=${fixedAssetCategoryId}&textSearch=${textSearch}`)
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(bonusReject){
-            bonusReject(error)
-        }
-    })   
+async function getFilterFixedAssetApi(pageSize, currentPage, departmentId, fixedAssetCategoryId, textSearch) {
+    return await axios.get( `${BASE_API_URL}fixedAsset/filter?pageSize=${pageSize}&currentPage=${currentPage}&departmentId=${departmentId}&fixedAssetCategoryId=${fixedAssetCategoryId}&textSearch=${textSearch}`)
 }
 
 // lấy tất cả phòng ban
-async function getDepartmentsApi(bonusReject) {
-    try {
-        const response =  await axios.get(`${BASE_API_URL}department`)
-        return response.data
-    } catch(error) {
-        if(bonusReject) {
-            bonusReject(error)
-        }
-    } 
+async function getDepartmentsApi() {
+    return await axios.get(`${BASE_API_URL}department`)
 }
 
 // lấy tất cả loại tài sản
-async function getFixedAssetCategorysApi(bonusReject) {
-    try {
-        const response = await axios.get(`${BASE_API_URL}fixedAssetCategory`)
-        return response.data
-    } catch(error) {
-        if(bonusReject){
-            bonusReject(error)
-        }
-    }
-   
+async function getFixedAssetCategorysApi() {
+    return await axios.get(`${BASE_API_URL}fixedAssetCategory`)
 }
 
 // lấy gợi ý mã tài sản
-function getRecommendFixedAssetCodeApi(resolve, bonusReject) {
-    axios.get(`${BASE_API_URL}fixedAsset/recommendFixedAssetCode`)
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(bonusReject){
-            bonusReject(error)
-        }
-    })
+async function getRecommendFixedAssetCodeApi() {
+    return await axios.get(`${BASE_API_URL}fixedAsset/recommendFixedAssetCode`)
 }
 
 // sửa tài sản
-function editFixedAssetApi(fixedAssetId, body, resolve, bonusReject) {
-    axios.put(`${BASE_API_URL}fixedAsset/${fixedAssetId}`, body)
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(bonusReject){
-            bonusReject(error)
-        }
-    })
+async function editFixedAssetApi(fixedAssetId, body) {
+    return await axios.put(`${BASE_API_URL}fixedAsset/${fixedAssetId}`, body)
 }
 
 // lấy 1 tài sản
-function getFixedAssetApi(fixedAssetId, resolve, bonusReject) {
-    axios.get(`${BASE_API_URL}fixedAsset/${fixedAssetId}`)
-    .then(({data}) => {
-        resolve(data)
-    })
-    .catch(error => {
-        if(bonusReject){
-            bonusReject(error)
-        }
-    })
+async function getFixedAssetApi(fixedAssetId) {
+    return await axios.get(`${BASE_API_URL}fixedAsset/${fixedAssetId}`)
 }
 
 // thêm tài sản
-function postFixedAssetApi(body, resolve, bonusReject) {
+async function postFixedAssetApi(body) {
     axios.post(`${BASE_API_URL}fixedAsset`, body)
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(bonusReject){
-            bonusReject(error)
-        }
-    })
 }
 
 // kiểm tra mã tài sản bị trùng
-async function getFixedAssetCodeExistedApi(fixedAssetCode, fixedAssetId, bonusReject) {
-    try {
-        let response = await axios.get(`${BASE_API_URL}fixedAsset/isCodeExisted?code=${fixedAssetCode}&id=${fixedAssetId}`)
-        return response.data
-    } catch(error) {
-        if(bonusReject){
-            bonusReject(error)
-        }
-    }
+async function getFixedAssetCodeExistedApi(fixedAssetCode, fixedAssetId) {
+   return await axios.get(`${BASE_API_URL}fixedAsset/isCodeExisted?code=${fixedAssetCode}&id=${fixedAssetId}`)
 }
 
-async function getLicenseCodeExistedApi(licenseCode, licenseId, reject) {
-    try {
-        let response = await axios.get(`${BASE_API_URL}license/isCodeExisted?code=${licenseCode}&id=${licenseId}`)
-        return response.data
-    } catch(error) {
-        if(reject){
-            reject(error)
-        }
-    }
+async function getLicenseCodeExistedApi(licenseCode, licenseId) {
+    return await axios.get(`${BASE_API_URL}license/isCodeExisted?code=${licenseCode}&id=${licenseId}`)
 }
 
 // xóa tài sản
-function deleteFixedAssetsApi(listFixedAsset, resolve, bonusReject) {
-    axios.delete(`${BASE_API_URL}fixedAsset`, { data: listFixedAsset})
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(bonusReject){
-            bonusReject(error)
-        }
-    })
+async function deleteFixedAssetsApi(listFixedAsset) {
+    return await axios.delete(`${BASE_API_URL}fixedAsset`, { data: listFixedAsset})
 }
 
 // import dữ liệu từ file vào db
-function postImportFileApi(typeImport, formData, isSubmit, resolve, bonusReject) {
-    axios.post(`${BASE_API_URL}${typeImport}/file?isSubmit=${isSubmit}`, formData, {headers: { "Content-Type": "multipart/form-data"}})
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(bonusReject){
-            bonusReject(error)
-        }
-    })
+async function postImportFileApi(typeImport, formData, isSubmit) {
+    return await axios.post(`${BASE_API_URL}${typeImport}/file?isSubmit=${isSubmit}`, formData, {headers: { "Content-Type": "multipart/form-data"}})
 }
 
 // kiểm tra người dùng đã sở hữu token hợp lệ ở trang đăng nhập
 async function getIsLoginedApi() {
     const token = localStorage.getItem("bearer_token");
     await ax.get(`${BASE_API_URL}auth`, { headers: { Authorization: `Bearer ${token}` } });
-   
 }
 
 // lấy token từ username và passoword do người dùng nhập
-function getTokenApi(email, passoword, resolve, reject) {
-    ax.post(`${BASE_API_URL}auth`, {
+async function getTokenApi(email, passoword) {
+    return await ax.post(`${BASE_API_URL}auth`, {
         email: email,
         password: passoword
     })
-    .then(({data}) => resolve(data))
-    .catch(error => reject(error))
+   
 } 
 
-function getFilterLicensesApi(pageSize, currentPage, textSearch, resolve, reject) {
-    axios.get(`${BASE_API_URL}license/filter?pageSize=${pageSize}&currentPage=${currentPage}&textSearch=${textSearch}`)
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(reject)
-            reject(error)
-    })
+async function getFilterLicensesApi(pageSize, currentPage, textSearch) {
+    return await axios.get(`${BASE_API_URL}license/filter?pageSize=${pageSize}&currentPage=${currentPage}&textSearch=${textSearch}`)
 }
 
-function getRecommendLicenseCodeApi(resolve, reject) {
-    axios.get(`${BASE_API_URL}license/recommendLicenseCode`)
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(reject)
-            reject(error)
-    })
+async function getRecommendLicenseCodeApi() {
+    return await axios.get(`${BASE_API_URL}license/recommendLicenseCode`)
 }
 
-function getFilterFixedAssetNoLicenseApi(pageSize, currentPage, listIdSelected, textSearch, licenseId, resolve, reject) {
-    axios.post(`${BASE_API_URL}fixedAsset/filterNoLicense`, {
+async function getFilterFixedAssetNoLicenseApi(pageSize, currentPage, listIdSelected, textSearch, licenseId) {
+    return await axios.post(`${BASE_API_URL}fixedAsset/filterNoLicense`, {
         pageSize, currentPage, listIdSelected, textSearch, licenseId      
     })
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(reject)
-            reject(error)
-    })
 }
 
-function GetAllBudgetApi(resolve, reject) {
-    axios.get(`${BASE_API_URL}budget`)
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(reject) {
-            reject(error)
-        }
-    })
+async function GetAllBudgetApi() {
+    return await axios.get(`${BASE_API_URL}budget`)
 }
 
-function GetBudgetsByFixedAssetIdApi(fixedAssetId, resolve, reject) {
-    axios.get(`${BASE_API_URL}budget/listModel?fixedAssetId=${fixedAssetId}`)
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(error)
-            reject(error)
-    })
-    
+async function GetBudgetsByFixedAssetIdApi(fixedAssetId) {
+    return await axios.get(`${BASE_API_URL}budget/listModel?fixedAssetId=${fixedAssetId}`)
 }
 
-function getLicenseByIdApi(licenseId, resolve, reject) {
-    axios.get(`${BASE_API_URL}license/${licenseId}`)
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(reject) {
-            reject(error)
-        }
-    })
+async function getLicenseByIdApi(licenseId) {
+    return await axios.get(`${BASE_API_URL}license/${licenseId}`)
 }
 
-function getListFixedAssetByLicenseId(licenseId, resolve, reject) {
-    axios.get(`${BASE_API_URL}fixedAsset/listByLicenseId?licenseId=${licenseId}`)
-    .then(({data}) => resolve(data))
-    .catch(error => {
-        if(reject) {
-            reject(error)
-        }
-    })
+async function getListFixedAssetByLicenseId(licenseId) {
+    return await axios.get(`${BASE_API_URL}fixedAsset/listByLicenseId?licenseId=${licenseId}`)
 }
 
-function postLicenseApi(licenseData, resolve, reject) {
-    axios.post(`${BASE_API_URL}license/model`, licenseData)
-    .then((data) => resolve(data))
-    .catch((error) => {
-        if(reject) {
-            reject(error)
-        }
-    })
+async function postLicenseApi(licenseData) {
+    return await axios.post(`${BASE_API_URL}license/model`, licenseData)
 }
 
-function deleteListLicenseApi(listId, resolve, reject) {
-    axios.delete(`${BASE_API_URL}license`, {data: listId})
-    .then(({data}) => resolve(data))
-    .catch((error) => {
-        if(reject) {
-            reject(error)
-        }
-    })
+async function deleteListLicenseApi(listId) {
+    return await axios.delete(`${BASE_API_URL}license`, {data: listId})
 }
 
-function putLicenseApi(licenseId, licenseData, resolve, reject) {
-    axios.put(`${BASE_API_URL}license/model/${licenseId}`, licenseData)
-    .then((data) => resolve(data))
-    .catch((error) => {
-        if(reject) {
-            reject(error)
-        }
-    })
+async function putLicenseApi(licenseId, licenseData) {
+    return await axios.put(`${BASE_API_URL}license/model/${licenseId}`, licenseData)
 }
 
 export {putLicenseApi, deleteListLicenseApi, getFilterFixedAssetApi, GetAllBudgetApi, postLicenseApi, getListFixedAssetByLicenseId, getLicenseCodeExistedApi, getLicenseByIdApi, getDepartmentsApi, GetBudgetsByFixedAssetIdApi, getFixedAssetCategorysApi, getRecommendFixedAssetCodeApi, editFixedAssetApi, getFixedAssetApi, postFixedAssetApi, getFixedAssetCodeExistedApi, deleteFixedAssetsApi, postImportFileApi, getIsLoginedApi, getTokenApi, getFilterLicensesApi, getRecommendLicenseCodeApi, getFilterFixedAssetNoLicenseApi}

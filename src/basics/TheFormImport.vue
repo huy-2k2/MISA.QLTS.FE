@@ -144,34 +144,33 @@ export default {
          * created at: 30/05/2023
          * description: sự kiện người dùng nhấn vào nút nhập khẩu thì submit data
          */
-        handleSubmit() {
+        async handleSubmit() {
             const formData = new FormData()
             const file = this.$refs.inputFile.files[0]
             formData.append("file", file)
             if (!this.isPassed)
                 return
             this.isLoading = true
-            postImportFileApi(this.typeImport, formData, true,
+            try {
+                postImportFileApi(this.typeImport, formData, true)
+                this.emitter.emit("setToastMessage", this.resource.toastMessage.import)
+                this.isLoading = false
+                if (this.typeImport == "fixedAsset")
+                    this.$store.dispatch("getFilterFixedAsset")
+                else if (this.typeImport == 'fixedAssetCategory')
+                    this.$store.dispatch('getFixedAssetCategorys')
+                else if (this.typeImport == 'department')
+                    this.$store.dispatch('getDepartments')
                 // submit thành công thì hiện thông báo
-                () => {
-                    this.emitter.emit("setToastMessage", this.resource.toastMessage.import)
-                    this.isLoading = false
-                    if (this.typeImport == "fixedAsset")
-                        this.$store.dispatch("getFilterFixedAsset")
-                    else if (this.typeImport == 'fixedAssetCategory')
-                        this.$store.dispatch('getFixedAssetCategorys')
-                    else if (this.typeImport == 'department')
-                        this.$store.dispatch('getDepartments')
-                    this.handleReset()
-                },
-                // trường hợp không thành công
-                ({ response: { data } }) => {
-                    this.isLoading = false
-                    if (data.errorCode == this.$enum.errorCode.invalidData) {
-                        // hiện lại lỗi
-                        this.handleFileChange(data.data)
-                    }
-                })
+                this.handleReset()
+            }
+            catch ({ response: { data } }) {
+                this.isLoading = false
+                if (data.errorCode == this.$enum.errorCode.invalidData) {
+                    // hiện lại lỗi
+                    this.handleFileChange(data.data)
+                }
+            }
         },
 
         /**
@@ -200,18 +199,21 @@ export default {
          * created at: 30/05/2023
          * description: sự kiện khi người dùng chọn file thì validate file đó
          */
-        handleFileChange() {
+        async handleFileChange() {
             const formData = new FormData()
             const file = this.$refs.inputFile.files[0]
             formData.append("file", file)
             this.isLoading = true
-            postImportFileApi(this.typeImport, formData, false, (data) => {
+            try {
+                const { data } = await postImportFileApi(this.typeImport, formData, false)
                 this.isLoading = false
                 this.handleValidateFail(data)
-            }, () => {
+            }
+            catch {
                 this.handleReset()
                 this.isLoading = false
-            })
+            }
+
         }
     }
 }

@@ -73,7 +73,7 @@ export default {
          * xử lý sự kiện khi người dùng ấn nút đăng nhập
          * created by: NQ Huy(20/06/2023)
          */
-        handleSubmitLogin() {
+        async handleSubmitLogin() {
             // kiểm tra nếu chưa nhập email và password
             if (this.email == "" || this.password == "") {
                 this.error.text = this.resource.toastMessage.credentialRequired;
@@ -86,21 +86,21 @@ export default {
             }
             // gửi thông tin đăng nhập lên server
             this.isLoading = true
-            getTokenApi(this.email, this.password, (data) => {
+            try {
+                const { data } = await getTokenApi(this.email, this.password)
                 localStorage.setItem("bearer_token", data);
                 this.$router.push({ path: "/asset" });
-            },
-                // trường hợp xảy ra lỗi thì thông báo
-                (error) => {
-                    this.isLoading = false
-                    const errorCode = error?.response?.data?.errorCode;
-                    if (errorCode == this.$enum.errorCode.credentialNotValid) {
-                        this.error.text = this.resource.toastMessage.credentialInvalid;
-                        this.isShowError = true;
-                        clearTimeout(this.timoutShowError);
-                        this.timoutShowError = setTimeout(() => this.isShowError = false, 3000);
-                    }
-                })
+            }
+            catch (error) {
+                this.isLoading = false
+                const errorCode = error?.response?.data?.errorCode;
+                if (errorCode == this.$enum.errorCode.credentialNotValid) {
+                    this.error.text = this.resource.toastMessage.credentialInvalid;
+                    this.isShowError = true;
+                    clearTimeout(this.timoutShowError);
+                    this.timoutShowError = setTimeout(() => this.isShowError = false, 3000);
+                }
+            }
         },
     },
     components: { MisaPopup, MisaLoading }

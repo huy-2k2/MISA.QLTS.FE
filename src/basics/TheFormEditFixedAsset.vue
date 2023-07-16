@@ -32,17 +32,19 @@
                         <div class="form__fields custom-scrollbar">
                             <div v-for="(field, index) in fields" :key="field" class="form__price__row">
                                 <div class="form__price__col--big">
-                                    <MisaCombobox :error="errors[index]?.budgetId" fieldText="budget_name"
-                                        fieldValue="budget_id" :data="$store.state.ls.budgets.data"
+                                    <MisaCombobox @blurcombobox="handleBlurBudgetId" :error="errors[index]?.budgetId"
+                                        fieldText="budget_name" fieldValue="budget_id" :data="$store.state.ls.budgets.data"
                                         :typeCombobox="$enum.typeCombobox.listOption"
                                         :placeholder="resource.placeholder.combobox.format(resource.fieldName.source)"
                                         v-model="field.budget_id" :isLoading="$store.state.ls.budgets.isLoading"
-                                        :isDisplayValue="false">
+                                        v-on:update:modelValue="handleChangeField(index)" :isDisplayValue="false">
                                     </MisaCombobox>
                                 </div>
                                 <div class="form__price__col--small">
-                                    <MisaNumberForm :error="errors[index]?.budgetValue" :float="true" :currrency="true"
-                                        v-model="field.budget_value" :icon="false" :required="false">
+                                    <MisaNumberForm @blur="handleBlurBudgetValue(index)" :error="errors[index]?.budgetValue"
+                                        :placeholder="resource.placeholder.input.format(resource.fieldName.budget)"
+                                        :float="true" :currrency="true" v-model="field.budget_value" :icon="false"
+                                        :required="false" v-on:update:modelValue="handleChangeField(index)">
                                     </MisaNumberForm>
                                 </div>
                                 <div class="form__price__control">
@@ -73,7 +75,9 @@
             <div class="form__bottom">
                 <MisaButton @clickButton="isShowCancel = true" :isOutline="true" :text="resource.buttons.cancel">
                 </MisaButton>
-                <MisaButton @clickButton="handleSubmit" :text="resource.buttons.save"></MisaButton>
+                <MisaToolTip tooltip="Ctrl S">
+                    <MisaButton @clickButton="handleSubmit" :text="resource.buttons.save"></MisaButton>
+                </MisaToolTip>
             </div>
         </div>
     </div>
@@ -103,6 +107,7 @@ export default {
             isShowCancel: false,
             fixedAsset: null,
             isLoading: false,
+            eventKeyDown: null,
             fields: [
                 {
                     budget_id: "",
@@ -113,24 +118,43 @@ export default {
             listIdRemove: [],
         }
     },
+    watch: {
+
+    },
     props: {
         fixedAssetId: {
             type: String
         }
     },
     methods: {
+        handleBlurBudgetId() {
+            this.fields.forEach((field, i) => {
+                this.errors[i] = { ...this.errors[i], budgetId: this.validateBudgetId(field.budget_id, i) }
+
+            })
+        },
+        handleBlurBudgetValue(index) {
+            this.errors[index] = {
+                ...this.errors[index],
+                budgetValue: this.validateBudgetValue(this.fields[index].budget_value)
+            }
+        },
+        handleChangeField(index) {
+            if (this.fields[index].budget_detail_id)
+                this.fields[index].is_changed = true
+        },
         validateBudgetId(budgetId, index) {
             if (!this.validate.validateRequired(budgetId)) {
-                return "không được bỏ trống"
+                return this.resource.validateMessage.notEmpty
             }
             const isExisted = this.fields.find((field, i) => field.budget_id == budgetId && i < index)
             if (isExisted) {
-                return "Nguồn chi phí đã tồn tại"
+                return this.resource.validateMessage.duplicate.format(this.resource.fieldName.source)
             }
         },
         validateBudgetValue(value) {
             if (!this.validate.validateRequired(value)) {
-                return "không được bỏ trống"
+                return this.resource.validateMessage.notEmpty
             }
             if (Number.isNaN(value)) {
                 return "giá trị không hợp lệ"
@@ -180,28 +204,18 @@ export default {
             return ""
         }
     },
-    beforeMount() {
+    async beforeMount() {
         const budgetDetail = this.$store.getters.budgetDetailByFixedAssetId(this.fixedAssetId)
         this.isLoading = true
-        let isLoadedFa = false
-        let isLoadedBudgets = !!budgetDetail
-        getFixedAssetApi(this.fixedAssetId, (data) => {
-            this.fixedAsset = data
-            isLoadedFa = true
-            if (isLoadedBudgets)
-                this.isLoading = false
-        })
+        const { data: fixedAsset } = await getFixedAssetApi(this.fixedAssetId)
+        this.fixedAsset = fixedAsset
         if (!budgetDetail) {
-            GetBudgetsByFixedAssetIdApi(this.fixedAssetId, (data) => {
-                if (data.length) {
-                    this.fields = data.map((field) => ({ budget_detail_id: field.budget_detail.budget_detail_id, budget_id: field.budget_id, budget_value: field.budget_detail.budget_value }))
-                }
-                isLoadedBudgets = true
-                if (isLoadedFa)
-                    this.isLoading = false
-            })
-
-        } else {
+            const { data: budgets } = await GetBudgetsByFixedAssetIdApi(this.fixedAssetId)
+            if (budgets.length) {
+                this.fields = budgets.map((field) => ({ budget_detail_id: field.budget_detail.budget_detail_id, budget_id: field.budget_id, budget_value: field.budget_detail.budget_value }))
+            }
+        }
+        else {
             if (budgetDetail.budgets.length)
                 this.fields = budgetDetail.budgets.map(b => b)
             else
@@ -212,6 +226,21 @@ export default {
                     }
                 ]
         }
+        this.isLoading = false
+    },
+    mounted() {
+        this.eventKeyDown = (e) => {
+            if (e.key == "s" || e.key == "S") {
+                if (e.ctrlKey) {
+                    e.preventDefault()
+                    this.handleSubmit()
+                }
+            }
+        },
+            window.addEventListener("keydown", this.eventKeyDown)
+    },
+    beforeUnmount() {
+        window.removeEventListener("keydown", this.eventKeyDown)
     }
 }
 </script>
