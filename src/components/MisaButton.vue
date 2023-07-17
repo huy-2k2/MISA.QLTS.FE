@@ -1,15 +1,20 @@
 <template>
-    <button :disabled="disabled" @click="$emit('clickButton')" :type="type" class="button"
+    <button :disabled="disabled || isLoading" @click="$emit('clickButton')" :type="type" class="button"
         :class="{ ['button--sub']: isSub, ['button--outline']: isOutline, hasShadow: shadow }">
         <div class="button__icon">
             <div :class="icon"></div>
         </div>
-        <p class="button__text">{{ text }}</p>
+        <div v-if="isLoading">
+            <MisaLoading :notPrimary="true"></MisaLoading>
+        </div>
+        <p v-else class="button__text">{{ text }}</p>
     </button>
 </template>
 
 <script>
+import MisaLoading from './MisaLoading.vue';
 export default {
+    components: { MisaLoading },
     emits: ["clickButton"],
     name: 'MyButton',
     props: {
@@ -28,6 +33,10 @@ export default {
             default: false
         },
         disabled: {
+            type: Boolean,
+            default: false
+        },
+        isLoading: {
             type: Boolean,
             default: false
         },

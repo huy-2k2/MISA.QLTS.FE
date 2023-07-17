@@ -66,6 +66,7 @@ export default {
 .textfield_form__input {
     height: 36px;
     padding-left: 12px;
+    padding-right: 12px;
     outline: none;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-border);

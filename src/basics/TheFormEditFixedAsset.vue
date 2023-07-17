@@ -32,7 +32,7 @@
                         <div class="form__fields custom-scrollbar">
                             <div v-for="(field, index) in fields" :key="field" class="form__price__row">
                                 <div class="form__price__col--big">
-                                    <MisaCombobox @blurcombobox="handleBlurBudgetId" :error="errors[index]?.budgetId"
+                                    <MisaCombobox @blurcombobox="handleBlurBudgetId(index)" :error="errors[index]?.budgetId"
                                         fieldText="budget_name" fieldValue="budget_id" :data="$store.state.ls.budgets.data"
                                         :typeCombobox="$enum.typeCombobox.listOption"
                                         :placeholder="resource.placeholder.combobox.format(resource.fieldName.source)"
@@ -127,10 +127,10 @@ export default {
         }
     },
     methods: {
-        handleBlurBudgetId() {
+        handleBlurBudgetId(index) {
+            this.errors[index] = { ...this.errors[index], budgetId: this.validateBudgetId(this.fields[index].budget_id, index) }
             this.fields.forEach((field, i) => {
-                this.errors[i] = { ...this.errors[i], budgetId: this.validateBudgetId(field.budget_id, i) }
-
+                this.errors[i] = { ...this.errors[i], budgetId: this.validateDuplicateBudgetId(field.budget_id, i) }
             })
         },
         handleBlurBudgetValue(index) {
@@ -147,7 +147,10 @@ export default {
             if (!this.validate.validateRequired(budgetId)) {
                 return this.resource.validateMessage.notEmpty
             }
-            const isExisted = this.fields.find((field, i) => field.budget_id == budgetId && i < index)
+            return this.validateDuplicateBudgetId(budgetId, index)
+        },
+        validateDuplicateBudgetId(budgetId, index) {
+            const isExisted = this.fields.find((field, i) => field.budget_id && field.budget_id == budgetId && i < index)
             if (isExisted) {
                 return this.resource.validateMessage.duplicate.format(this.resource.fieldName.source)
             }
@@ -255,6 +258,11 @@ export default {
 
 .form__title {
     padding: 20px;
+    display: block;
+    max-width: 600px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .form__price {

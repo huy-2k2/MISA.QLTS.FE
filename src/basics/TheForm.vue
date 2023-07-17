@@ -101,7 +101,7 @@
             <MisaButton type="button" @click="handleCancel" :isOutline="true" :text="resource.buttons.cancel"></MisaButton>
             <div ref="submitButton">
                 <MisaToolTip tooltip="Ctrl S">
-                    <MisaButton :disabled="isSubmiting" @click="handleSubmit" :text="resource.buttons.save">
+                    <MisaButton :isLoading="isSubmiting" @click="handleSubmit" :text="resource.buttons.save">
                     </MisaButton>
                 </MisaToolTip>
             </div>

@@ -205,7 +205,8 @@ export default {
             typeForm: "",
             textSearch: "",
             licenseId: "",
-            checkboxData: []
+            checkboxData: [],
+            indexActiveTableTop: -1,
         }
     },
     beforeMount() {
@@ -264,6 +265,7 @@ export default {
             this.isShowRemove = false
         },
         handleActiveTableBottomTr(index) {
+            this.indexActiveTableTop = index
             if (index == -1) {
                 this.bodyDataBottom.body = []
             }
@@ -347,6 +349,7 @@ export default {
                 ]
             })
             this.bodyDataTop.listId = newVal.map(license => license.license_id)
+            this.handleActiveTableBottomTr(this.indexActiveTableTop)
         },
         textSearch(newVal) {
             if (!newVal) {
@@ -531,6 +534,10 @@ export default {
     box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.05);
     cursor: pointer;
     height: 100%;
+}
+
+.header__bottom__right__icon:hover {
+    background-color: #cccccc6c;
 }
 
 .header__bottom__title {

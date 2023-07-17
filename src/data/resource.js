@@ -10,10 +10,10 @@ const resource = {
         [myEnum.typeForm.duplicate]: "Nhân bản dữ liệu thành công.",
         [myEnum.typeForm.add]: "Lưu dữ liệu thành công.",
         [myEnum.typeForm.edit]: "thay đổi dữ liệu thành công.",
-        import: "Nhập khẩu dữ liệu thành công",
-        delete: "Xóa dữ liệu thành công",
-        credentialInvalid: "Tên đăng nhập hoạc mật khẩu không đúng",
-        credentialRequired: "Vui lòng nhập đầy đủ thông tin đăng nhập",
+        import: "Nhập khẩu dữ liệu thành công.",
+        delete: "Xóa dữ liệu thành công.",
+        credentialInvalid: "Tên đăng nhập hoạc mật khẩu không đúng.",
+        credentialRequired: "Vui lòng nhập đầy đủ thông tin đăng nhập.",
     },
     // tiêu đề của form
     formTitle: {
@@ -98,7 +98,8 @@ const resource = {
         removeFixedAsset: 'Bạn có muốn xóa tài sản {0}?',
         removeMultiFixedAsset: '{0} tài sản đã được chọn. Bạn có muốn xóa các tài sản này khỏi danh sách?',
         removeLicense: "Bạn có muốn xóa chứng từ có mã {0}?",
-        removeMultiLicense: "{0} chứng từ đã được chọn. Bạn có muốn xóa các chứng từ ngày khỏi danh sách?"
+        removeMultiLicense: "{0} chứng từ đã được chọn. Bạn có muốn xóa các chứng từ ngày khỏi danh sách?",
+        noDataFound: "Không tìm thấy dữ liệu"
     },
     //context menu
     contextMenu: {

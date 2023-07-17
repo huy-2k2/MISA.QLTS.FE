@@ -3,7 +3,7 @@
         <div ref="tableWrapper" :class="{ isHasFooter: footer?.data && body?.length, isLoading }"
             class="table-wrapper custom-scrollbar">
             <div v-show="!body?.length && !isLoading" class="table__nodata">
-                <img src="../assets/image/nodata.png" alt="">
+                {{ resource.dialogMessages.noDataFound }}
             </div>
             <MisaLoading v-if="isLoading"></MisaLoading>
             <table class="table" v-if="!isLoading && bodyData">
@@ -80,7 +80,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table__border" v-show="footer.paging && footer.data && body?.length"></div>
+        <!-- <div class="table__border" v-show="footer.paging && footer.data && body?.length"></div> -->
         <div v-if="footer.paging" class="table__paginate">
             <p class="table__paginate__total"
                 v-html="resource.fixedAssetDetail.totalFixedAsset.format(`<strong>${this.convert.toCurrency(footer.paging?.totalData)}</strong>`)">
@@ -444,6 +444,7 @@ export default {
     background-color: #fff;
     padding-left: 16px;
     column-gap: 16px;
+    border-top: 1px solid var(--color-border);
 }
 
 .context_menu {
@@ -512,12 +513,9 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 18px;
 }
 
-.table__nodata img {
-    max-height: 100%;
-    object-fit: cover;
-}
 
 .table__paginate__select__options {
     bottom: calc(100% + 2px);
@@ -628,7 +626,7 @@ export default {
 
 .table td .text {
     display: block;
-    /* max-width: 400px; */
+    max-width: 400px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -687,7 +685,7 @@ tr:hover .table__function {
 .table__footer td {
     font-family: Misa Font;
     height: 38px;
-
+    border-top: 1px solid var(--color-border);
 }
 
 .table__paginate__total {

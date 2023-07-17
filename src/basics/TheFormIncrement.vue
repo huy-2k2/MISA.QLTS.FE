@@ -58,7 +58,8 @@
             </MisaButton>
             <MisaToolTip tooltip="Ctrl S">
                 <div ref="submitButton">
-                    <MisaButton @clickButton="handleSubmit" :shadow="true" :text="resource.buttons.save"></MisaButton>
+                    <MisaButton :isLoading="isSubmiting" @clickButton="handleSubmit" :shadow="true"
+                        :text="resource.buttons.save"></MisaButton>
                 </div>
             </MisaToolTip>
         </div>
@@ -123,6 +124,7 @@ export default {
             isShowError: false,
             isLoading: false,
             eventKeyDown: null,
+            isSubmiting: false,
             errors: {},
             fixedAssetId: null,
             budgetData: [],
@@ -200,6 +202,7 @@ export default {
             this.isShowError = false
         },
         async handleSubmit() {
+            this.isSubmiting = true
             await this.validateLicenseCode()
             this.validateUseDay()
             this.validateCreateDay()
@@ -207,6 +210,7 @@ export default {
 
             if (this.errorNotifi) {
                 this.isShowError = true
+                this.isSubmiting = false
             } else {
                 const list_fixed_asset = this.$store.state.ls.selectedFixedAssets.allData.map(fa => {
                     return {
@@ -216,7 +220,7 @@ export default {
                     }
                 })
                 const bodyRequest = {
-                    list_fixed_asset,
+                    list_fixed_asset: list_fixed_asset.reverse(),
                     license: this.form,
                     list_fixed_asset_id_delete: this.$store.state.ls.listIdDeleted.licenseDetail,
                     list_budget_detail_id_delete: this.$store.state.ls.listIdDeleted.budgetDetail,
@@ -229,6 +233,7 @@ export default {
                     this.emitter.emit("setToastMessage", this.resource.toastMessage[this.typeForm]);
                     // tải lại danh sách tài sản
                     this.$store.dispatch("getFilterLicenses")
+
                 } else if (this.typeForm == this.$enum.typeForm.edit) {
                     await putLicenseApi(this.licenseId, bodyRequest)
                     this.$emit('clickClose')
@@ -236,8 +241,8 @@ export default {
                     this.emitter.emit("setToastMessage", this.resource.toastMessage[this.typeForm]);
                     // tải lại danh sách tài sản
                     this.$store.dispatch("getFilterLicenses")
-
                 }
+                this.isSubmiting = false
             }
         },
         async validateLicenseCode() {
@@ -427,7 +432,7 @@ export default {
 
 .form__top,
 .form__bottom {
-    padding: 0 20px;
+    padding: 0 20px 10px 20px;
     margin-top: 10px;
 }
 
@@ -456,7 +461,7 @@ export default {
 }
 
 .form__top__field {
-    width: calc(33.3% - 13.3px);
+    width: calc(33.3% - 10px);
 }
 
 .form__top__field--full {
