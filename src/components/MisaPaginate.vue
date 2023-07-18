@@ -1,21 +1,28 @@
 <template>
     <ul class="paginate">
-        <li @click="setPage(currentPage - 1)" :class="{ unactive: currentPage <= 1 }" class="paginate__icon">
-            <div class="icon-arrow-left"></div>
-        </li>
+
+        <MisaToolTip :tooltip="resource.tooltip.prevPage">
+            <li @click="setPage(currentPage - 1)" :class="{ unactive: currentPage <= 1 }" class="paginate__icon">
+                <div class="icon-arrow-left"></div>
+            </li>
+        </MisaToolTip>
         <li @click="setPage(num)" :class="{ active: num == currentPage }" v-for="num in paginates" :key="num"
             class="paginate__item">
             {{ num }}
         </li>
-        <li @click="setPage(currentPage + 1)" :class="{ unactive: currentPage >= totalPage }" class="paginate__icon">
-            <div class="icon-arrow-right"></div>
-        </li>
+        <MisaToolTip :tooltip="resource.tooltip.nextPage">
+            <li @click="setPage(currentPage + 1)" :class="{ unactive: currentPage >= totalPage }" class="paginate__icon">
+                <div class="icon-arrow-right"></div>
+            </li>
+        </MisaToolTip>
     </ul>
 </template>
 
 <script>
+import MisaToolTip from './MisaToolTip.vue'
 export default {
     components: {
+        MisaToolTip
     },
 
     data() {

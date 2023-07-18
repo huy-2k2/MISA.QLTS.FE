@@ -1,12 +1,12 @@
 <template>
-    <div :class="{ isError: error }" class="input_date field__validate" types="date">
+    <div :class="{ isError: error }" class="input_date field__validate">
         <label class="label" for="">
             <span class="field__validate__label">{{ label }}</span>
             <span v-if="required" class="label__required">*</span>
         </label>
         <div class="input_date__textfield">
             <div class="input_date__value"></div>
-            <input v-model="value" class="input_date__input" type="date">
+            <input v-model="value" class="input_date__input" lang="fr-CA" type="date">
         </div>
         <span v-html="error" class="field__validate__error"></span>
     </div>

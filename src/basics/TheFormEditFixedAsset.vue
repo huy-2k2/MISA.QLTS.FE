@@ -17,10 +17,10 @@
                     <div class="form__price__title">{{ resource.fieldName.cost }}</div>
                     <div class="form__price__body">
                         <div class="form__price__row">
-                            <div class="form__price__col">
+                            <div class="form__price__col--big">
                                 <div class="form__price__col__title">{{ resource.fieldName.source }}</div>
                             </div>
-                            <div class="form__price__col">
+                            <div class="form__price__col--small">
                                 <div class="form__price__col__title">{{ resource.fieldName.value }}</div>
                             </div>
                             <div @click="handleAddField(0)" v-if="!fields.length" class="form__price__add">
@@ -33,7 +33,7 @@
                             <div v-for="(field, index) in fields" :key="field" class="form__price__row">
                                 <div class="form__price__col--big">
                                     <MisaCombobox @blurcombobox="handleBlurBudgetId(index)" :error="errors[index]?.budgetId"
-                                        fieldText="budget_name" fieldValue="budget_id" :data="$store.state.ls.budgets.data"
+                                        fieldText="budget_name" fieldValue="budget_id" :data="budgets"
                                         :typeCombobox="$enum.typeCombobox.listOption"
                                         :placeholder="resource.placeholder.combobox.format(resource.fieldName.source)"
                                         v-model="field.budget_id" :isLoading="$store.state.ls.budgets.isLoading"
@@ -48,7 +48,8 @@
                                     </MisaNumberForm>
                                 </div>
                                 <div class="form__price__control">
-                                    <div @click="handleAddField(index)" class="form__price__button">
+                                    <div @click="handleAddField(index)" class="form__price__button"
+                                        :class="{ isDisable: budgets.length == fields.length }">
                                         <MisaToolTip :tooltip="resource.tooltip.addIncrement">
                                             <div class="icon-add"></div>
                                         </MisaToolTip>
@@ -128,10 +129,18 @@ export default {
     },
     methods: {
         handleBlurBudgetId(index) {
-            this.errors[index] = { ...this.errors[index], budgetId: this.validateBudgetId(this.fields[index].budget_id, index) }
             this.fields.forEach((field, i) => {
-                this.errors[i] = { ...this.errors[i], budgetId: this.validateDuplicateBudgetId(field.budget_id, i) }
+                const oldError = this.errors[i]?.budgetId
+                const messageValidateDuplicateBudgetId = this.validateDuplicateBudgetId(field.budget_id, i)
+                if (messageValidateDuplicateBudgetId)
+                    this.errors[i] = { ...this.errors[i], budgetId: messageValidateDuplicateBudgetId }
+                else {
+                    if (oldError == this.getMessageDuplicateError()) {
+                        this.errors[i].budgetId = null
+                    }
+                }
             })
+            this.errors[index] = { ...this.errors[index], budgetId: this.validateBudgetId(this.fields[index].budget_id, index) }
         },
         handleBlurBudgetValue(index) {
             this.errors[index] = {
@@ -152,8 +161,11 @@ export default {
         validateDuplicateBudgetId(budgetId, index) {
             const isExisted = this.fields.find((field, i) => field.budget_id && field.budget_id == budgetId && i < index)
             if (isExisted) {
-                return this.resource.validateMessage.duplicate.format(this.resource.fieldName.source)
+                return this.getMessageDuplicateError()
             }
+        },
+        getMessageDuplicateError() {
+            return this.resource.validateMessage.duplicate.format(this.resource.fieldName.source)
         },
         validateBudgetValue(value) {
             if (!this.validate.validateRequired(value)) {
@@ -165,7 +177,8 @@ export default {
         },
 
         handleAddField(index) {
-            this.fields.splice(index + 1, 0, { budget_id: null, budget_value: null })
+            if (this.fields.length < this.budgets.length)
+                this.fields.splice(index + 1, 0, { budget_id: null, budget_value: null })
         },
         handleRemoveField(index) {
             const detailId = this.fields[index].budget_detail_id
@@ -198,6 +211,9 @@ export default {
         totalValue() {
             const result = this.fields.reduce((total, field) => total + (field.budget_value ? Number.parseFloat(field.budget_value) : 0), 0)
             return this.convert.toCurrency(result)
+        },
+        budgets() {
+            return this.$store.state.ls.budgets.data
         },
         departmentName() {
             if (this.fixedAsset) {
@@ -252,7 +268,7 @@ export default {
 .form {
     background-color: #fff;
     border-radius: var(--radius-border);
-    width: 700px;
+    width: 850px;
     max-width: 100%;
 }
 
@@ -277,7 +293,7 @@ export default {
 }
 
 .form__field {
-    width: 500px;
+    width: 600px;
 }
 
 .form__body {
@@ -304,7 +320,7 @@ export default {
 }
 
 .form__price__row {
-    width: 500px;
+    width: 600px;
     display: flex;
     align-items: stretch;
     justify-content: space-between;
@@ -344,10 +360,15 @@ export default {
     cursor: pointer;
 }
 
+.form__price__button.isDisable {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
 .form__fields {
-    height: 320px;
-    overflow-y: auto;
-    scroll-behavior: auto;
+    height: 300px;
+    /* overflow-y: auto; */
+    /* scroll-behavior: auto; */
     display: flex;
     flex-direction: column;
     row-gap: 10px;

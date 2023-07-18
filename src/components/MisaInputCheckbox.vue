@@ -69,8 +69,9 @@ export default {
 }
 
 .input_checkbox input:checked+label {
-    border-color: transparent;
-    background-color: transparent;
+    border-width: 0;
+    width: unset;
+    height: unset;
 }
 
 .input_checkbox input:checked+label:hover {

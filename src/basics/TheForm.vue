@@ -98,10 +98,11 @@
             </div>
         </div>
         <div class="form__bottom">
-            <MisaButton type="button" @click="handleCancel" :isOutline="true" :text="resource.buttons.cancel"></MisaButton>
+            <MisaButton :shadow="true" type="button" @click="handleCancel" :isOutline="true"
+                :text="resource.buttons.cancel"></MisaButton>
             <div ref="submitButton">
                 <MisaToolTip tooltip="Ctrl S">
-                    <MisaButton :isLoading="isSubmiting" @click="handleSubmit" :text="resource.buttons.save">
+                    <MisaButton :shadow="true" :isLoading="isSubmiting" @click="handleSubmit" :text="resource.buttons.save">
                     </MisaButton>
                 </MisaToolTip>
             </div>

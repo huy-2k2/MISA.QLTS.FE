@@ -43,7 +43,7 @@
                             <MisaToolTip :tooltip="bodyData.features && !isDisplayFeature && isHoverFeature ? '' : td">
                                 <div class="td__content">
                                     <span class="text">{{ td }}</span>
-                                    <div class="table__function table__function--abs no_action"
+                                    <div class="table__function table__function--abs action"
                                         v-if="bodyData.features && !isDisplayFeature && i == tr.length - 1">
                                         <MisaToolTip @mouseover="isHoverFeature = true" @mouseout="isHoverFeature = false"
                                             v-for="(feature, j) in bodyData.features" :key="feature"
@@ -101,15 +101,16 @@
                     </div>
                 </div>
             </div>
-            <MisaPaginate :totalData="footer.paging.totalData" :currentPage="footer.paging.currentPage"
+            <MisaPaginate v-if="body.length" :totalData="footer.paging.totalData" :currentPage="footer.paging.currentPage"
                 :pageSize="footer.paging.pageSize" @setPage="handleSetPage">
             </MisaPaginate>
         </div>
         <div v-if="!footer" class="table__bonus"></div>
     </div>
     <ul ref="contextMenu" v-if="indexContextMenu != -1 && contextMenu" class="context_menu">
-        <li @click="$emit(`context_${index}`, indexContextMenu)" v-for="(context, index) in contextMenu" :key="context">{{
-            context }}</li>
+        <li @click="handleEmitContextMenu(index, indexContextMenu)" v-for="(context, index) in contextMenu" :key="context">
+            {{
+                context }}</li>
     </ul>
 </template>
 
@@ -154,12 +155,12 @@ export default {
         selectedList: {
             type: Array,
             default: () => []
-        }
+        },
     },
     emits: ["setPageSize", "setPage", "dbClickTr", "changeCheckboxData", "feature_0", "feature_1", "context_0", "context_1", "context_2", "context_3", "activeTr"],
     data() {
         return {
-            pageSizeList: [10, 20, 50, 3000],
+            pageSizeList: [10, 20, 50, 100],
             isShowPageSizeList: false,
             isCheckedAll: false,
             isHoverFeature: false,
@@ -176,12 +177,14 @@ export default {
     },
 
     methods: {
+        handleEmitContextMenu(index, indexContextMenu) {
+            this.$emit(`context_${index}`, indexContextMenu)
+            this.indexContextMenu = -1
+        },
         handleSetPage(page) {
-            this.indexActive = -1
             this.$emit('setPage', page)
         },
         handleSetPageSize(pageSize) {
-            this.indexActive = -1
             this.$emit('setPageSize', pageSize);
             this.isShowPageSizeList = false
         },
@@ -195,9 +198,17 @@ export default {
         handleClickTr(event, index) {
             // kiểm tra xem có click vào các phần tử đặc biệt như checkbox, button sửa, nhân bản hay không
             const noActionElements = this.$refs.tbody.querySelectorAll('.no_action')
+            const actionElements = this.$refs.tbody.querySelectorAll('.action')
+            let isClickOnActionElms = false
             for (let elm of noActionElements) {
                 if (elm.contains(event.target))
                     return
+            }
+            for (let elm of actionElements) {
+                if (elm.contains(event.target)) {
+                    isClickOnActionElms = true
+                    break
+                }
             }
             // trường hợp giữ ctrl rồi click
             if (event.ctrlKey) {
@@ -227,7 +238,8 @@ export default {
             // trường hợp click để active dòng dữ liệu
             else {
                 if (this.indexActive == index - this.baseIndex) {
-                    this.indexActive = -1
+                    if (!isClickOnActionElms)
+                        this.indexActive = -1
                 } else {
                     this.indexActive = index - this.baseIndex
                 }
@@ -277,8 +289,6 @@ export default {
             // đóng contextmenu khi click chuột trái
             if (!this.$refs.contextMenu?.contains(event.target))
                 this.indexContextMenu = -1
-
-
         }
 
         // lắng nghe sự kiện lên xuống dòng dữ liệu trong table
@@ -330,6 +340,7 @@ export default {
             if (index == -1) {
                 return
             }
+            this.indexActive = index
             this.indexContextMenu = index
             // tính toán tọa độ để hiện thị contextmenu sao cho nó không bị tràn qua ngoài table
             this.$nextTick(() => {
@@ -383,8 +394,10 @@ export default {
         },
     },
     watch: {
-
         body() {
+            if (this.indexActive >= this.body.length) {
+                this.indexActive = -1
+            }
             this.listId.forEach((id, i) => {
                 if (!this.selectedList.includes(id)) {
                     this.checkboxData[i + this.baseIndex] = false
@@ -392,7 +405,7 @@ export default {
                     this.checkboxData[i + this.baseIndex] = true
                 }
             })
-            this.isCheckedAll = this.totalTrCheckedPage == this.body.length
+            this.isCheckedAll = this.body.length != 0 && this.totalTrCheckedPage == this.body.length
         },
 
         /**

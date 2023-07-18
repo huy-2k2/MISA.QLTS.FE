@@ -65,10 +65,11 @@ export default {
 }
 
 .body {
-    height: calc(100vh - 120px);
+    height: calc(100vh - 108px);
     padding: 0 12px;
     background-color: #f4f7ff;
     max-width: 100%;
+    padding-bottom: 10px;
 }
 
 @media screen and (max-width: 1280px) {

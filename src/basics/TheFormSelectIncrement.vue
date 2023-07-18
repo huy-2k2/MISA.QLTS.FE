@@ -75,7 +75,8 @@ export default {
             textSearch: "",
             listIdSelected: [],
             selectedList: [],
-            isShowCancel: false
+            isShowCancel: false,
+            eventKeyDown: null,
         }
     },
     props: {
@@ -116,7 +117,7 @@ export default {
         },
         handleSave() {
             const oldList = this.$store.state.ls.selectedFixedAssets.allData
-            this.$store.commit("setSelectedFixedAssets", ["allData", this.selectedList.concat(oldList)])
+            this.$store.commit("setSelectedFixedAssets", ["allData", this.selectedList.reverse().concat(oldList)])
             this.$emit("clickClose")
         }
     },
@@ -125,6 +126,19 @@ export default {
         this.$store.commit("setSelectFixedAssets", ['currentPage', 1])
         this.$store.commit("setSelectFixedAssets", ['pageSize', DEFAULT_PAGE_SIZE])
         this.$store.dispatch("getFilterSelectFixedAsset", this.licenseId)
+
+        this.eventKeyDown = (e) => {
+            if (e.key == 's' || e.key == 'S') {
+                if (e.ctrlKey) {
+                    e.preventDefault()
+                    this.handleSave()
+                }
+            }
+        }
+        window.addEventListener('keydown', this.eventKeyDown)
+    },
+    beforeUnmount() {
+        window.removeEventListener('keydown', this.eventKeyDown)
     },
     watch: {
         fixedAssets(newVal) {

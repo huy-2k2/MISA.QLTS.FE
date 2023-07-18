@@ -47,8 +47,11 @@
 
             </div>
             <div class="form__bottom__table">
-                <MisaTable @setPage="handleSetPage" @setPageSize="handleSetPageSize" :isDisplayFeature="false"
-                    @feature_0="handleEditFixedAsset" @feature_1="handleRemoveFixedAsset" :footer="footer"
+                <MisaTable :contextMenu="[resource.contextMenu.add, resource.contextMenu.edit, resource.contextMenu.delete]"
+                    @setPage="handleSetPage" @setPageSize="handleSetPageSize" :isDisplayFeature="false"
+                    @context_0="isShowChoseFixedAssetForm = true" @context_1="handleEditFixedAsset"
+                    @context_2="handleRemoveFixedAsset" @feature_0="handleEditFixedAsset"
+                    @feature_1="handleRemoveFixedAsset" :footer="footer" @dbClickTr="handleEditFixedAsset"
                     :bodyData="bodyData" :headData="headData">
                 </MisaTable>
             </div>
@@ -400,7 +403,7 @@ export default {
                     }
                 }
             } else if (e.key == "s" || e.key == "S") {
-                if (e.ctrlKey && !this.isShowEditFixedAssetForm) {
+                if (e.ctrlKey && !this.isShowEditFixedAssetForm && !this.isShowChoseFixedAssetForm) {
                     e.preventDefault()
                     this.handleSubmit()
                 }

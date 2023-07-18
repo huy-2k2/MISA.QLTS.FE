@@ -10,12 +10,14 @@
                     <MisaButton :shadow="true" @clickButton="handleAddLicense" :text="resource.buttons.add">
                     </MisaButton>
                     <div class="header__bottom__right__select">
-                        <div ref="directHead" @click="isShowDirectionDisplay = !isShowDirectionDisplay"
-                            class="header__bottom__right__icon">
-                            <div v-if="isShowVer" class="icon-option-display-ver"></div>
-                            <div v-else class="icon-option-display-hor"></div>
-                            <div class="icon-down-black"></div>
-                        </div>
+                        <MisaToolTip :tooltip="resource.tooltip.changeDisplay">
+                            <div ref="directHead" @click="isShowDirectionDisplay = !isShowDirectionDisplay"
+                                class="header__bottom__right__icon">
+                                <div v-if="isShowVer" class="icon-option-display-ver"></div>
+                                <div v-else class="icon-option-display-hor"></div>
+                                <div class="icon-down-black"></div>
+                            </div>
+                        </MisaToolTip>
                         <ul ref="directOption" v-show="isShowDirectionDisplay" class="header__bottom__right__options">
                             <li @click="isShowVer = true; isShowDirectionDisplay = false">
                                 <span class="icon-option-display-ver">
@@ -47,16 +49,22 @@
                                 <div class="icon-print"></div>
                             </MisaToolTip>
                             <MisaToolTip :tooltip="resource.tooltip.expand">
-                                <div class="icon-expand"></div>
+                                <div class="page__top__right__icon">
+                                    <div class="icon-expand"></div>
+                                </div>
                             </MisaToolTip>
                         </div>
                     </div>
                     <div class="page__top__table">
-                        <MisaTable @activeTr="handleActiveTableBottomTr" :isDisplayFeature="false"
+                        <MisaTable
+                            :contextMenu="[resource.contextMenu.add, resource.contextMenu.edit, resource.contextMenu.delete]"
+                            @context_0="handleAddLicense" @activeTr="handleActiveTableBottomTr"
+                            @context_1="handleEditLicense" @context_2="handleRemoveByIndex" :isDisplayFeature="false"
                             @changeCheckboxData="(data) => checkboxData = data"
                             :isLoading="$store.state.ls.licenses.isLoading" :headData="headDataTop" :bodyData="bodyDataTop"
                             :isHasCheckbox="true" :footer="footerTop" @setPageSize="handleSetPageSize"
-                            @feature_0="handleEditLicense" @feature_1="handleRemoveByIndex" @setPage="handleSetPage">
+                            @dbClickTr="handleEditLicense" @feature_0="handleEditLicense" @feature_1="handleRemoveByIndex"
+                            @setPage="handleSetPage">
                         </MisaTable>
                     </div>
                 </div>
@@ -64,15 +72,21 @@
                     <div class="page__bottom__head">
                         <h3 class="page__bottom__title">{{ resource.titlePage[8] }}</h3>
                         <div @click="isBottomFull = !isBottomFull" class="page__bottom__icon">
-                            <div v-if="isBottomFull" class="icon-close-expand"></div>
-                            <div v-else class="icon-open-expand"></div>
+                            <MisaToolTip v-if="isBottomFull" :tooltip="resource.tooltip.zoomIn">
+                                <div class="icon-close-expand"></div>
+                            </MisaToolTip>
+                            <MisaToolTip v-else :tooltip="resource.tooltip.zoomOut">
+                                <div class="icon-open-expand">
+                                </div>
+                            </MisaToolTip>
                         </div>
                         <div @mousedown="handleMouseDown" class="page__bottom__move">
                             <div class="icon-move"></div>
                         </div>
                     </div>
                     <div class="page__bottom__table">
-                        <MisaTable :headData="headDataBottom" :bodyData="bodyDataBottom" :isHasCheckbox="false">
+                        <MisaTable :isLoading="loadingTableBottom" :headData="headDataBottom" :bodyData="bodyDataBottom"
+                            :isHasCheckbox="false">
                         </MisaTable>
                     </div>
                 </div>
@@ -99,7 +113,7 @@ import MisaTable from '@/components/MisaTable.vue';
 import MisaPopup from '@/components/MisaPopup.vue';
 import TheFormIncrement from '@/basics/TheFormIncrement.vue';
 import MisaDialog from '@/components/MisaDialog.vue';
-import { deleteListLicenseApi } from '@/js/api';
+import { deleteListLicenseApi, getListFixedAssetByLicenseId } from '@/js/api';
 export default {
     components: {
         TheHeader,
@@ -109,7 +123,7 @@ export default {
         MisaTable,
         MisaPopup,
         TheFormIncrement,
-        MisaDialog
+        MisaDialog,
     },
     data() {
         return {
@@ -207,6 +221,7 @@ export default {
             licenseId: "",
             checkboxData: [],
             indexActiveTableTop: -1,
+            loadingTableBottom: false,
         }
     },
     beforeMount() {
@@ -259,18 +274,23 @@ export default {
         },
         async handleDeleteLicense() {
             await deleteListLicenseApi(this.listIdRemove)
+            this.$store.commit("setLicenses", ["currentPage", 1])
             await this.$store.dispatch("getFilterLicenses")
             this.emitter.emit("setToastMessage", this.resource.toastMessage.delete);
-            this.$store.commit("setLicenses", ["currentPage", 1])
             this.isShowRemove = false
         },
-        handleActiveTableBottomTr(index) {
+        async handleActiveTableBottomTr(index) {
             this.indexActiveTableTop = index
             if (index == -1) {
                 this.bodyDataBottom.body = []
             }
             else {
-                this.bodyDataBottom.body = this.$store.state.ls.licenses.data[index].fixed_assets.map(fa => {
+                const license_id = this.$store.state.ls.licenses.data[index]?.license_id
+                if (!license_id)
+                    return
+                this.loadingTableBottom = true
+                const { data: fixedAssets } = await getListFixedAssetByLicenseId(license_id)
+                this.bodyDataBottom.body = fixedAssets.map(fa => {
                     const department = this.$store.getters.departmentById(fa.department_id)
                     return [
                         fa.fixed_asset_code,
@@ -280,8 +300,8 @@ export default {
                         this.convert.toCurrency(fa.depreciation_annual),
                         this.convert.toCurrency(fa.cost),
                     ]
-                }
-                )
+                })
+                this.loadingTableBottom = false
             }
         },
         handleEditLicense(index) {
@@ -339,12 +359,11 @@ export default {
     watch: {
         licenses(newVal) {
             this.bodyDataTop.body = newVal.map(license => {
-                const totalCost = license.fixed_assets.reduce((total, fixed_asset) => total + fixed_asset.cost, 0)
                 return [
                     license.license_code,
                     this.convert.toCurrentDate(license.use_day, false),
                     this.convert.toCurrentDate(license.create_day, false),
-                    this.convert.toCurrency(totalCost),
+                    this.convert.toCurrency(license.cost),
                     license.content
                 ]
             })
@@ -363,8 +382,15 @@ export default {
 </script>
 
 <style scoped>
+.page__top__right__icon {
+    width: 16px;
+    display: flex;
+    justify-content: flex-end;
+}
+
 .header__bottom__right__select {
     position: relative;
+    display: flex;
 }
 
 .header__bottom__right__options {
@@ -434,7 +460,7 @@ export default {
 }
 
 .page {
-    height: calc(100vh - 110px);
+    height: calc(100vh - 117px);
 }
 
 .page__top {

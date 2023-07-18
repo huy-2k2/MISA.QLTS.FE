@@ -393,7 +393,7 @@ export default {
     border-radius: var(--radius-border);
     overflow: hidden;
     position: absolute;
-    top: calc(100% + 10px);
+    top: calc(100% + 2px);
     left: 0;
     min-width: 100%;
     z-index: 100;

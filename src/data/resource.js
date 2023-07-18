@@ -32,17 +32,17 @@ const resource = {
     },
     // thông báo lỗi khi validate dữ liệu
     validateMessage: {
-        required: "cần phải nhập thông tin <strong>{0}</strong>",
-        length: "{0} phải có độ dài từ {1} đến {2} ký tự",
-        duplicate: "{0} đã tồn tại",
-        higher: "{0} phải lớn hoặc bằng {1}",
-        lower: "{0} phải nhỏ hoặc bằng {1}",
-        interger: "{0} phải là số nguyên",
-        positive: "{0} phải lớn hơn 0",
-        realNumber: "{0} hải là số thực",
-        equal: "{0} phải bằng {1}",
-        seletedFixedAssets: "Chọn ít nhất 1 tài sản",
-        notEmpty: "Không được bỏ trống"
+        required: "cần phải nhập thông tin <strong>{0}</strong>.",
+        length: "{0} phải có độ dài từ {1} đến {2} ký tự.",
+        duplicate: "{0} đã tồn tại.",
+        higher: "{0} phải lớn hoặc bằng {1}.",
+        lower: "{0} phải nhỏ hoặc bằng {1}.",
+        interger: "{0} phải là số nguyên.",
+        positive: "{0} phải lớn hơn 0.",
+        realNumber: "{0} hải là số thực.",
+        equal: "{0} phải bằng {1}.",
+        seletedFixedAssets: "Chọn ít nhất 1 tài sản.",
+        notEmpty: "Thông tin này không được bỏ trống."
     },
     // menu
     menu: ["MISA QLTS", "Tổng quan", {parent: 'Tài sản', children: ['Ghi tăng', 'Thay đổi thông tin', 'Đánh giá lại', 'Tính hao mòn', 'Điều chuyển tài sản', 'Ghi giảm', 'Kiểm kê', 'Khác']}, {text: "Tài sản HT-ĐB", tooltip: "Tài sản hệ thống đường bộ"}, "Công cụ dụng cụ", "Danh mục", "Tra cứu", "Báo cáo"],
@@ -50,7 +50,7 @@ const resource = {
     tHead: [{text: 'STT', tooltip: 'Số thứ tự'}, "Mã tài sản", "Tên tài sản", "Loại tài sản", "Bộ phận sử dụng", "Số lượng", "Nguyên giá", {text: "HM/KH lũy kế", tooltip: "Hao mòn/ khấu hao lũy kế"}, "Giá trị còn lại", "Chức năng", 'Số chứng từ', "Ngày chứng từ", "Ngày ghi tăng", "Tổng nguyên giá", "Nội dung", "Hao mòn năm"],
     // tiêu đề của page
     titlePage: ["Tổng quan tài sản", "Danh sách tài sản", "Tài sản hệ thống đường bộ", "Công cụ", "Danh mục", "Tra cứu", "Báo cáo", 'Ghi tăng tài sản', "Thông tin chi tiết"],
-    tooltip: {import: 'Nhập khẩu', delete: 'Xóa', edit: 'Sửa', duplicate: 'Nhân bản', close: 'Đóng', print: 'In', expand: 'Xem thêm', addIncrement: "Thêm nguồn kinh phí", removeIncrement:"Bỏ nguồn kinh phí"},
+    tooltip: {zoomIn: "Thu nhỏ", zoomOut: 'Phóng to', changeDisplay: "Thay đổi giao diện", prevPage: "Trang trước", nextPage: "Trang sau", import: 'Nhập khẩu', delete: 'Xóa', edit: 'Sửa', duplicate: 'Nhân bản', close: 'Đóng', print: 'In', expand: 'Xem thêm', addIncrement: "Thêm nguồn kinh phí", removeIncrement:"Bỏ nguồn kinh phí"},
     // chi tiết của 1 trang
     fixedAssetDetail: {financialDepartment: 'Sở tài chính', year: 'Năm', totalFixedAsset: 'Tổng số {0} bản ghi', searchPlaceholder: 'Tìm kiếm tài sản'},
     // label combobox

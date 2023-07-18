@@ -3,7 +3,7 @@ const actions = {
     async getFilterLicenses(store) {
         store.commit("setLicenses", ["isLoading", true])
         const {data} = await getFilterLicensesApi(store.state.licenses.pageSize, store.state.licenses.currentPage, store.state.licenses.filterTextSearch)
-        store.commit("setLicenses", ["data", data.list_license_model])
+        store.commit("setLicenses", ["data", data.list_license])
         store.commit("setLicenses", ["isLoading", false])
         store.commit("setLicenses", ["totalCost", data.total_cost])
         store.commit("setLicenses", ["totalLicense", data.total_license])

@@ -7,9 +7,11 @@
             <div class="dialog__title" v-html="text"></div>
         </div>
         <div ref="dialogButtons" class="dialog__control">
-            <MisaButton @clickButton="$emit('click2')" v-if="quantity >= 2" :isOutline="true" :text="button2"></MisaButton>
-            <MisaButton @clickButton="$emit('click3')" v-if="quantity >= 3" :isSub="true" :text="button3"></MisaButton>
-            <MisaButton @clickButton="$emit('click1')" :text="button1"></MisaButton>
+            <MisaButton :shadow="true" @clickButton="$emit('click2')" v-if="quantity >= 2" :isOutline="true"
+                :text="button2"></MisaButton>
+            <MisaButton :shadow="true" @clickButton="$emit('click3')" v-if="quantity >= 3" :isSub="true" :text="button3">
+            </MisaButton>
+            <MisaButton :shadow="true" @clickButton="$emit('click1')" :text="button1"></MisaButton>
         </div>
     </div>
 </template>

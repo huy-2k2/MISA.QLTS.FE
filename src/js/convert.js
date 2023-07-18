@@ -7,10 +7,8 @@
  * description: Hàm chuyển một số về dạng đơn vị tiền vnđ 
  */
 function toCurrency(num) {
-    if(isNaN(Number.parseFloat(num)) || !num.toString().length)
-        return ''
-    else 
-        return Number.parseFloat(num).toLocaleString('vi-VN')
+    let formattedAmount = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    return formattedAmount;
 }
 
  /**

@@ -6,8 +6,9 @@
         </label>
         <div class="number_form__textfield">
             <label :for="uuid" class="number_form__input">
-                <input :placeholder="placeholder" @keydown.up.prevent="increase" @keydown.down.prevent="decrease"
-                    ref="input" :disabled="disable" @blur="$emit('blur')" v-model="value" :id="uuid" type="text">
+                <input maxlength="19" :placeholder="placeholder" @keydown.up.prevent="increase"
+                    @keydown.down.prevent="decrease" ref="input" :disabled="disable" @blur="$emit('blur')" v-model="value"
+                    :id="uuid" type="text">
                 <span class="number_form__value">{{ currrency ? valueCurrenCy : value }}</span>
             </label>
             <label :for="uuid" v-if="icon" class="number_form__control">
@@ -187,6 +188,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    /* z-index: -1; */
 }
 
 .number_form__textfield {
@@ -226,6 +228,7 @@ export default {
     color: transparent;
     caret-color: #000;
     position: relative;
+    z-index: 10;
 }
 
 .number_form__input input::placeholder {
