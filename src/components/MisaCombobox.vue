@@ -72,7 +72,7 @@ export default {
     },
     methods: {
         /**
-        * @param {Event} event 
+        * @param {event}: event key 
         * author: Nguyen Quoc Huy
         * created at: 30/04/2023
         * description: hàm xử lý sự kiện người dùng nhấn lên và xuống khi đang focus vào thẻ input, tự chọn option tương ứng, hoạc ấn tab hoạc ender để đóng combobox
@@ -131,8 +131,8 @@ export default {
         },
 
         /**
-         * @param {Object} item 
-         * @param {Boolean} isShow 
+         * @param {item}: dữ liệu chọn 
+         * @param {isShow}: đánh dấu xem sau khi set item xong thì ẩn hay không ẩn phần nội dung combobox 
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
          * description: Hàm xử lý sự kiện khi người dùng chọn một option, emit giá trị được chọn cho componentcha, emit validate, set lại giá trị isShow
@@ -181,7 +181,6 @@ export default {
 
         /**
         * author: Nguyen Quoc Huy
-        * @param {Event}
         * created at: 30/04/2023
         * description: Hàm chuyển đổi data từ prop của component cha về dữ liệu dạng {text, value}
         */
@@ -199,6 +198,7 @@ export default {
         }
     },
     computed: {
+        // lấy value từ model value
         value: {
             get() {
                 return this.modelValue
@@ -206,15 +206,18 @@ export default {
         }
     },
 
-    /**
-    * author: Nguyen Quoc Huy
-    * created at: 30/04/2023
-    * description: theo dõi sự kiện gọi api của app thành công thì lọc giá trị của data cho phù hợp với các trường của options
-    */
+
     watch: {
+        /**
+         * author: Nguyen Quoc Huy
+         * created at: 30/04/2023
+         * description: theo dõi sự kiện gọi api của app thành công thì lọc giá trị của data cho phù hợp với các trường của options
+         */
         data() {
             this.convertDataToOptions()
         },
+
+
         value() {
             this.item.value = this.value
         }
@@ -245,44 +248,69 @@ export default {
         window.removeEventListener('mousedown', this.eventWindowClick)
     },
     props: {
+        // class icon của phần head combobox
         icon: {
             type: String,
             default: ''
         },
+
+        // đánh dấu là required
         required: {
             type: Boolean,
             default: true
         },
+
+        // label của combobox
         label: String,
+
+        // placeholder của combobox
         placeholder: String,
+
+        // model value
         modelValue: {
 
         },
+
+        // error validate
         error: {
             type: String,
             default: ''
         },
+
+        // dữ liệu để hiện ra các option
         data: {
             type: Array,
         },
+
+        // đánh dấu là đang load dữ liệu để hiển thị options
         isLoading: {
             type: Boolean,
         },
+
+        // tên trường text tương ứng trong option
         fieldText: {
             type: String,
             default: ''
         },
+
+        // tên trường value tương ứng trong object
         fieldValue: {
             type: String,
             default: ''
         },
+
+        // kiểu của combobbox
         typeCombobox: {
             type: String,
         },
+
+        // đánh dấu combobox có placeholder đậm
         isBoldPlaceHolder: {
             type: Boolean,
             default: false
         },
+
+        // đánh dấu lúc hiển thị là hiển thị value hay text
         isDisplayValue: {
             type: Boolean,
             default: true

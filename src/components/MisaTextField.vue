@@ -16,17 +16,22 @@ export default {
     emits: ["keyupinput", "update:modelValue"],
     data() {
         return {
+            // tạo id duy nhất dùng cho label
             uuid: uuid.v1()
         }
     },
     props: {
+        // icon của input
         icon: String,
+        // placeholder của input
         placeholder: String,
+        // model value
         modelValue: {
 
         }
     },
     computed: {
+        // lấy value từ model value
         value: {
             get() {
                 return this.modelValue

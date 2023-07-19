@@ -10,14 +10,11 @@
 <script>
 export default {
     props: {
+        // text message hiển thị
         text: {
             type: String,
             default: ''
         },
-        isShow: Boolean,
-        type: {
-            type: String,
-        }
     }
 }
 </script>

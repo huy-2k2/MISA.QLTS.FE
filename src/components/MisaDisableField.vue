@@ -7,7 +7,9 @@
 <script>
 export default {
     props: {
+        // text hiển thị
         text: {},
+        // đánh dấu chiều hiển thị (trái hoạc phải)
         isRight: {
             type: Boolean,
             default: false

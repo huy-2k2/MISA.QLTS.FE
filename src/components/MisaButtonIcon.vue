@@ -1,5 +1,5 @@
 <template>
-    <button @click="$emit('clickButton')" :disabled="isDisable" :title="title" class="button-icon">
+    <button @click="$emit('clickButton')" :disabled="isDisable" class="button-icon">
         <div class="button">
             <div :class="icon"></div>
         </div>
@@ -9,11 +9,10 @@
 <script>
 export default {
     props: {
-        title: {
-            type: String,
-            default: ''
-        },
+        // class icon
         icon: String,
+
+        // đánh dấu icon có đang disable không
         isDisable: {
             type: Boolean,
             default: false

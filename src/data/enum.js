@@ -1,14 +1,17 @@
+// kiểu form (thêm, sửa, xóa, nhân bản)
 const typeForm = {
     edit:'edit',
     duplicate: 'duplicate',
     add: 'add',
 }
 
+// kiểu combobox (options, hoạc table)
 const typeCombobox = {
     tableOption: 'tableOption',
     listOption: 'listOption'
 }
 
+// mã lỗi tương ứng với server
 const errorCode = {
     exception: 0,
     duplicateCode: 1,
@@ -23,6 +26,7 @@ const errorCode = {
     deleteDetailMulti: 10
 }
 
+// kiểu dữ liệu để format
 const dataType = {
     string: 0,
     guid: 1,

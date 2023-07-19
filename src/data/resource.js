@@ -1,6 +1,7 @@
 import myEnum from './enum'
 
 const resource = {
+    // errorMessage khi có lỗi gửi từ server về
     errorMessage: {
         deleteFixedAssetDetail: "Tài sản có mã <strong>{0}</strong> đã phát sinh chứng từ<br/>ghi tăng có mã <strong>{1}</strong>.",
         deleteFixedAssetDetailMulti: "<strong>{0}</strong> tài sản được chọn đã phát sinh chứng từ ghi tăng."
@@ -39,7 +40,7 @@ const resource = {
         lower: "{0} phải nhỏ hoặc bằng {1}.",
         interger: "{0} phải là số nguyên.",
         positive: "{0} phải lớn hơn 0.",
-        realNumber: "{0} hải là số thực.",
+        realNumber: "{0} phải là số thực.",
         equal: "{0} phải bằng {1}.",
         seletedFixedAssets: "Chọn ít nhất 1 tài sản.",
         notEmpty: "Thông tin này không được bỏ trống."
@@ -84,7 +85,8 @@ const resource = {
         note: "ghi chú",
         source: "nguồn hình thành",
         value: "giá trị",
-        budget: "ngân sách"
+        budget: "ngân sách",
+        budgetValue: 'giá trị nguồn ngân sách'
     },
     // text ở các button
     buttons: {addFixedAsset: 'Thêm tài sản', cancel: 'Hủy', save: 'Lưu', close: 'Đóng', noSave: 'Không lưu', discard: 'Hủy bỏ', notConfirm: 'Không', confirm: "Đồng ý", delete: 'Xóa', import: "Nhập khẩu", login: "Đăng nhập", logout: 'Đăng xuất', forgotPassword: "Quên mật khẩu?", add: 'Thêm', choseFixedAsset: "Chọn tài sản"},

@@ -1,8 +1,9 @@
 export default function initExtension() {
+
      /**
-     * author: Nguyen Quoc Huy
-     * created at: 30/04/2023
-     * description: định  nghĩa phương thức format cho string
+     * @description: định  nghĩa phương thức format cho string
+     * @return: giá trị string sau khi được format
+     * @author: NQ Huy 04/05/2023
      */
     String.prototype.format = function() {
         let _this = this;

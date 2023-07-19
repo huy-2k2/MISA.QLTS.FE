@@ -692,8 +692,8 @@ export default {
                 this.errors.cost = this.resource.validateMessage.required.format(fieldName)
             }
             // kiểm tra cost là số nguyên
-            else if (!this.validate.validateInterger(this.form.cost)) {
-                this.errors.cost = this.resource.validateMessage.interger.format(fieldName)
+            else if (!this.validate.validateRealNumber(this.form.cost)) {
+                this.errors.cost = this.resource.validateMessage.realNumber.format(fieldName)
             }
         },
 

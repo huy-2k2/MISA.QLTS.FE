@@ -10,17 +10,10 @@
 <script>
 export default {
     props: {
+        // text hiển thị cho tooltip
         tooltip: {
             type: [String, Number],
             default: ''
-        },
-        top: {
-            type: Number,
-            default: 10,
-        },
-        left: {
-            type: Number,
-            default: 10,
         },
     },
     data() {

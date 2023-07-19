@@ -13,23 +13,30 @@
 import { uuid } from 'vue-uuid';
 export default {
     props: {
+        // model value
         modelValue: {
 
         },
+
+        // label của input
         label: {
             type: String,
             default: ""
         },
+
+        // giá trị của input
         radioValue: {
 
         }
     },
     data() {
         return {
+            // tạo id duy nhất để dùng cho label
             uuid: uuid.v1(),
         }
     },
     computed: {
+        // lấy value từ model value
         value: {
             set(value) {
                 this.$emit('update:modelValue', value)

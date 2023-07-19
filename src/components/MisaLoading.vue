@@ -5,6 +5,7 @@
 <script>
 export default {
     props: {
+        // điều khiển kiểu hiện thị của loadinng
         notPrimary: {
             type: Boolean,
             default: false

@@ -42,26 +42,35 @@ import { getIsLoginedApi, getTokenApi } from '@/js/api';
 export default {
     data() {
         return {
+            // email người dùng nhập
             email: "",
+            // password người dùng nhập
             password: "",
+            // kiểm soát type của input password
             typePassword: "password",
+            // lỗi validate
             error: {
                 text: "",
                 email: false,
                 password: false
             },
+            // điều kiển hiện thị thông báo lỗi
             isShowError: false,
+            // timeout hiển thị thông báo lỗi
             timoutShowError: null,
+            // kiểm soát trạng thái loading khi submit
             isLoading: false
         };
     },
+
     /**
-     * kiểm tra nếu người dùng có token hợp lệ thì chuyển hướng đến trang chủ
-     * created by: NQ Huy(20/06/2023)
+     * @description: Tkiểm tra nếu người dùng có token hợp lệ thì chuyển hướng đến trang chủ
+     * @author: NQ Huy(20/06/2023)
      */
     async beforeMount() {
         this.isLoading = true
         try {
+            // nếu đã có token hợp lệ thì cho đến trang chủ
             await getIsLoginedApi()
             this.$router.push('/asset')
         } catch {
@@ -70,9 +79,9 @@ export default {
     },
     methods: {
         /**
-         * xử lý sự kiện khi người dùng ấn nút đăng nhập
-         * created by: NQ Huy(20/06/2023)
-         */
+        * @description:  xử lý sự kiện khi người dùng ấn nút đăng nhập
+        * @author: NQ Huy(20/06/2023)
+        */
         async handleSubmitLogin() {
             // kiểm tra nếu chưa nhập email và password
             if (this.email == "" || this.password == "") {
@@ -91,10 +100,13 @@ export default {
                 localStorage.setItem("bearer_token", data);
                 this.$router.push({ path: "/asset" });
             }
+            // nếu có lỗi thì hiển thị lỗi
             catch (error) {
                 this.isLoading = false
                 const errorCode = error?.response?.data?.errorCode;
+                // kiểm tra mã lỗi là token không hợp lệ
                 if (errorCode == this.$enum.errorCode.credentialNotValid) {
+                    // thống báo lỗi cho người dùng
                     this.error.text = this.resource.toastMessage.credentialInvalid;
                     this.isShowError = true;
                     clearTimeout(this.timoutShowError);

@@ -13,7 +13,6 @@
 import ToastMessage from './components/MisaToastMessage.vue';
 import MisaPopup from './components/MisaPopup.vue';
 import MisaDialog from './components/MisaDialog.vue';
-// import MainLayout from './layouts/MainLayout.vue';
 import { RouterView } from 'vue-router';
 export default {
   name: 'App',
@@ -35,10 +34,9 @@ export default {
   },
 
   /**
-   * author: Nguyen Quoc Huy
-   * created at: 30/04/2023
-   * description: lắng nghe các sự kiện toạn cục, và set một vài biến toàn cục
-   */
+  * @description: lắng nghe các sự kiện
+  * @author: NQ Huy 04/05/2023
+  */
   mounted() {
     // lắng nghe sự kiện hiện toast messaage
     this.eventSetToastMessage = (text) => {
@@ -57,6 +55,11 @@ export default {
     this.emitter.on("setDialogMessage", this.eventSetDialogMessage);
   },
 
+
+  /**
+  * @description: Hủy lắng nghe sự kiện
+  * @author: NQ Huy 04/05/2023
+  */
   beforeUnmount() {
     this.emitter.off("setToastMessage", this.eventSetToastMessage)
     this.emitter.off("setDialogMessage", this.eventSetDialogMessage)

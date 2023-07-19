@@ -108,7 +108,7 @@ import MisaDialog from '@/components/MisaDialog.vue';
 import MisaLoading from '@/components/MisaLoading.vue';
 import MisaToolTip from '@/components/MisaToolTip.vue';
 export default {
-    emits: ['clickClose'],
+    emits: ['clickClose', 'doneSubmitAdd'],
     components: { MisaToolTip, MisaTextfieldForm, MisaInputDate, MisaTextField, MisaButton, MisaTable, MisaPopup, MisaDialog, TheFormSelectIncrement, TheFormEditFixedAsset, MisaLoading },
     props: {
         typeForm: {
@@ -205,46 +205,49 @@ export default {
             this.isShowError = false
         },
         async handleSubmit() {
-            this.isSubmiting = true
-            await this.validateLicenseCode()
-            this.validateUseDay()
-            this.validateCreateDay()
-            this.validateSelectedFixedAssets()
+            try {
+                this.isSubmiting = true
+                await this.validateLicenseCode()
+                this.validateUseDay()
+                this.validateCreateDay()
+                this.validateSelectedFixedAssets()
 
-            if (this.errorNotifi) {
-                this.isShowError = true
-                this.isSubmiting = false
-            } else {
-                const list_fixed_asset = this.$store.state.ls.selectedFixedAssets.allData.map(fa => {
-                    return {
-                        fixed_asset_id: fa.fixed_asset_id,
-                        license_detail_id: fa.license_detail_id,
-                        budgets: this.$store.getters.budgetDetailByFixedAssetId(fa.fixed_asset_id)?.budgets
+                if (this.errorNotifi) {
+                    this.isShowError = true
+                    this.isSubmiting = false
+                } else {
+                    const list_fixed_asset = this.$store.state.ls.selectedFixedAssets.allData.map(fa => {
+                        return {
+                            fixed_asset_id: fa.fixed_asset_id,
+                            license_detail_id: fa.license_detail_id,
+                            budgets: this.$store.getters.budgetDetailByFixedAssetId(fa.fixed_asset_id)?.budgets
+                        }
+                    })
+                    const bodyRequest = {
+                        list_fixed_asset: list_fixed_asset.reverse(),
+                        license: this.form,
+                        list_fixed_asset_id_delete: this.$store.state.ls.listIdDeleted.licenseDetail,
+                        list_budget_detail_id_delete: this.$store.state.ls.listIdDeleted.budgetDetail,
                     }
-                })
-                const bodyRequest = {
-                    list_fixed_asset: list_fixed_asset.reverse(),
-                    license: this.form,
-                    list_fixed_asset_id_delete: this.$store.state.ls.listIdDeleted.licenseDetail,
-                    list_budget_detail_id_delete: this.$store.state.ls.listIdDeleted.budgetDetail,
-                }
-                if (this.typeForm == this.$enum.typeForm.add) {
-                    await postLicenseApi(bodyRequest)
-                    // emit sự kiện đóng form cho component cha
-                    this.$emit('clickClose')
-                    // hiện thông báo
-                    this.emitter.emit("setToastMessage", this.resource.toastMessage[this.typeForm]);
-                    // tải lại danh sách tài sản
-                    this.$store.dispatch("getFilterLicenses")
+                    if (this.typeForm == this.$enum.typeForm.add) {
+                        await postLicenseApi(bodyRequest)
+                        // emit sự kiện đóng form cho component cha
+                        this.$emit('clickClose')
+                        // hiện thông báo
+                        this.emitter.emit("setToastMessage", this.resource.toastMessage[this.typeForm]);
+                        this.$emit('doneSubmitAdd')
 
-                } else if (this.typeForm == this.$enum.typeForm.edit) {
-                    await putLicenseApi(this.licenseId, bodyRequest)
-                    this.$emit('clickClose')
-                    // hiện thông báo
-                    this.emitter.emit("setToastMessage", this.resource.toastMessage[this.typeForm]);
-                    // tải lại danh sách tài sản
-                    this.$store.dispatch("getFilterLicenses")
+                    } else if (this.typeForm == this.$enum.typeForm.edit) {
+                        await putLicenseApi(this.licenseId, bodyRequest)
+                        this.$emit('clickClose')
+                        // hiện thông báo
+                        this.emitter.emit("setToastMessage", this.resource.toastMessage[this.typeForm]);
+                        // tải lại danh sách tài sản
+                        this.$store.dispatch("getFilterLicenses")
+                    }
+                    this.isSubmiting = false
                 }
+            } catch {
                 this.isSubmiting = false
             }
         },
@@ -309,8 +312,8 @@ export default {
             }
         },
         handleEditFixedAsset(index) {
-            this.fixedAssetId = this.paginateSelectedFixedAsset.listPaginated[index].fixed_asset_id
-            this.isShowEditFixedAssetForm = true
+            this.fixedAssetId = this.paginateSelectedFixedAsset.listPaginated[index]?.fixed_asset_id
+            this.isShowEditFixedAssetForm = !!this.fixedAssetId
         },
 
         validateRequired(value) {
@@ -359,25 +362,30 @@ export default {
         }
     },
     async beforeMount() {
-        if (this.typeForm == this.$enum.typeForm.add) {
-            const { data: code } = await getRecommendLicenseCodeApi()
-            this.form.license_code = code
-            this.$store.commit("setSelectedFixedAssets", ["allData", []])
-        } else if (this.typeForm == this.$enum.typeForm.edit) {
-            this.isLoading = true
+        try {
+            if (this.typeForm == this.$enum.typeForm.add) {
+                const { data: code } = await getRecommendLicenseCodeApi()
+                this.form.license_code = code
+                this.$store.commit("setSelectedFixedAssets", ["allData", []])
+            } else if (this.typeForm == this.$enum.typeForm.edit) {
+                this.isLoading = true
 
-            const { data: license } = await getLicenseByIdApi(this.licenseId)
-            this.form = {
-                license_code: license.license_code,
-                use_day: this.convert.toCurrentDate(license.use_day),
-                create_day: this.convert.toCurrentDate(license.create_day),
-                content: license.content
+                const { data: license } = await getLicenseByIdApi(this.licenseId)
+                this.form = {
+                    license_code: license.license_code,
+                    use_day: this.convert.toCurrentDate(license.use_day),
+                    create_day: this.convert.toCurrentDate(license.create_day),
+                    content: license.content
+                }
+
+                const { data: fixedAssets } = await getListFixedAssetByLicenseId(this.licenseId)
+                this.$store.commit("setSelectedFixedAssets", ["allData", fixedAssets])
+
+                this.isLoading = false
             }
-
-            const { data: fixedAssets } = await getListFixedAssetByLicenseId(this.licenseId)
-            this.$store.commit("setSelectedFixedAssets", ["allData", fixedAssets])
-
+        } catch {
             this.isLoading = false
+            this.$emit('clickClose')
         }
 
         this.$store.commit("setSelectedFixedAssets", ["currentPage", 1])

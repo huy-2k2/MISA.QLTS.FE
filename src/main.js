@@ -8,7 +8,7 @@ import resource from './data/resource';
 import store from './store';
 import router from './router';
 import validate from './js/validate';
-
+import headTable from './data/headTable';
 stringExtension()
 
 const app = createApp(App)
@@ -18,6 +18,8 @@ app.config.globalProperties.$enum = _enum;
 app.config.globalProperties.resource = resource;
 app.config.globalProperties.$router = router;
 app.config.globalProperties.validate = validate
+app.config.globalProperties.headTable = headTable
+
 app.use(store)
 app.use(router)
 app.mount('#app')

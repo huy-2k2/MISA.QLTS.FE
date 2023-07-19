@@ -15,20 +15,25 @@
 <script>
 export default {
     props: {
+        // label của input
         label: String,
+        // đánh dấu input là required
         required: {
             type: Boolean,
             default: true
         },
+        // model value
         modelValue: {
 
         },
+        // lỗi validate
         error: {
             type: String,
             default: ''
         }
     },
     computed: {
+        // lấy value từ model value
         value: {
             get() {
                 return this.modelValue

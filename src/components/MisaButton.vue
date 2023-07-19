@@ -18,28 +18,43 @@ export default {
     emits: ["clickButton"],
     name: 'MyButton',
     props: {
+        // text cho button
         text: String,
+
+        // icon cho button
         icon: String,
+
+        // kiểu của button (submit, button...)
         type: {
             type: String,
             default: ''
         },
+
+        // đánh dấu button là sub
         isSub: {
             type: Boolean,
             default: false
         },
+
+        // đánh dấu button là outline
         isOutline: {
             type: Boolean,
             default: false
         },
+
+        // đánh dấu button là disable
         disabled: {
             type: Boolean,
             default: false
         },
+
+        // đánh dấu button đang loading
         isLoading: {
             type: Boolean,
             default: false
         },
+
+        // đánh dấu button có boxShadow
         shadow: {
             type: Boolean,
             default: false

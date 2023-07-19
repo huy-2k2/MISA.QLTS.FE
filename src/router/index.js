@@ -10,8 +10,6 @@ import WriteAssetPage from '../pages/WriteAssetPage.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import MainLayout from '../layouts/MainLayout.vue'
 
-
-
 const routes = [
     {
         path: '/',

@@ -1,23 +1,23 @@
- /**
- * 
- * @param {Float} num 
- * @returns {String}
- * author: Nguyen Quoc Huy
- * created at: 30/04/2023
- * description: Hàm chuyển một số về dạng đơn vị tiền vnđ 
- */
+/**
+* @description: Hàm chuyển một số về dạng đơn vị tiền vnđ 
+* @param: {num}: num: giá trị cần chuyển đổi
+* @author: NQ Huy 04/05/2023
+* @return: giá trị sau khi đã chuyển về đơn vị tiền tệ
+*/
 function toCurrency(num) {
-    let formattedAmount = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-    return formattedAmount;
+    if(isNaN(Number.parseFloat(num)) || !num.toString().length)
+        return ''
+    else 
+        return Number.parseFloat(num).toLocaleString('vi-VN')
 }
 
- /**
- * 
- * @returns {String}
- * author: Nguyen Quoc Huy
- * created at: 30/04/2023
- * description: Hàm lấy ngày hiện tại về định dạng yyyy-mm-dd
- */
+
+/**
+* @description: Hàm lấy ngày hiện tại về định dạng yyyy-mm-dd
+* @param: {date}: date: giá trị cần chuyển đổi
+* @author: NQ Huy 04/05/2023
+* @return: giá trị sau khi đã chuyển về yyyy-mm-dd
+*/
 function toCurrentDate(date = new Date().toISOString(), isInInput = true) {
     
     if(isInInput)
@@ -33,16 +33,12 @@ function toCurrentDate(date = new Date().toISOString(), isInInput = true) {
     
 }
 
-
  /**
- * 
- * @param {Float} num
- * @param {Number} decimal
- * @return {Float}
- * author: Nguyen Quoc Huy
- * created at: 30/04/2023
- * description: Hàm làm tròn
- */
+* @description: Hàm làm tròn
+* @param: {num, decimal}: date: giá trị cần làm tròn, decimal: số chữ số sau dấu phẩy
+* @author: NQ Huy 04/05/2023
+* @return: giá trị sau khi làm tròn
+*/
 function toRounded(num, decimal = 2) {
     if(Number.isInteger(num))   
         return num
@@ -50,13 +46,12 @@ function toRounded(num, decimal = 2) {
 }
 
 
- /**
- * 
- * @param {String} string
- * author: Nguyen Quoc Huy
- * created at: 30/04/2023
- * description: Hàm viết hoa chữ cái đầu
- */
+/**
+* @description: Hàm viết hoa chữ cái đầu
+* @param: {string}: string: chuỗi cần viết hoa chữ cái đầu
+* @author: NQ Huy 04/05/2023
+* @return: chuỗi sau khi viết hoa chữ cái đầu
+*/
 function toUpperFirstChar(string) {
     if(string)
         return string.charAt(0).toUpperCase() + string.slice(1);

@@ -29,6 +29,7 @@ import { uuid } from 'vue-uuid';
 export default {
     data() {
         return {
+            // tạo id duy nhất để dùng cho label
             uuid: uuid.v1(),
         }
     },
@@ -52,6 +53,7 @@ export default {
                 return this.convert.toCurrency(parts[0]) + ',' + parts[1]
         },
 
+        // lấy value từ  model value
         value: {
             get() {
                 return this.modelValue
@@ -63,8 +65,8 @@ export default {
     },
     methods: {
         /**
-         * @param {Float} num 
-         * @returns {number}
+         * @param {num}: giá trị cần làm tròn
+         * @returns: giá trị sau khi đã làm tròn
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
          * description: Hàm nhận giá trị số thực và trả về số làm tròn 2 chữ số sau dấu phẩy
@@ -86,7 +88,6 @@ export default {
         },
 
         /**
-        * 
         * author: Nguyen Quoc Huy
         * created at: 30/04/2023
         * description: Hàm sử lý sự kiện khi người dùng ấn nút giảm, giá trị input tăng lên 1
@@ -97,10 +98,9 @@ export default {
         },
 
         /**
-       * 
        * author: Nguyen Quoc Huy
        * created at: 30/04/2023
-       * @param {Event}
+       * @param {value}: giá trị value của input
        * description: hàm sử lý sự kiện khi người dùng thay đổi giá trị input, emit giá trị của input lên component cha
        */
         handleChange(value) {
@@ -138,38 +138,57 @@ export default {
     },
 
     props: {
+        // label của input
         label: String,
+
+        // model value
         modelValue: {
 
         },
+
+        // giá trị nhỏ nhất của input
         min: {
             type: [Number, String],
             default: '0'
         },
+
+        // lỗi validate
         error: {
             type: String,
             default: ""
         },
+
+        // điều khiện hiển thị icon tăng giảm
         icon: {
             type: Boolean,
             default: true
         },
+
+        // đánh dấu input là bắt buộc nhập
         required: {
             type: Boolean,
             default: true
         },
+
+        // đánh dấu input là disable
         disable: {
             type: Boolean,
             default: false
         },
+
+        // đánh dấu input format theo tiền
         currrency: {
             type: Boolean,
             default: false
         },
+
+        // đánh dấu input chấp nhận số thập phân
         float: {
             type: Boolean,
             default: false
         },
+
+        // placeholder của input
         placeholder: {
             type: String,
             default: ""

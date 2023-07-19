@@ -15,10 +15,12 @@ import { uuid } from 'vue-uuid'
 export default {
     data() {
         return {
+            // id duy nhất để dùng cho label
             uuid: uuid.v1()
         }
     },
     computed: {
+        // lấy value từ v-model
         value: {
             get() {
                 return this.modelValue
@@ -29,22 +31,28 @@ export default {
         }
     },
     props: {
+        // model value
         modelValue: {
 
         },
+        // lỗi khi validate
         error: {
             type: String,
             default: ''
         },
+        // đánh dấu input là disable
         disable: {
             type: Boolean,
             default: false
         },
+        // đánh dấu input là bắt buộc nhập
         required: {
             type: Boolean,
             default: true
         },
+        // label của input
         label: String,
+        // placeholder của input
         placeholder: String
     }
 }

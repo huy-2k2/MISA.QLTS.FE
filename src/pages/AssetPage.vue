@@ -55,7 +55,7 @@
         </MisaDialog>
     </MisaPopup>
     <div class="body">
-        <MisaTable :headData="headData" :isHasCheckbox="true"
+        <MisaTable :headData="this.headTable.headFixedAssetTable" :isHasCheckbox="true"
             :baseIndex="($store.state.fa.currentPage - 1) * $store.state.fa.pageSize"
             :isLoading="$store.state.fa.fixedAssets.isLoading" :bodyData="bodyData" :footer="footer"
             :contextMenu="[resource.contextMenu.add, resource.contextMenu.edit, resource.contextMenu.delete, resource.contextMenu.duplicate]"
@@ -98,20 +98,35 @@ export default {
     },
     data() {
         return {
+            // điều khiển trạng thái của nút xóa nhiều ở đầu table danh sách tài sản
             isDiableRemove: true,
+            // điều khiển hiển thị của form thêm, sửa tài sản
             isShowForm: false,
+            // điều khiển hiện thị của form xóa trong th dùng contextmenu
             isShowRemoveContextMenu: false,
+            // biến lưu departmentCode của combobox filter
             departmentCode: null,
+            // danh sách id đã được chọn bởi checkbox của table
             listIdSelected: [],
+            // biến lưu fixedAssetCategoryCode của combobox filter
             fixedAssetCategoryCode: null,
+            // biến lưu từ khóa tìm kiếm khi filter tài sản
             textSearch: "",
+            // timeout debounce khi filter
             settTimeOutDebounce: null,
+            // điều khiển hiển thị của form import
             isShowFormImport: false,
+            // điều khiển trạng thái của form (thêm, sửa, nhân bản)
             typeForm: null,
+            // lưu id tài sản khi sửa hoạc nhân bản
             fixedAssetId: null,
+            // biến điều khiển hiện thị dialog remove
             isShowRemove: false,
+            // dữ liệu hiển thị của các dialog
             dialogText: '',
+            // dữ liệu của table danh sách tài sản
             bodyData: {
+                // tính năng trên mỗi dòng dữ liệu (sửa, xóa)
                 features: [
                     {
                         tooltip: this.resource.tooltip.edit,
@@ -124,64 +139,45 @@ export default {
                 ],
                 body: []
             },
-            headData: [
-                {
-                    data: this.resource.tHead[1],
-                    type: this.$enum.dataType.string
-                },
-                {
-                    data: this.resource.tHead[2],
-                    type: this.$enum.dataType.string
-                },
-                {
-                    data: this.resource.tHead[3],
-                    type: this.$enum.dataType.string
-                },
-                {
-                    data: this.resource.tHead[4],
-                    type: this.$enum.dataType.string
-                },
-                {
-                    data: this.resource.tHead[5],
-                    type: this.$enum.dataType.interger
-                },
-                {
-                    data: this.resource.tHead[6],
-                    type: this.$enum.dataType.double
-                },
-                {
-                    data: this.resource.tHead[7].text,
-                    type: this.$enum.dataType.double,
-                    tooltip: this.resource.tHead[7].tooltip
-                },
-                {
-                    data: this.resource.tHead[8],
-                    type: this.$enum.dataType.double
-                },
-            ]
         }
     },
 
     watch: {
+        /**
+        * @description: khi departmentCoder ở filter thay đổi thì gọi lại dữ liệu
+        * @author: NQ Huy 04/05/2023
+        */
         departmentCode() {
             this.handleFilter()
         },
+
+        /**
+        * @description: khi fixedAssetCategoryCode ở filter thay đổi thì gọi lại dữ liệu
+        * @author: NQ Huy 04/05/2023
+        */
         fixedAssetCategoryCode() {
             this.handleFilter()
         },
+
+        /**
+        * @description: khi từ khóa tìm kiếm ở filter thay đổi thì gọi lại dữ liệu
+        * @author: NQ Huy 04/05/2023
+        */
         textSearch() {
             this.handleFilter()
         },
 
-
         /**
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
-         * description: mỗi khi fixedAssets từ store thay đổi thì tính lại biến tbody
-         */
+        * @description: mỗi khi fixedAssets từ store thay đổi thì tính lại biến tbody
+        * @return: {newVal}: newVal: giá trị danh sách tài sản mới
+        * @author: NQ Huy 04/05/2023
+        */
         fixedAssets(newVal) {
+            // tạo lại dữ liệu cho table fixed asset
             this.bodyData.body = newVal.map(fixedAsset => {
+                // lấy ra loại tài sản tương ứng
                 const fixedAssetCategory = this.$store.getters.fixedAssetCategoryById(fixedAsset.fixedAssetCategoryId)
+                // lấy ra phòng ban tương ứng
                 const department = this.$store.getters.departmentById(fixedAsset.departmentId)
                 return [
                     fixedAsset.fixedAssetCode,
@@ -201,22 +197,33 @@ export default {
     },
 
     computed: {
-        // danh sánh tài sản
+        /**
+        * @description: lấy ra danh sách tài sản từ state
+        * @author: NQ Huy 04/05/2023
+        */
         fixedAssets() {
             return this.$store.state.fa.fixedAssets.data
         },
 
-        // footer của table
+        /**
+       * @description: lấy ra dữ liệu của footer
+       * @author: NQ Huy 04/05/2023
+       */
         footer() {
             return {
                 paging: {
+                    // tổng số bản ghi
                     totalData: this.$store.state.fa.totalAsset,
+                    // kích thước trang
                     pageSize: this.$store.state.fa.pageSize,
+                    // trang hiện tại
                     currentPage: this.$store.state.fa.currentPage,
                 },
                 data: [
                     '', '', '', '', '', '',
+                    // tổng số lượng
                     { type: this.$enum.dataType.interger, data: this.convert.toCurrency(this.$store.state.fa.totalQuantity) },
+                    // tổng nguyên giá
                     { type: this.$enum.dataType.double, data: this.convert.toCurrency(this.$store.state.fa.totalCost) },
                     { type: this.$enum.dataType.double, data: 0 },
                     { type: this.$enum.dataType.double, data: 0 },
@@ -228,6 +235,11 @@ export default {
     },
 
     methods: {
+        /**
+         * @description: gọi api để xóa tài sản
+         * @param: {isContextMenu}: isContextMenu: kiểm tra có phải dùng context menu để xóa không
+         * @author: NQ Huy 07/06/2023
+         */
         async handleRemove(isContextMenu) {
             const removeFixedAssetIdList = isContextMenu ? [this.fixedAssetId] : this.listIdSelected
             try {
@@ -252,6 +264,11 @@ export default {
             }
         },
 
+        /**
+       * @description: sự kiện người dùng xóa 1 tài sản
+       * @param: {index}: index: vị trí tài sản cần xóa
+       * @author: NQ Huy 07/06/2023
+       */
         handleDelete(index) {
             const fixedAsset = this.fixedAssets[index]
             this.fixedAssetId = fixedAsset.fixedAssetId
@@ -259,6 +276,10 @@ export default {
             this.isShowRemoveContextMenu = true
         },
 
+        /**
+         * @description: sự kiện người dùng xóa nhiều tài tài sản
+         * @author: NQ Huy 07/06/2023
+         */
         handleMultipleDelete() {
             // nếu chưa có checkbox nào được chọn thì kết thúc hàm
             if (!this.listIdSelected.length)
@@ -277,11 +298,9 @@ export default {
         },
 
         /**
-       * @param {Boolean} checked 
-       * author: Nguyen Quoc Huy
-       * created at: 30/04/2023
-       * description: Hàm xử lý sự kiện khi người dùng nhấn thêm mới
-       */
+         * @description: sự kiện người dùng ấn nút thêm mới
+         * @author: NQ Huy 07/06/2023
+         */
         handleAdd() {
             this.isShowForm = true
             this.fixedAssetId = null
@@ -289,11 +308,10 @@ export default {
         },
 
         /**
-        * @param {Boolean} checked 
-        * author: Nguyen Quoc Huy
-        * created at: 30/04/2023
-        * description: Hàm xử lý sự kiện khi người dùng nhấn sửa
-        */
+         * @description: sự kiện người dùng ấn sửa tài sản
+         * @param: {index}: index: vị trí tài sản cần sửa
+         * @author: NQ Huy 07/06/2023
+         */
         handleEdit(index) {
             this.isShowForm = true
             this.fixedAssetId = this.$store.state.fa.fixedAssets.data[index].fixedAssetId
@@ -301,23 +319,20 @@ export default {
         },
 
         /**
-        * @param {Boolean} checked 
-        * author: Nguyen Quoc Huy
-        * created at: 30/04/2023
-        * description: Hàm xử lý sự kiện khi người dùng nhấn nhân bản trên dòng dữ liệu
-        */
+         * @description: Hàm xử lý sự kiện khi người dùng nhấn nhân bản trên dòng dữ liệu
+         * @param: {index}: index: vị trí tài sản cần nhân bản
+         * @author: NQ Huy 07/06/2023
+         */
         handleDuplicate(index) {
             this.isShowForm = true
             this.fixedAssetId = this.$store.state.fa.fixedAssets.data[index].fixedAssetId
             this.typeForm = this.$enum.typeForm.duplicate
         },
 
-
         /**
-         * @param {Boolean} checked 
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
-         * description: Hàm xử lý sự kiện khi người dùng thay đổi trang hiện tại
+         * @description:  Hàm xử lý sự kiện khi người dùng thay đổi trang hiện tại
+         * @param: {page}: page: giá trị page hiện tại cần set đến
+         * @author: NQ Huy 07/06/2023
          */
         handleSetPage(page) {
             this.$store.commit("setCurrentPage", page)
@@ -325,23 +340,20 @@ export default {
         },
 
         /**
-       * @param {Boolean} checked 
-       * author: Nguyen Quoc Huy
-       * created at: 30/04/2023
-       * description: Hàm xử lý sự kiện khi người dùng thay đổi size của page
-       */
+         * @description:  Hàm xử lý sự kiện khi người dùng thay đổi size của page
+         * @param: {pageSize}: pageSize: kích thước page cần set đến
+         * @author: NQ Huy 07/06/2023
+         */
         handleSetPageSize(pageSize) {
-
             this.$store.commit("setPageSize", pageSize)
             this.$store.commit("setCurrentPage", 1)
             this.$store.dispatch("getFilterFixedAsset")
         },
 
-
         /**
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
-         * description: các combobox khi ấn enter thì chuyển sang input tiếp theo, nên cần có sự kiện enter cho combobox
+         * @description:  các combobox khi ấn enter thì chuyển sang input tiếp theo, nên cần có sự kiện enter cho combobox
+         * @param: {nextInput}: nextInput: input tiếp theo cần focus đến khi enter ở combobox
+         * @author: NQ Huy 07/06/2023
          */
         handleEnterToTab(nextInput) {
             const input = this.$refs[nextInput].querySelector('input')
@@ -349,11 +361,11 @@ export default {
             input.select()
         },
 
+
         /**
-         * author: Nguyen Quoc Huy
-         * created at: 30/04/2023
-         * description:khi người dùng nhập vào các input lọc dữ liệu thì thực hiện lọc
-         */
+        * @description: khi người dùng nhập vào các input lọc dữ liệu thì thực hiện lọc
+        * @author: NQ Huy 07/06/2023
+        */
         handleFilter() {
             clearTimeout(this.settTimeOutDebounce)
 
@@ -374,11 +386,12 @@ export default {
         },
     },
 
+
+
     /**
-     * author: Nguyen Quoc Huy
-     * created at: 30/04/2023
-     * description: lấy dữ liệu về phòng ban, loại tài sản, tài sản
-     */
+    * @description: lấy dữ liệu về phòng ban, loại tài sản, tài sản
+    * @author: NQ Huy 07/06/2023
+    */
     async mounted() {
         await this.$store.dispatch('getDepartments')
         await this.$store.dispatch('getFixedAssetCategorys')
@@ -389,7 +402,12 @@ export default {
     /**
      * author: Nguyen Quoc Huy
      * created at: 30/05/2023
-     * description: reset dữ liệu trang
+     * description:
+     */
+
+    /**
+     * @description: reset dữ liệu trang
+     * @author: NQ Huy 07/06/2023
      */
     unmounted() {
         this.$store.commit('setPageSize', DEFAULT_PAGE_SIZE)

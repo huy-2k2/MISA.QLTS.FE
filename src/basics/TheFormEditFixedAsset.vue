@@ -171,8 +171,8 @@ export default {
             if (!this.validate.validateRequired(value)) {
                 return this.resource.validateMessage.notEmpty
             }
-            if (Number.isNaN(value)) {
-                return "giá trị không hợp lệ"
+            else if (!this.validate.validateRealNumber(value)) {
+                return this.resource.validateMessage.realNumber.format(this.resource.fieldName.budgetValue)
             }
         },
 

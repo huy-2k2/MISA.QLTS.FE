@@ -16,7 +16,10 @@ import TheToolTip from './MisaToolTip.vue';
 
 export default {
     props: {
+        // điều khiển trạng thái hiển thị của popup
         isShow: Boolean,
+
+        // đánh dấu popup có button close ở góc hay không
         isHasClose: {
             type: Boolean,
             default: true

@@ -80,7 +80,6 @@
                 </tbody>
             </table>
         </div>
-        <!-- <div class="table__border" v-show="footer.paging && footer.data && body?.length"></div> -->
         <div v-if="footer.paging" class="table__paginate">
             <p class="table__paginate__total"
                 v-html="resource.fixedAssetDetail.totalFixedAsset.format(`<strong>${this.convert.toCurrency(footer.paging?.totalData)}</strong>`)">
@@ -123,67 +122,132 @@ import { uuid } from 'vue-uuid';
 export default {
     components: { MisaToolTip, MisaLoading, MisaPaginate, MisaInputCheckbox },
     props: {
+        // kiểm tra trạng thái load dữ liệu
         isLoading: {
             type: Boolean,
             default: false
         },
+
+        // dữ liệu của tiêu đề table
         headData: {
             type: Array
         },
+
+        // dữ liệu của body table
         bodyData: {
             type: [Object, Boolean],
             default: false
         },
+
+        // stt của bản ghi đầu tiên - 1 (trong th mà không phải ở trang đầu tiên)
         baseIndex: {
             type: Number,
             default: 0
         },
+
+        // dữ liệu footer của table
         footer: {
             type: [Boolean, Object],
             default: false
         },
+
+        // kiểm tra table có cột checkbox không
         isHasCheckbox: {
             type: Boolean
         },
+
+        // context menu của table khi ấn chuột phải
         contextMenu: {
             type: [Array, Boolean]
         },
+
+        // kiểm tra features hiển thị trên cột riêng hay hiển thị đè lên cột cuối
         isDisplayFeature: {
             type: Boolean,
             default: true
         },
+
+        // danh sách list checkbox đã chọn
         selectedList: {
             type: Array,
             default: () => []
         },
+
+        // index active từ cha truyền vào để thay đổi indexActive trong component
+        indexActiveFromParent: {
+            type: Number
+        }
     },
     emits: ["setPageSize", "setPage", "dbClickTr", "changeCheckboxData", "feature_0", "feature_1", "context_0", "context_1", "context_2", "context_3", "activeTr"],
     data() {
         return {
+            // danh sách kích thước trang được phép chọn
             pageSizeList: [10, 20, 50, 100],
+
+            // điều khiển hiển thị của chọn pageSize
             isShowPageSizeList: false,
+
+            // đánh dấu xem có vào checkbox trên thead không
             isCheckedAll: false,
+
+            // kiểm tra xem có đang hover vào features không
             isHoverFeature: false,
+
+            // list các id checkbox đã được check
             checkboxData: [],
+
+            // list id của tất cả các table
             listIdTable: [],
+
+            // vị trí active của dòng dữ liệu
             indexActive: -1,
+
+            // sự kiện đóng các component khi click ra điểm khác
             eventCloseExtentComponent: null,
+
+            // sự kiện người dùng ấn lên xuống trên dòng dữ liệu
             eventControlTable: null,
+
+            // sự kiện mở contextmenu
             eventContextMenu: null,
+
+            // bắt sự kiện 1 table khác được thêm hoạc xóa vào trong danh sách id table
             eventChangeListIdTable: null,
+
+            // vị trí mở context menu
             indexContextMenu: -1,
+
+            // id duy nhất để phân biệt các table
             uuid: uuid.v1()
         }
     },
 
     methods: {
+        /**
+        * @description: xử lý sự kiện khi thực hiện hành động của contextmenu
+        * @param {index}: số thứ tự của hành động
+        * @param {indexContextMenu}: vị trí mở context menu
+        * @author: NQ Huy 04/05/2023
+        */
         handleEmitContextMenu(index, indexContextMenu) {
             this.$emit(`context_${index}`, indexContextMenu)
             this.indexContextMenu = -1
         },
+
+        /**
+         * @description: xử lý sự kiện set currenetpage
+         * @param {page}: giá trị page muốn set đến
+         * @author: NQ Huy 04/05/2023
+         */
         handleSetPage(page) {
             this.$emit('setPage', page)
         },
+
+        /**
+        * @description: xử lý sự kiện thay đổi pageSize
+        * @param {pageSize}: giá trị pageSize muốn set đến
+        * @author: NQ Huy 04/05/2023
+        */
         handleSetPageSize(pageSize) {
             this.$emit('setPageSize', pageSize);
             this.isShowPageSizeList = false
@@ -191,8 +255,8 @@ export default {
         /**
         * author: Nguyen Quoc Huy
         * created at: 30/05/2023
-        * @param {interger} index
-        * @param event
+        * @param {index}: vị trí click ở dòng nào
+        * @param {event}: event lick
         * description: Xử lý sự kiện khi click vào nút 1 dòng dữ liệu, xủ lý toggle active, ctrl click, shift click
         */
         handleClickTr(event, index) {
@@ -247,6 +311,12 @@ export default {
             }
         },
 
+        /**
+        * @description: xử lý sự kiện dbclick
+        * @param {event}: event của sự kiện dbclick
+        * @param {index}: vị trí dòng click
+        * @author: NQ Huy 04/05/2023
+        */
         handleDbClickTr(event, index) {
             const noActionElements = this.$refs.tbody.querySelectorAll('.no_action')
             for (let elm of noActionElements) {
@@ -352,6 +422,8 @@ export default {
                 contextMenu.style.top = event.clientY - contextMenu.clientHeight * alphaY + 'px'
             })
         }
+
+        // lắng nghe sự kiện
         window.addEventListener('click', this.eventCloseExtentComponent)
         window.addEventListener('keydown', this.eventControlTable)
         window.addEventListener('contextmenu', this.eventContextMenu)
@@ -369,35 +441,69 @@ export default {
         // xóa sự kiện liên xuống dòng dữ liệu trong table
         window.removeEventListener('keydown', this.eventControlTable)
 
-        // this.emitter.off("changeListIdTable", this.eventChangeListIdTable)
-
         this.emitter.emit("changeListIdTable", [this.uuid, false])
     },
 
     computed: {
+        /**
+        * @description: lấy ra dữ liệu các dòng để hiển thị
+        * @author: NQ Huy 04/05/2023
+        * @return: dữ liệu table body là mảng
+        */
         body() {
             return this.bodyData.body
         },
 
-        // tổng số dòng được chọn
+        /**
+        * @description: tính tổng số dòng được check trên tất cả các trang
+        * @author: NQ Huy 04/05/2023
+        * @return: tổng số dòng được check trên tất cả các trang
+        */
         totalTrChecked() {
             return this.checkboxData.reduce((total, checkbox) =>
                 total + (checkbox ? 1 : 0), 0)
         },
+
+        /**
+        * @description: tính tổng số dòng được check trên 1 trang
+        * @author: NQ Huy 04/05/2023
+        * @return: tổng số dòng được check trên 1 trang
+        */
         totalTrCheckedPage() {
             const checkBoxPage = this.checkboxData.slice(this.baseIndex, this.baseIndex + this.body.length)
             return checkBoxPage.reduce((total, checkbox) =>
                 total + (checkbox ? 1 : 0), 0)
         },
+
+        /**
+         * @description: lấy ra danh sách id của các dòng dữ liệu trên trang hiện tại
+         * @author: NQ Huy 04/05/2023
+         * @return: danh sách id trên trang hiện tại
+         */
         listId() {
             return this.bodyData.listId
         },
     },
     watch: {
+        /**
+        * @description: lắng nghe component cha thay đổi indexactive để gán lại cho indexActive ở component này
+        * @author: NQ Huy 04/05/2023
+        */
+        indexActiveFromParent(newVal) {
+            this.indexActive = newVal
+        },
+
+        /**
+         * @description: lắng nghe dữ liệu trong table thay đổi (lắng nghe tham chiếu)
+         * @author: NQ Huy 04/05/2023
+         */
         body() {
+            // nếu indexActive nhỏ hơn số bản ghi trên trang
             if (this.indexActive >= this.body.length) {
                 this.indexActive = -1
             }
+
+            // kiểm tra lại từng ô checkbox có nằm trong list checked không
             this.listId.forEach((id, i) => {
                 if (!this.selectedList.includes(id)) {
                     this.checkboxData[i + this.baseIndex] = false
@@ -411,7 +517,7 @@ export default {
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/05/2023
-         * description: mỗi khi tổng số bản ghi được chọn thay đổi thì emit sự kiện disableBtnRemove, gán lại biến isChecckedAll
+         * description: mỗi khi tổng số bản ghi được chọn thay đổi thì emit sự kiện changeCheckboxData, gán lại biến isChecckedAll
          */
         totalTrChecked() {
             const checkBoxPage = this.checkboxData.slice(this.baseIndex, this.baseIndex + this.body.length)
@@ -429,11 +535,18 @@ export default {
             })
             this.$emit('changeCheckboxData', tempSelectedList)
         },
+
+        /**
+        * @description: mỗi khi indexActive thay đổi thì emit cho cha
+        * @author: NQ Huy 04/05/2023
+        */
         indexActive(newVal, oldVal) {
             this.$emit("activeTr", newVal)
+            // emit sự kiện xóa id table khỏi list id table
             if (newVal == -1)
                 this.emitter.emit("changeListIdTable", [this.uuid, false])
             else {
+                // emit sự kiện thêm id table vào list id table
                 if (oldVal == -1)
                     this.emitter.emit("changeListIdTable", [this.uuid, true])
             }

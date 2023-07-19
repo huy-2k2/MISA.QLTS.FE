@@ -14,10 +14,12 @@ import { uuid } from 'vue-uuid'
 export default {
     data() {
         return {
+            // tạo id duy nhất dùng cho label
             uuid: uuid.v1()
         }
     },
     computed: {
+        // lấy value từ model value
         value: {
             get() {
                 return this.modelValue
@@ -28,6 +30,7 @@ export default {
         }
     },
     props: {
+        // model value
         modelValue: {
 
         }

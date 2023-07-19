@@ -22,29 +22,35 @@ export default {
     components: { MisaButton },
     data() {
         return {
+            // event xử lý sự kiện keydown
             handleKeyDown: null
         }
     },
     props: {
+        // text hiển thị cho dialog
         text: {
             type: String,
             default: ''
         },
+
+        // số lượng button
         quantity: [String, Number],
+
+        // text hiển thị cho button1
         button1: {
             type: String,
             default: ''
         },
+        // text hiển thị cho button2
         button2: {
             type: String,
             default: ''
         },
+        // text hiển thị cho button3
         button3: {
             type: String,
             default: ''
         },
-    },
-    methods: {
     },
 
     /**
@@ -66,6 +72,11 @@ export default {
         window.addEventListener('keydown', this.handleKeyDown)
     },
 
+    /**
+    * author: Nguyen Quoc Huy
+    * created at: 07/05/2023
+    * description: hủy bỏ lắng nghe sự kiện
+    */
     unmounted() {
         window.removeEventListener('keydown', this.handleKeyDown)
     }

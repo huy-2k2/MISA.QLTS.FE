@@ -86,12 +86,15 @@ export default {
         }
     },
     props: {
+        // tổng số bản ghi
         totalData: {
             type: Number
         },
+        // trang hiện tại
         currentPage: {
             type: Number
         },
+        // kích thước trang
         pageSize: {
             type: Number
         }
