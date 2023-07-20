@@ -153,6 +153,10 @@ export default {
     font-family: mMisa Font;
     background-color: rgba(128, 128, 128, 0.2);
     display: none;
+
+    margin-top: 4px;
+    border-radius: var(--radius-border);
+
 }
 
 .menu__child * {
@@ -162,7 +166,7 @@ export default {
 .menu__child .menu__child__item {
     padding: 8px;
     padding-left: 42px;
-    border-radius: 6px;
+    border-radius: inherit;
 }
 
 .menu__child .menu__child__item:hover {

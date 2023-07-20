@@ -10,13 +10,16 @@ const actions = {
         store.commit("setLicenses", ["isLoading", true])
 
         // gọi api để lấy dữ liệu
-        const {data} = await getFilterLicensesApi(store.state.licenses.pageSize, store.state.licenses.currentPage, store.state.licenses.filterTextSearch)
-        
-        // commit các dữ liệu đã lấy được từ api
-        store.commit("setLicenses", ["data", data.list_license])
-        store.commit("setLicenses", ["isLoading", false])
-        store.commit("setLicenses", ["totalCost", data.total_cost])
-        store.commit("setLicenses", ["totalLicense", data.total_license])
+        try {
+            const {data} = await getFilterLicensesApi(store.state.licenses.pageSize, store.state.licenses.currentPage, store.state.licenses.filterTextSearch)
+            
+            // commit các dữ liệu đã lấy được từ api
+            store.commit("setLicenses", ["data", data.list_license])
+            store.commit("setLicenses", ["totalCost", data.total_cost])
+            store.commit("setLicenses", ["totalLicense", data.total_license])
+        } finally {
+            store.commit("setLicenses", ["isLoading", false])
+        }
     },
 
     /**
@@ -35,12 +38,15 @@ const actions = {
         store.commit("setSelectFixedAssets", ["isLoading", true])
 
         // gọi api để lấy dữ liệu
-        const {data} = await getFilterFixedAssetNoLicenseApi(pageSize, currentPage, listIdSelected, textSearch, licenseId) 
-
-        // commit các dữ liệu lấy từ được từ api
-        store.commit("setSelectFixedAssets", ["data", data.list_fixed_asset])
-        store.commit("setSelectFixedAssets", ["totalAsset", data.total_asset])
-        store.commit("setSelectFixedAssets", ["isLoading", false])
+        try {
+            const {data} = await getFilterFixedAssetNoLicenseApi(pageSize, currentPage, listIdSelected, textSearch, licenseId) 
+    
+            // commit các dữ liệu lấy từ được từ api
+            store.commit("setSelectFixedAssets", ["data", data.list_fixed_asset])
+            store.commit("setSelectFixedAssets", ["totalAsset", data.total_asset])
+        } finally {
+            store.commit("setSelectFixedAssets", ["isLoading", false])
+        }
     },
 
      /**
@@ -53,11 +59,14 @@ const actions = {
         store.commit('setBudgets', ['isLoading', true])
 
         // gọi api để lấy dữ liệu
-        const {data} = await GetAllBudgetApi()
+        try {
+            const {data} = await GetAllBudgetApi()
+            // commit các dữ liệu lấy từ api
+            store.commit('setBudgets', ['data', data])
+        } finally {
+            store.commit('setBudgets', ['isLoading', false])
+        }
 
-        // commit các dữ liệu lấy từ api
-        store.commit('setBudgets', ['isLoading', false])
-        store.commit('setBudgets', ['data', data])
     },
 
     /**

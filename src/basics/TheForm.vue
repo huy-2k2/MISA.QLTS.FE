@@ -196,7 +196,7 @@ export default {
          * description: Tạo error validate cho dialog khi người dùng ấn submit
          */
         errorNotifi() {
-            return Object.values(this.errors).map(error => error ? `<p>- ${this.convert.toUpperFirstChar(error)}.</p>` : '').join('')
+            return Object.values(this.errors).map(error => error ? `<p>- ${this.convert.toUpperFirstChar(error)}</p>` : '').join('')
         },
 
         /**
