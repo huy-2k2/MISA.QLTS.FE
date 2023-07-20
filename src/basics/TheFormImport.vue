@@ -153,7 +153,7 @@ export default {
                 return
             this.isLoading = true
             try {
-                postImportFileApi(this.typeImport, formData, true)
+                await postImportFileApi(this.typeImport, formData, true)
                 this.emitter.emit("setToastMessage", this.resource.toastMessage.import)
                 this.isLoading = false
                 if (this.typeImport == "fixedAsset")

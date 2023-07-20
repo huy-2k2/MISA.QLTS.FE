@@ -237,8 +237,11 @@ export default {
          * @author: NQ Huy 04/05/2023
          */
         handleAddField(index) {
-            if (this.fields.length < this.budgets.length)
+            if (this.fields.length < this.budgets.length) {
+                this.errors.splice(index + 1, 0, {})
                 this.fields.splice(index + 1, 0, { budget_id: null, budget_value: null })
+            }
+
         },
 
         /**
@@ -250,6 +253,7 @@ export default {
             if (detailId)
                 this.listIdRemove.push(detailId)
             this.fields.splice(index, 1)
+            this.errors.splice(index, 1)
         },
 
         /**
@@ -318,30 +322,34 @@ export default {
      * @author: NQ Huy 04/05/2023
      */
     async beforeMount() {
-        const budgetDetail = this.$store.getters.budgetDetailByFixedAssetId(this.fixedAssetId)
-        this.isLoading = true
-        // load dữ liệu của tài sản
-        const { data: fixedAsset } = await getFixedAssetApi(this.fixedAssetId)
-        this.fixedAsset = fixedAsset
-        if (!budgetDetail) {
-            // load dữ liệu ngân sách của tài sản
-            const { data: budgets } = await GetBudgetsByFixedAssetIdApi(this.fixedAssetId)
-            if (budgets.length) {
-                this.fields = budgets.map((field) => ({ budget_detail_id: field.budget_detail.budget_detail_id, budget_id: field.budget_id, budget_value: field.budget_detail.budget_value }))
+        try {
+            const budgetDetail = this.$store.getters.budgetDetailByFixedAssetId(this.fixedAssetId)
+            this.isLoading = true
+            // load dữ liệu của tài sản
+            const { data: fixedAsset } = await getFixedAssetApi(this.fixedAssetId)
+            this.fixedAsset = fixedAsset
+            if (!budgetDetail) {
+                // load dữ liệu ngân sách của tài sản
+                const { data: budgets } = await GetBudgetsByFixedAssetIdApi(this.fixedAssetId)
+                if (budgets.length) {
+                    this.fields = budgets.map((field) => ({ budget_detail_id: field.budget_detail.budget_detail_id, budget_id: field.budget_id, budget_value: field.budget_detail.budget_value }))
+                }
             }
+            else {
+                if (budgetDetail.budgets.length)
+                    this.fields = budgetDetail.budgets.map(b => b)
+                else
+                    this.fields = [
+                        {
+                            budget_id: "",
+                            budget_value: ""
+                        }
+                    ]
+            }
+            this.isLoading = false
+        } catch {
+            this.isLoading = false
         }
-        else {
-            if (budgetDetail.budgets.length)
-                this.fields = budgetDetail.budgets.map(b => b)
-            else
-                this.fields = [
-                    {
-                        budget_id: "",
-                        budget_value: ""
-                    }
-                ]
-        }
-        this.isLoading = false
     },
 
     /**

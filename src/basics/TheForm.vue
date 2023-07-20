@@ -275,34 +275,39 @@ export default {
         // dùng 2 biến bool để kiểm tra cả hai câu lệnh gọi api đề đã thực hiện xong
         // gọi api để lấy dữ liệu về tài sản được chọn
         this.isLoaded = false
-        if (this.fixedAssetId) {
-            const { data } = await getFixedAssetApi(this.fixedAssetId)
-            const department = this.$store.getters.departmentById(data.department_id)
-            const fixedAssetCategory = this.$store.getters.fixedAssetCategoryById(data.fixed_asset_category_id)
-            this.form.fixedAssetName = data.fixed_asset_name
-            this.form.departmentCode = department.departmentCode
-            this.form.departmentName = department.departmentName
-            this.form.fixedAssetCategoryCode = fixedAssetCategory.fixedAssetCategoryCode
-            this.form.fixedAssetCategoryName = fixedAssetCategory.fixedAssetCategoryName
-            this.form.quantity = data.quantity
-            this.form.cost = this.convert.toRounded(data.cost)
-            this.form.lifeTime = data.life_time
-            this.form.depreciationRate = this.convert.toRounded(data.depreciation_rate)
-            this.form.depreciationAnnual = this.convert.toRounded(data.depreciation_annual)
-            this.form.trackedYear = data.tracked_year
-            this.form.purchaseDate = this.convert.toCurrentDate(data.purchase_date)
-            this.form.useDate = this.convert.toCurrentDate(data.use_date)
-            if (this.typeForm == this.$enum.typeForm.edit)
-                this.form.fixedAssetCode = data.fixed_asset_code
+        try {
+            if (this.fixedAssetId) {
+                const { data } = await getFixedAssetApi(this.fixedAssetId)
+                const department = this.$store.getters.departmentById(data.department_id)
+                const fixedAssetCategory = this.$store.getters.fixedAssetCategoryById(data.fixed_asset_category_id)
+                this.form.fixedAssetName = data.fixed_asset_name
+                this.form.departmentCode = department.departmentCode
+                this.form.departmentName = department.departmentName
+                this.form.fixedAssetCategoryCode = fixedAssetCategory.fixedAssetCategoryCode
+                this.form.fixedAssetCategoryName = fixedAssetCategory.fixedAssetCategoryName
+                this.form.quantity = data.quantity
+                this.form.cost = this.convert.toRounded(data.cost)
+                this.form.lifeTime = data.life_time
+                this.form.depreciationRate = this.convert.toRounded(data.depreciation_rate)
+                this.form.depreciationAnnual = this.convert.toRounded(data.depreciation_annual)
+                this.form.trackedYear = data.tracked_year
+                this.form.purchaseDate = this.convert.toCurrentDate(data.purchase_date)
+                this.form.useDate = this.convert.toCurrentDate(data.use_date)
+                if (this.typeForm == this.$enum.typeForm.edit)
+                    this.form.fixedAssetCode = data.fixed_asset_code
+            }
+            // nếu là form thêm mới hoạc duplicate thì lấy gợi ý mã tài sản
+            if (this.typeForm != this.$enum.typeForm.edit) {
+                const { data: code } = await getRecommendFixedAssetCodeApi()
+                this.form.fixedAssetCode = `${code}`
+                // đánh dấu lấy data thành công
+                // nếu lấy tài sản thành công thì đánh dấu là load thành công
+
+            }
+            this.$nextTick(() => this.isLoaded = true)
+        } catch {
+            this.isLoaded = true
         }
-        // nếu là form thêm mới hoạc duplicate thì lấy gợi ý mã tài sản
-        if (this.typeForm != this.$enum.typeForm.edit) {
-            const { data: code } = await getRecommendFixedAssetCodeApi()
-            this.form.fixedAssetCode = `${code}`
-            // đánh dấu lấy data thành công
-            // nếu lấy tài sản thành công thì đánh dấu là load thành công
-        }
-        this.$nextTick(() => this.isLoaded = true)
     },
 
     /**
@@ -530,37 +535,40 @@ export default {
        * description: xử lý sự kiện khi người dùng ấn nút lưu
        */
         async handleSubmit() {
-            console.log('submit form add');
-            this.isSubmiting = true
-            this.isShowStore = false
-            this.errors = {}
-            // validate lại tất cả các input, thứ tự validate sẽ ảnh hướng đến input đầu tiên được focus khi gặp lỗi
-            await this.validateFixedAssetCode()
-            this.validateFixedAssetName()
-            this.validateDepartmentCode()
-            this.validateFixedAssetCategoryCode()
-            this.validateQuantity()
-            this.validateCost()
-            this.validateLifeTime()
-            this.validateDepreciationRate()
-            this.validateDepreciationAnnual()
-            this.validatePurchaseDate()
-            this.validateUseDate()
-            // kiểm tra xem có error nào không, nếu có thì kết thúc hàm
-            for (const property in this.errors) {
-                if (this.errors[property]) {
-                    this.isShowError = true
-                    this.isSubmiting = false
-                    return
+            try {
+                this.isSubmiting = true
+                this.isShowStore = false
+                this.errors = {}
+                // validate lại tất cả các input, thứ tự validate sẽ ảnh hướng đến input đầu tiên được focus khi gặp lỗi
+                await this.validateFixedAssetCode()
+                this.validateFixedAssetName()
+                this.validateDepartmentCode()
+                this.validateFixedAssetCategoryCode()
+                this.validateQuantity()
+                this.validateCost()
+                this.validateLifeTime()
+                this.validateDepreciationRate()
+                this.validateDepreciationAnnual()
+                this.validatePurchaseDate()
+                this.validateUseDate()
+                // kiểm tra xem có error nào không, nếu có thì kết thúc hàm
+                for (const property in this.errors) {
+                    if (this.errors[property]) {
+                        this.isShowError = true
+                        this.isSubmiting = false
+                        return
+                    }
                 }
-            }
-            // thực hiện sửa nếu form là edit
-            if (this.typeForm == this.$enum.typeForm.edit) {
-                this.handleEdit()
-            }
-            // với nhận bản hoạc thêm
-            else {
-                this.handleStore()
+                // thực hiện sửa nếu form là edit
+                if (this.typeForm == this.$enum.typeForm.edit) {
+                    this.handleEdit()
+                }
+                // với nhận bản hoạc thêm
+                else {
+                    this.handleStore()
+                }
+            } catch {
+                this.isSubmiting = false
             }
         },
 
