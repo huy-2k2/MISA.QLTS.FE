@@ -111,6 +111,7 @@ export default {
         /**
        * author: Nguyen Quoc Huy
        * created at: 30/05/2023
+       * param {data}: lỗi dữ liệu để hiện thị (lỗi là trả về từ backend)
        * description: xử lý khi validate hoạc submit không thành công
        */
         handleValidateFail(data) {
@@ -176,6 +177,8 @@ export default {
         /**
        * author: Nguyen Quoc Huy
        * created at: 30/05/2023
+       * @param {value}: giá trị cần format
+       * @param {type}: kiểu dữ liệu cần format
        * description: format data theo đúng định dạng (tiền, số lượng, thời gian)
        */
         formatData(value, type) {

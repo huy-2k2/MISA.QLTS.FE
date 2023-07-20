@@ -105,29 +105,46 @@ export default {
     components: { MisaCombobox, MisaNumberForm, MisaToolTip, MisaButton, MisaPopup, MisaDialog, MisaDisableField, MisaLoading },
     data() {
         return {
+            // điều khiển hiện thị của dialog hủy
             isShowCancel: false,
+
+            // dữ liệu tài sản để hiển thị
             fixedAsset: null,
+
+            // đánh dấu trạng thái loading dữ liệu
             isLoading: false,
+
+            // sự kiện người dùng ấn phím
             eventKeyDown: null,
+
+            // dữ liệu field
             fields: [
                 {
                     budget_id: "",
                     budget_value: ""
                 },
             ],
+
+            // dữ liệu error validate
             errors: [],
+
+            // dánh sách chứng từ xóa
             listIdRemove: [],
+
         }
     },
-    watch: {
-
-    },
     props: {
+        // id tài sản
         fixedAssetId: {
             type: String
         }
     },
     methods: {
+        /**
+         * @description: xử lý sự kiện khi người dùng blur khỏi combobox chọn nguồn ngân sách
+         * @param: {index}: index: vị trí của field
+         * @author: NQ Huy 04/05/2023
+         */
         handleBlurBudgetId(index) {
             this.fields.forEach((field, i) => {
                 const oldError = this.errors[i]?.budgetId
@@ -142,31 +159,70 @@ export default {
             })
             this.errors[index] = { ...this.errors[index], budgetId: this.validateBudgetId(this.fields[index].budget_id, index) }
         },
+
+        /**
+        * @description: xử lý sự kiện khi người dùng blur khỏi input nhập ngân sách
+        * @param: {index}: index: vị trí của field
+        * @author: NQ Huy 04/05/2023
+        */
         handleBlurBudgetValue(index) {
             this.errors[index] = {
                 ...this.errors[index],
                 budgetValue: this.validateBudgetValue(this.fields[index].budget_value)
             }
         },
+
+        /**
+        * @description: xử lý sự kiện khi người dùng thay đổi budget_detail
+        * @param: {index}: index: vị trí của field
+        * @author: NQ Huy 04/05/2023
+        */
         handleChangeField(index) {
             if (this.fields[index].budget_detail_id)
+                // đánh dấu budget_detail đã được thay đổi để udpate
                 this.fields[index].is_changed = true
         },
+
+        /**
+        * @description: validate combobox nguồn ngân sách
+        * @param: {budgetId, index}: budgetId: id nguồn ngân sách, index: vị trí của field
+        * @author: NQ Huy 04/05/2023
+        * @return: message lỗi
+        */
         validateBudgetId(budgetId, index) {
             if (!this.validate.validateRequired(budgetId)) {
                 return this.resource.validateMessage.notEmpty
             }
             return this.validateDuplicateBudgetId(budgetId, index)
         },
+
+        /**
+        * @description: validate nguồn ngân sách bị trùng
+        * @param: {budgetId, index}: budgetId: id nguồn ngân sách, index: vị trí của field
+        * @author: NQ Huy 04/05/2023
+        * @return: message lỗi
+        */
         validateDuplicateBudgetId(budgetId, index) {
             const isExisted = this.fields.find((field, i) => field.budget_id && field.budget_id == budgetId && i < index)
             if (isExisted) {
                 return this.getMessageDuplicateError()
             }
         },
+
+        /**
+         * @description: lấy ra message nguồn ngân sách trùng
+         * @author: NQ Huy 04/05/2023
+         * @return: message lỗi
+         */
         getMessageDuplicateError() {
             return this.resource.validateMessage.duplicate.format(this.resource.fieldName.source)
         },
+
+        /**
+         * @description: validate giá trị ngân sách
+         * @author: NQ Huy 04/05/2023
+         * @return: message lỗi
+         */
         validateBudgetValue(value) {
             if (!this.validate.validateRequired(value)) {
                 return this.resource.validateMessage.notEmpty
@@ -176,17 +232,32 @@ export default {
             }
         },
 
+        /**
+         * @description: xử lý sự kiện người dùng thêm field
+         * @author: NQ Huy 04/05/2023
+         */
         handleAddField(index) {
             if (this.fields.length < this.budgets.length)
                 this.fields.splice(index + 1, 0, { budget_id: null, budget_value: null })
         },
+
+        /**
+         * @description: xử lý sự kiện người dùng xóa field
+         * @author: NQ Huy 04/05/2023
+         */
         handleRemoveField(index) {
             const detailId = this.fields[index].budget_detail_id
             if (detailId)
                 this.listIdRemove.push(detailId)
             this.fields.splice(index, 1)
         },
+
+        /**
+        * @description: xử lý sự kiện người dùng submit
+        * @author: NQ Huy 04/05/2023
+        */
         handleSubmit() {
+            // validate lỗi
             let isError = false
             this.fields.forEach((field, index) => {
                 const budgetIdError = this.validateBudgetId(field.budget_id, index)
@@ -200,6 +271,7 @@ export default {
                     isError = true
             })
             if (!isError) {
+                // nếu không có lỗi thì commit vào store để lưu dữ liệu budget_detail
                 const oldListId = this.$store.state.ls.listIdDeleted.budgetDetail
                 this.$store.commit("setListIdDeleted", ["budgetDetail", [...oldListId, ...this.listIdRemove]])
                 this.$store.dispatch("setBudgetDetails", { fixed_asset_id: this.fixedAssetId, budgets: this.fields })
@@ -208,13 +280,30 @@ export default {
         }
     },
     computed: {
+        /**
+         * @description: tính tổng giá trị nguồn ngân sách
+         * @author: NQ Huy 04/05/2023
+         * @return: trả về tổng giá trị nguồn ngân sách
+         */
         totalValue() {
             const result = this.fields.reduce((total, field) => total + (field.budget_value ? Number.parseFloat(field.budget_value) : 0), 0)
             return this.convert.toCurrency(result)
         },
+
+        /**
+         * @description: trả về danh sách nguồn ngân sách
+         * @author: NQ Huy 04/05/2023
+         * @return: trả về danh sách nguồn ngân sách
+         */
         budgets() {
             return this.$store.state.ls.budgets.data
         },
+
+        /**
+        * @description: trả về tên department của tài sản
+        * @author: NQ Huy 04/05/2023
+        * @return: trả về tên department của tài sản
+        */
         departmentName() {
             if (this.fixedAsset) {
                 const department = this.$store.getters.departmentById(this.fixedAsset.department_id)
@@ -223,12 +312,19 @@ export default {
             return ""
         }
     },
+
+    /**
+     * @description: load các dữ liệu ban đầu
+     * @author: NQ Huy 04/05/2023
+     */
     async beforeMount() {
         const budgetDetail = this.$store.getters.budgetDetailByFixedAssetId(this.fixedAssetId)
         this.isLoading = true
+        // load dữ liệu của tài sản
         const { data: fixedAsset } = await getFixedAssetApi(this.fixedAssetId)
         this.fixedAsset = fixedAsset
         if (!budgetDetail) {
+            // load dữ liệu ngân sách của tài sản
             const { data: budgets } = await GetBudgetsByFixedAssetIdApi(this.fixedAssetId)
             if (budgets.length) {
                 this.fields = budgets.map((field) => ({ budget_detail_id: field.budget_detail.budget_detail_id, budget_id: field.budget_id, budget_value: field.budget_detail.budget_value }))
@@ -247,8 +343,14 @@ export default {
         }
         this.isLoading = false
     },
+
+    /**
+     * @description: lắng nghe cách sự kiện
+     * @author: NQ Huy 04/05/2023
+     */
     mounted() {
         this.eventKeyDown = (e) => {
+            // sự kiện ấn ctrl s để lưu form
             if (e.key == "s" || e.key == "S") {
                 if (e.ctrlKey) {
                     e.preventDefault()
@@ -258,6 +360,11 @@ export default {
         },
             window.addEventListener("keydown", this.eventKeyDown)
     },
+
+    /**
+     * @description: hủy lắng nghe các sự kiện
+     * @author: NQ Huy 04/05/2023
+     */
     beforeUnmount() {
         window.removeEventListener("keydown", this.eventKeyDown)
     }

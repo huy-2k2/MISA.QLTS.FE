@@ -18,8 +18,17 @@ export default {
     },
     data() {
         return {
+            // đánh dấu tooltip là show
             isShow: false,
+
+            // đánh dấu người dùng ấn chuột xuống thì ẩn tooltup
             isMouseDown: false,
+
+            // tọa độ top của tooltip
+            top: 10,
+
+            // tọa độ left của tooltip
+            left: 10
         };
     },
     methods: {

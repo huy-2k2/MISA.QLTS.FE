@@ -41,6 +41,7 @@ export default {
 
     },
     props: {
+        // kiểm danh kiểu hiển thị của header
         isMain: {
             type: Boolean,
             default: true
@@ -48,7 +49,9 @@ export default {
     },
     data() {
         return {
+            // điều khiển đóng mở các option khi click vào biểu tượng user
             isShowOptionUser: false,
+            // sự kiện người dùng click
             eventWindowClick: null
         }
     },

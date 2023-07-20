@@ -144,17 +144,33 @@ import MisaToolTip from '../components/MisaToolTip.vue';
 
 export default {
     props: {
+        // kiểu của form (thêm, sửa, nhân bản)
         typeForm: String,
+
+        // id của tài sản
         fixedAssetId: String
     },
     data() {
         return {
+            // điều khiển show dialog message
             isShowError: false,
+
+            // đánh dấu form đã được thay đổi
             isChanged: false,
+
+            // điều khiển hiện thị của diaog khi người dùng đã sửa và hủy form
             isShowStore: false,
+
+            // điều khiển hiện thị của dialog hủy
             isShowCancel: false,
+
+            // đánh dấu dữ liệu đã được load
             isLoaded: false,
+
+            // đánh dấu là đang submit dữ liệu
             isSubmiting: false,
+
+            // toàn bộ dữ liệu của form
             form: {
                 quantity: '1',
                 trackedYear: new Date().getFullYear(),
@@ -165,7 +181,11 @@ export default {
                 depreciationRate: '0',
                 depreciationAnnual: '0'
             },
+
+            // lỗi của các field
             errors: {},
+
+            // sự kiện người dùng ấn phím
             eventKeyDown: null,
         }
     },
@@ -332,6 +352,7 @@ export default {
         /**
        * author: Nguyen Quoc Huy
        * created at: 30/04/2023
+       * @param {nextInput}: input tiếp theo được focus khi người dùng ấn enter để chuyển input
        * description: các combobox khi ấn enter thì chuyển sang input tiếp theo, nên cần có sự kiện enter cho combobox
        */
         handleEnterToTab(nextInput) {
@@ -383,6 +404,7 @@ export default {
             if (this.form.depreciationRate?.toString().length)
                 this.validateDepreciationRate()
         },
+
         /**
          * author: Nguyen Quoc Huy
          * created at: 30/04/2023
@@ -396,12 +418,6 @@ export default {
                 this.isShowCancel = true
         },
 
-        /**
-         * author: Nguyen Quoc Huy
-         * @param {Object}
-         * created at: 30/04/2023
-         * description: hàm set value cho các giá trị input của form
-         */
 
         /**
          * author: Nguyen Quoc Huy
@@ -422,6 +438,7 @@ export default {
             this.isShowStore = false
             this.$refs.fixedAssetCode.querySelector('input').focus()
         },
+
         /**
          * author: Nguyen Quoc Huy
          * created at: 07/05/2023

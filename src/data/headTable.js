@@ -98,6 +98,61 @@ const headTable = {
             data: resource.tHead[8],
             type: $enum.dataType.double
         },
+    ],
+
+    // tiêu đề của table chọn tài sản lúc thêm hoạc sửa chứng từ
+    headSelectFixedAssetTable : [
+        {
+            data: resource.tHead[1],
+            type: $enum.dataType.string
+        },
+        {
+            data: resource.tHead[2],
+            type: $enum.dataType.string
+        },
+        {
+            data: resource.tHead[4],
+            type: $enum.dataType.string
+        },
+        {
+            data: resource.tHead[6],
+            type: $enum.dataType.double
+        },
+        {
+            data: resource.tHead[15],
+            type: $enum.dataType.double
+        },
+        {
+            data: resource.tHead[8],
+            type: $enum.dataType.double
+        },
+    ],
+    // tiêu đề của table tài sản đã chọn
+    headSelectedFixedAssetTable: [
+        {
+            data: resource.tHead[1],
+            type: $enum.dataType.string,
+        },
+        {
+            data: resource.tHead[2],
+            type: $enum.dataType.string
+        },
+        {
+            data: resource.tHead[4],
+            type: $enum.dataType.string
+        },
+        {
+            data: resource.tHead[6],
+            type: $enum.dataType.double
+        },
+        {
+            data: resource.tHead[15],
+            type: $enum.dataType.double
+        },
+        {
+            data: resource.tHead[8],
+            type: $enum.dataType.double
+        },
     ]
 }
 

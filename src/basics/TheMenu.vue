@@ -137,6 +137,7 @@ import MisaToolTip from '../components/MisaToolTip.vue';
 export default {
     data() {
         return {
+            // điểu khiển đóng mở của menu
             isActive: true
         }
     },
